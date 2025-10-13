@@ -18,7 +18,7 @@ export default function Login() {
                         width={500}
                         height={500}
                         borderRadius={24}
-                        backgroundOpacity={0.18}
+                        backgroundOpacity={0.20}
                         className="p-6"
                         style={{
                             border: '1px solid rgba(255, 255, 255, 0.3)',
