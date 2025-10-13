@@ -17,7 +17,7 @@ export function WhiteCard({ children, className = "", width = 500, height = 250,
 
     return (
         <div
-            className={`relative rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg border border-white/60 overflow-hidden ${className}`}
+            className={`relative rounded-2xl bg-white/50 backdrop-blur-sm shadow-lg border border-white/60 overflow-hidden ${className}`}
         >
             {/* Noise Overlay */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.08] mix-blend-overlay"

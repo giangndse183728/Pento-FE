@@ -1,0 +1,30 @@
+/* ShinyButton.css */
+.shiny-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.shiny-button::after {
+    color: #b5b5b5a4;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 255, 255, 0) 60%);
+    transition: left 1.5s ease-in-out;
+    /* 🔹 slower shine movement */
+}
+
+.shiny-button:hover::after {
+    left: 120%;
+}
+
+.shiny-button:hover {
+    filter: brightness(1.05) drop-shadow(0 0 6px rgba(118, 159, 205, 0.4));
+}
