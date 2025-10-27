@@ -4,12 +4,11 @@ import { useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-// Register GSAP plugins
 gsap.registerPlugin(ScrollToPlugin);
 
 export default function SmoothSectionScroll() {
   useEffect(() => {
-    const sections = ['#hero-section', '#features-section', '#contact-section'];
+    const sections = ['#hero-section', '#prosol-section', '#feature-section', '#feedback-section'];
     let currentSection = 0;
     let isScrolling = false;
 
@@ -29,7 +28,7 @@ export default function SmoothSectionScroll() {
         onComplete: () => {
           setTimeout(() => {
             isScrolling = false;
-          }, 500); // Delay to prevent rapid scrolling
+          }, 500); 
         }
       });
     };
@@ -42,7 +41,21 @@ export default function SmoothSectionScroll() {
 
       const direction = e.deltaY > 0 ? 1 : -1;
       
-      // Find current section based on scroll position
+      const featureSection = document.querySelector('#feature-section') as HTMLElement;
+      if (featureSection) {
+        const rect = featureSection.getBoundingClientRect();
+        const isFeatureInView = rect.top <= 100 && rect.bottom >= window.innerHeight - 100;
+        
+        if (isFeatureInView) {
+          const atStart = featureSection.getAttribute('data-at-start') === 'true';
+          const atEnd = featureSection.getAttribute('data-at-end') === 'true';
+          
+          if (!(atStart && direction < 0) && !(atEnd && direction > 0)) {
+            return; 
+          }
+        }
+      }
+      
       const scrollTop = window.pageYOffset;
       const windowHeight = window.innerHeight;
       
@@ -58,7 +71,6 @@ export default function SmoothSectionScroll() {
         }
       });
 
-      // Scroll to next or previous section
       const nextSection = currentSection + direction;
       if (nextSection >= 0 && nextSection < sections.length) {
         e.preventDefault();
@@ -91,16 +103,14 @@ export default function SmoothSectionScroll() {
       }
     };
 
-    // Add event listeners
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeyDown);
 
-    // Cleanup
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
-  return null; // This component doesn't render anything
+  return null; 
 }

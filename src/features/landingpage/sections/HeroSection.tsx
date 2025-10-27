@@ -1,12 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import TextRevealParallax from '@/components/animation/TextRevealParallax';
-import PhoneModel from '@/features/landingpage/components/PhoneModel';;
-import SmoothSectionScroll from '@/components/animation/SmoothSectionScroll';
-import { Snowflake, AlertTriangle, CheckCircle, TrendingDown, DollarSign, Leaf, ThumbsUp, ThumbsDown } from 'lucide-react';
-import GlassSurface from '@/components/decoration/Liquidglass';
+import PhoneModel from '@/features/landingpage/components/PhoneModel';; 
+import { Snowflake} from 'lucide-react';
 import WeatherTime from '@/components/decoration/WeatherTime';
-import { useState } from 'react';
 import ShinyText from '@/components/decoration/ShinyText';
 import ProgressBar from '@/components/decoration/ProgressBar';
 
@@ -15,38 +13,15 @@ import ProgressBar from '@/components/decoration/ProgressBar';
 export default function Home() {
  
   return (
-    <div className="scroll-smooth">
-      {/* Smooth Section Scrolling */}
-      <SmoothSectionScroll />
-
-      {/* Falling Snow Video Background */}
-      <div className="fixed inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/vecteezy_fantasy-landscape-and-falling-snow_1625855.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-black/30"></div>
-      </div>
-
-      {/* 3D Fridge Model Overlay - Centered */}
+    <>
       <div className="fixed inset-0 z-40 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
           <PhoneModel />
         </div>
       </div>
 
-      {/* Iceify Mobile App Landing Page */}
       <div id="hero-section" className="min-h-screen relative overflow-hidden z-10 snap-start">
-        {/* Sticky Navigation */}
-
-        {/* Hero Layout with CSS Grid */}
         <div className="relative z-20 min-h-screen px-6">
-          {/* Download Buttons - Top Right Corner */}
           <div className="absolute top-6 right-6 z-30">
             <TextRevealParallax direction="right" delay={600} duration={800}>
               <div className="flex items-center space-x-3">
@@ -72,7 +47,6 @@ export default function Home() {
             </TextRevealParallax>
           </div>
 
-          {/* Weather and Time - Bottom Left Corner */}
           <div className="absolute bottom-6 left-6 z-30">
             <TextRevealParallax direction="left" delay={800} duration={800}>
               <WeatherTime />
@@ -81,25 +55,26 @@ export default function Home() {
 
           <div className="max-w-8xl mx-auto w-full h-screen grid grid-cols-[1fr_2fr_1fr] gap-4 py-6">
 
-            {/* Left Column - Hero Content (Full Height) */}
             
               <TextRevealParallax direction="left" delay={400} duration={800}>
                 <div className="backdrop-blur-sm  p-4  w-[80%]  rounded-3xl">
            
-                    {/* Hero Title */}
-                    <img src="/assets/img/pento.png" alt="Quote" className="w-2/3 h-2/3 ml-2 filter invert" />
+                    <Image 
+                      src="/assets/img/pento.png" 
+                      alt="Quote" 
+                      width={200}
+                      height={200}
+                      className="w-2/3 h-2/3 ml-2 filter invert" 
+                    />
                
                 </div>
               </TextRevealParallax>
 
 
-            {/* Center Column - Brand Header + 3D Model Space */}
             <div className="flex flex-col items-center h-full">
-              {/* Brand Header */}
               <div className="flex flex-col items-center justify-start pointer-events-none mb-4">
                 <TextRevealParallax direction="up" delay={200} duration={1200}>
                   <div className="text-center">
-                    {/* Subtitle */}
                     <div className="flex justify-center">
                       <div className="backdrop-blur-sm bg-white/10 rounded-4xl p-4 border border-white/20">
                         <h2 className="text-xs md:text-sm font-semibold text-white/80 select-none">
@@ -108,7 +83,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Main Brand */}
                     <h1 className="text-[20vw] md:text-[15vw] font-black leading-none text-white/50 select-none">
                       <ShinyText
                         text="PENTO"
@@ -122,16 +96,13 @@ export default function Home() {
                 </TextRevealParallax>
               </div>
 
-              {/* Key Features - Left and Right Aligned */}
               <div className="w-full max-w-4xl px-8 mb-6">
                 <TextRevealParallax direction="up" delay={800} duration={800}>
                   <div className="grid grid-cols-2 gap-8">
-                    {/* Left Column Features */}
                     <div className="space-y-6">
                       <div className="flex items-center space-x-3 group">
                         <div className="relative w-4 h-4 flex-shrink-0">
                           <Snowflake className="w-4 h-4 text-white group-hover:text-emerald-300 transition-all duration-300 group-hover:scale-125 drop-shadow-lg" />
-                          {/* Glowing background */}
                           <div className="absolute inset-0 w-4 h-4 bg-white rounded-full opacity-20 animate-ping"></div>
                         </div>
                         <span className="text-gray-200 text-sm font-medium group-hover:text-white transition-colors duration-300">Smart food management at home</span>
@@ -139,7 +110,6 @@ export default function Home() {
                       <div className="flex items-center space-x-3 group">
                         <div className="relative w-4 h-4 flex-shrink-0">
                           <Snowflake className="w-4 h-4 text-blue-300 group-hover:text-cyan-300 transition-all duration-300 group-hover:scale-125 drop-shadow-lg" />
-                          {/* Glowing background */}
                           <div className="absolute inset-0 w-4 h-4 bg-blue-300 rounded-full opacity-20 animate-ping"></div>
                         </div>
                         <span className="text-gray-200 text-sm font-medium group-hover:text-white transition-colors duration-300">No more wasted food</span>
@@ -147,7 +117,6 @@ export default function Home() {
                       <div className="flex items-center space-x-3 group">
                         <div className="relative w-4 h-4 flex-shrink-0">
                           <Snowflake className="w-4 h-4 text-white group-hover:text-violet-300 transition-all duration-300 group-hover:scale-125 drop-shadow-lg" />
-                          {/* Glowing background */}
                           <div className="absolute inset-0 w-4 h-4 bg-white rounded-full opacity-20 animate-ping"></div>
                         </div>
                         <span className="text-gray-200 text-sm font-medium group-hover:text-white transition-colors duration-300">Meals from what you have</span>
@@ -155,14 +124,12 @@ export default function Home() {
                       <div className="flex items-center space-x-3 group">
                         <div className="relative w-4 h-4 flex-shrink-0">
                           <Snowflake className="w-4 h-4 text-blue-300 group-hover:text-orange-300 transition-all duration-300 group-hover:scale-125 drop-shadow-lg" />
-                          {/* Glowing background */}
                           <div className="absolute inset-0 w-4 h-4 bg-blue-300 rounded-full opacity-20 animate-ping"></div>
                         </div>
                         <span className="text-gray-200 text-sm font-medium group-hover:text-white transition-colors duration-300">Share your fridge easily</span>
                       </div>
                     </div>
 
-                    {/* Right Column Features */}
                     <div className="space-y-6 text-right pl-8">
                       <TextRevealParallax direction="right" delay={1400} duration={800}>
                         <div className="backdrop-blur-sm bg-white/10 rounded-2xl pt-8 pb-6 pl-16 pr-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
@@ -191,7 +158,6 @@ export default function Home() {
                             />
                           </div>
                           
-                          {/* Thumbs Section */}
                           <div className="flex justify-center space-x-3 mt-4">
                            
                           </div>
@@ -202,22 +168,14 @@ export default function Home() {
                   </div>
                 </TextRevealParallax>
               </div>
-
-
-              {/* 3D model positioned via overlay */}
             </div>
-
-            {/* Right Column - Laser Flow Full Height */}
             <div className="flex flex-col h-full relative">
-              {/* Laser Flow - Full Column */}
               <div className="absolute inset-0 w-full h-full ">
-
               </div>
             </div>
-
           </div>
         </div>
       </div>
-      </div>
+      </>
   );
 }

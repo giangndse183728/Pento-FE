@@ -11,24 +11,54 @@ import LoadingScreen from '@/components/decoration/LoadingScreen';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function CameraController({ scrollProgress }: { scrollProgress: number }) {
+function CameraController({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
+  const cameraKeyframes = [
+    { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },   
+    { pos: new THREE.Vector3(0, 0, -12), zoom: 5 }, 
+    { pos: new THREE.Vector3(11, 1, -12), zoom: 6 },     
+  ];
+
+  const featureCameraKeyframes = [,  
+    { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },   
+    { pos: new THREE.Vector3(0, -12, -12), zoom: 6 }, 
+    { pos: new THREE.Vector3(0, 0, -14), zoom: 5 },  
+  ];
+
   const { camera } = useThree();
-  const cameraStartPos = useRef(new THREE.Vector3(6, 1, -12));
-  const cameraEndPos = useRef(new THREE.Vector3(0, 0, -12));
-  const startZoom = useRef(4);
-  const endZoom = useRef(5);
 
   useFrame(() => {
-    const currentPos = new THREE.Vector3().lerpVectors(
-      cameraStartPos.current,
-      cameraEndPos.current,
-      scrollProgress
-    );
-    
-    const currentZoom = startZoom.current + (endZoom.current - startZoom.current) * scrollProgress;
-    
-    camera.position.lerp(currentPos, 0.1);
-    camera.zoom = THREE.MathUtils.lerp(camera.zoom, currentZoom, 0.1);
+    if (featureProgress > 0) {
+      const totalSlides = featureCameraKeyframes.length - 1;
+      const slideProgress = featureProgress * totalSlides;
+      const currentSlideIndex = Math.floor(slideProgress);
+      const nextSlideIndex = Math.min(currentSlideIndex + 1, totalSlides);
+      const localProgress = slideProgress - currentSlideIndex;
+
+      const start = featureCameraKeyframes[currentSlideIndex];
+      const end = featureCameraKeyframes[nextSlideIndex];
+
+      if (start && end) {
+        const targetPos = new THREE.Vector3().lerpVectors(start.pos, end.pos, localProgress);
+        const targetZoom = THREE.MathUtils.lerp(start.zoom, end.zoom, localProgress);
+
+        camera.position.lerp(targetPos, 0.15);
+        camera.zoom = THREE.MathUtils.lerp(camera.zoom, targetZoom, 0.15);
+      }
+    } else {
+      const totalSections = cameraKeyframes.length - 1;
+      const progressPerSection = 1 / totalSections;
+      const sectionIndex = Math.floor(scrollProgress / progressPerSection);
+      const localProgress = (scrollProgress - sectionIndex * progressPerSection) / progressPerSection;
+
+      const start = cameraKeyframes[sectionIndex] ?? cameraKeyframes[0];
+      const end = cameraKeyframes[sectionIndex + 1] ?? cameraKeyframes[cameraKeyframes.length - 1];
+
+      const targetPos = new THREE.Vector3().lerpVectors(start.pos, end.pos, localProgress);
+      const targetZoom = THREE.MathUtils.lerp(start.zoom, end.zoom, localProgress);
+
+      camera.position.lerp(targetPos, 0.1);
+      camera.zoom = THREE.MathUtils.lerp(camera.zoom, targetZoom, 0.1);
+    }
     
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
@@ -62,8 +92,8 @@ function Phone({ scrollProgress }: { scrollProgress: number }) {
           if (standard && standard.name === 'Body_Wallpaper_0') {
             if (!standard.emissive) standard.emissive = new THREE.Color(0x000000);
             standard.emissive.set('#ffffff');
-            standard.emissiveIntensity = 1;
-            if (typeof standard.envMapIntensity === 'number') standard.envMapIntensity = 2;
+            standard.emissiveIntensity = 10;
+            if (typeof standard.envMapIntensity === 'number') standard.envMapIntensity = 4;
             if (typeof standard.roughness === 'number') standard.roughness = Math.max(0, Math.min(standard.roughness * 1, 1));
             if (typeof standard.metalness === 'number') standard.metalness = Math.max(standard.metalness, 0.5);
             standard.needsUpdate = true;
@@ -75,9 +105,20 @@ function Phone({ scrollProgress }: { scrollProgress: number }) {
 
   useFrame(() => {
     if (modelRef.current) {
-      modelRef.current.rotation.y = rotationY.current;
-    }
+      const cameraKeyframes = [
+        { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },
+        { pos: new THREE.Vector3(0, 0, -12), zoom: 5 },
+        { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },
+      ];
+      const totalSections = cameraKeyframes.length - 1;
+      const progressPerSection = 1 / totalSections;
+      const sectionIndex = Math.floor(scrollProgress / progressPerSection);
+      const localProgress = (scrollProgress - sectionIndex * progressPerSection) / progressPerSection;
 
+      const rotationByScroll = sectionIndex === 1 ? (Math.PI * 2) * THREE.MathUtils.clamp(localProgress, 0, 1) : 0;
+
+      modelRef.current.rotation.y = rotationY.current + rotationByScroll;
+    }
   });
 
   const handlePointerDown = (event: any) => {
@@ -175,6 +216,8 @@ function Loader() {
 
 export default function PhoneModel() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [featureProgress, setFeatureProgress] = useState(0);
+  const [currentFeatureSlide, setCurrentFeatureSlide] = useState(0);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef({ value: 0 });
 
@@ -183,12 +226,12 @@ export default function PhoneModel() {
 
     const container = canvasContainerRef.current;
     gsap.set(container, { xPercent: -50, yPercent: -50 });
-    // Create GSAP timeline for section-based animations
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero-section", 
         start: "top top", 
         end: "bottom top", 
+        endTrigger: "#prosol-section",
         scrub: 1,
         onUpdate: (self) => {
           const progress = self.progress;
@@ -198,14 +241,26 @@ export default function PhoneModel() {
       }
     });
 
-    tl.to(container, {
-      x: 480,
-      duration: 1,
-      ease: "power2.out",
-    });
+    tl.to(container, { x: 480, duration: 1, ease: "power2.out" }, 0) 
+      .to(container, { x: 0, y: -40, duration: 1, ease: "power2.inOut" }, 1); 
+    
 
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleFeatureSlideChange = (event: CustomEvent) => {
+      const { slideIndex, progress } = event.detail;
+      setCurrentFeatureSlide(slideIndex);
+      setFeatureProgress(progress);
+    };
+
+    window.addEventListener('featureSlideChange', handleFeatureSlideChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('featureSlideChange', handleFeatureSlideChange as EventListener);
     };
   }, []);
 
@@ -257,10 +312,10 @@ export default function PhoneModel() {
           {/* <Environment preset="sunset"  /> */}
           
           <Suspense fallback={<Loader />}>
-            <Phone scrollProgress={scrollProgress} />
+            <Phone scrollProgress={scrollProgress}/>
           </Suspense>
           
-          <CameraController scrollProgress={scrollProgress} />
+          <CameraController scrollProgress={scrollProgress} featureProgress={featureProgress} />
           </Canvas>
         </WebGLDetector>
       </div>
