@@ -116,6 +116,22 @@ body {
   overflow-x: hidden;
 }
 
+html, body {
+  overflow: auto;
+  scrollbar-gutter: stable both-edges; 
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

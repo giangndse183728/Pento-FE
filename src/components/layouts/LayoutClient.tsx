@@ -16,8 +16,25 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
-      <div className="max-w-[1600px] mx-auto">{children}</div>
+      {/* Fixed Video Background */}
+      <div className="fixed inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/vecteezy_fantasy-landscape-and-falling-snow_1625855.webm" type="video/webm" />
+        </video>
+        <div className="absolute inset-0 bg-black/30"></div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10">
+        {!hideNavbar && <Navbar />}
+        <div className="max-w-[1600px] mx-auto">{children}</div>
+      </div>
     </>
   );
 }

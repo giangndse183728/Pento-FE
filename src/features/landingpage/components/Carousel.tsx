@@ -1,6 +1,7 @@
+"use client";
+
 import { useEffect, useState, useRef } from 'react';
 import { motion, PanInfo, useMotionValue, useTransform } from 'motion/react';
-// replace icons with your own if needed
 import { ScanLine, Bot, Gift, AlarmClock } from 'lucide-react';
 import './Carousel.css';
 
@@ -56,7 +57,7 @@ export interface CarouselProps {
   pauseOnHover?: boolean;
   loop?: boolean;
   round?: boolean;
-  backgroundImage?: string; // URL for container background image
+  backgroundImage?: string; 
 }
 
 const DEFAULT_ITEMS: CarouselItem[] = [

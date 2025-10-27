@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
@@ -20,7 +21,7 @@
     "echarts": "^6.0.0",
     "gsap": "^3.13.0",
     "lucide-react": "^0.544.0",
-    "motion": "^12.23.22",
+    "motion": "^12.23.24",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-day-picker": "^9.11.0",
