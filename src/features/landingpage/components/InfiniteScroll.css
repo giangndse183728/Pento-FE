@@ -1,0 +1,123 @@
+.infinite-scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.infinite-scroll-wrapper::before,
+.infinite-scroll-wrapper::after {
+  content: '';
+  position: absolute;
+  height: 25%;
+  width: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.infinite-scroll-wrapper::before {
+  top: 0;
+}
+
+.infinite-scroll-wrapper::after {
+  bottom: 0;
+}
+
+.infinite-scroll-container {
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior: contain;
+  padding-inline: 1rem;
+  cursor: grab;
+  transform-origin: center center;
+}
+
+.infinite-scroll-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Feedback Card Styles */
+.feedback-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 1.5rem;
+  width: 70%;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.feedback-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.feedback-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+  box-shadow: 0 4px 12px var(--avatar-shadow);
+}
+
+.feedback-info h4 {
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.feedback-info p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.feedback-rating {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.feedback-rating .star {
+  color: #fbbf24;
+  font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+}
+
+.feedback-comment {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
