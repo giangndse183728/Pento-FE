@@ -1,6 +1,7 @@
 import React from 'react';
-import Image from 'next/image';
+import Link from 'next/link';
 import GlassSurface from '@/components/decoration/Liquidglass';
+import { ROUTES } from '@/constants/routes';
 
 const AdminSidebar = () => {
     return (
@@ -17,11 +18,11 @@ const AdminSidebar = () => {
                         </div>
                     </div>
                     <nav className="space-y-2 flex-1">
-                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100">Dashboard</button>
-                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100">Marketplace</button>
-                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100">Wallet</button>
-                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100">Messages</button>
-                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100">Collections</button>
+                        <Link href={ROUTES.DASHBOARD} className="w-full block text-left p-2 rounded-lg hover:bg-gray-100/50">Dashboard</Link>
+                        <Link href={ROUTES.RECIPES} className="w-full block text-left p-2 rounded-lg hover:bg-gray-100/50">Recipes</Link>
+                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100/50">Wallet</button>
+                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100/50">Messages</button>
+                        <button className="w-full text-left p-2 rounded-lg hover:bg-gray-100/50">Collections</button>
                     </nav>
                 </div>
             </GlassSurface>

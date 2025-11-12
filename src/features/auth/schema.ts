@@ -1,36 +1,13 @@
-import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
-import { z } from "zod";
+import * as z from "zod";
 
-const Pento_API_Endpoints_Users_SignIn_Request = z
-    .object({
-        email: z.string().nullable(),
-        password: z.string().nullable()
-    })
-    .partial();
+export const loginSchema = z.object({
+    email: z.string().min(1, { message: "Email is required" }),
+    password: z.string().min(1, { message: "Password is required" }),
+});
 
-export const schemas = {
-    Pento_API_Endpoints_Users_SignIn_Request,
-};
+export type LoginFormData = z.infer<typeof loginSchema>;
 
-const endpoints = makeApi([
-    {
-        method: "post",
-        path: "/users/sign-in",
-        alias: "postUserssignIn",
-        requestFormat: "json",
-        parameters: [
-            {
-                name: "body",
-                type: "Body",
-                schema: Pento_API_Endpoints_Users_SignIn_Request,
-            },
-        ],
-        response: z.void(),
-    },
-]);
-
-export const api = new Zodios(endpoints);
-
-export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
-    return new Zodios(baseUrl, endpoints, options);
+export interface LoginResponse {
+    accessToken: string;
 }
+

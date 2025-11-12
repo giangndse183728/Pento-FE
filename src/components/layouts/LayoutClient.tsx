@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Navbar from '@/components/layouts/Navbar';
 import { ROUTES_NO_LAYOUT } from '@/constants/routes';
 
@@ -14,8 +16,11 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const hideNavbar = shouldHideNavbar(pathname || '/');
 
+  // Create QueryClient once per mounted LayoutClient
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       {/* Fixed Video Background */}
       <div className="fixed inset-0 z-0">
         <video
@@ -35,7 +40,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
         {!hideNavbar && <Navbar />}
         <div className="max-w-[1600px] mx-auto">{children}</div>
       </div>
-    </>
+    </QueryClientProvider>
   );
 }
 
