@@ -14,18 +14,32 @@ export const useRecipesList = () => {
 };
 
 export const useUnits = () => {
+    type AxiosLike = { response?: { status?: number } };
     return useQuery<Unit[]>({
         queryKey: ['units'],
         queryFn: getUnits,
         staleTime: 1000 * 60 * 10,
+        // Provide an empty array as initial data so components don't receive `undefined`.
+        initialData: [],
+        // If the API returns a 4xx (bad request), don't retry automatically.
+        retry: (failureCount: number, error: unknown) => {
+            const status = (error as AxiosLike)?.response?.status;
+            return typeof status === 'number' && status >= 500;
+        },
     });
 };
 
 export const useFoodReferences = () => {
+    type AxiosLike = { response?: { status?: number } };
     return useQuery<FoodRef[]>({
         queryKey: ['foodReferences'],
         queryFn: getFoodReferences,
         staleTime: 1000 * 60 * 10,
+        initialData: [],
+        retry: (failureCount: number, error: unknown) => {
+            const status = (error as AxiosLike)?.response?.status;
+            return typeof status === 'number' && status >= 500;
+        },
     });
 };
 
@@ -37,7 +51,6 @@ export const useCreateRecipe = () => {
             // validate payload with zod schema before sending
             const result = recipeDetailedSchema.safeParse(payload);
             if (!result.success) {
-                // aggregate messages
                 const messages = result.error.errors.map((e) => {
                     const path = e.path.length ? `${e.path.join('.')}:` : '';
                     return path + ' ' + (e.message || 'Invalid value');

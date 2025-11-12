@@ -46,8 +46,15 @@ export type RecipeSummary = {
 };
 
 export const getRecipes = async (): Promise<RecipeSummary[]> => {
-    const res = await api.get<ApiResponse<RecipeSummary[]>>('/recipes');
-    return res.data.data;
+
+    try {
+        const res = await api.get<ApiResponse<RecipeSummary[]>>('/recipes');
+        return res.data?.data ?? [];
+    } catch (err) {
+        const axiosErr = err as { response?: { status?: number; data?: unknown } };
+        console.error('getRecipes failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        return [];
+    }
 };
 
 export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
@@ -72,11 +79,23 @@ export type FoodRef = {
 };
 
 export const getUnits = async (): Promise<Unit[]> => {
-    const res = await api.get<ApiResponse<Unit[]>>('/units');
-    return res.data.data;
+    try {
+        const res = await api.get<ApiResponse<Unit[]>>('/units');
+        return res.data?.data ?? [];
+    } catch (err) {
+        const axiosErr = err as { response?: { status?: number; data?: unknown } };
+        console.error('getUnits failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        return [];
+    }
 };
 
 export const getFoodReferences = async (): Promise<FoodRef[]> => {
-    const res = await api.get<ApiResponse<FoodRef[]>>('/food-references');
-    return res.data.data;
+    try {
+        const res = await api.get<ApiResponse<FoodRef[]>>('/food-references');
+        return res.data?.data ?? [];
+    } catch (err) {
+        const axiosErr = err as { response?: { status?: number; data?: unknown } };
+        console.error('getFoodReferences failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        return [];
+    }
 };

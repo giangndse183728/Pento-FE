@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "ax
 const api = axios.create({
     baseURL:
         process.env.NEXT_PUBLIC_APP_API_URL ||
-        "https://pento-api.jollyground-f3462e5a.southeastasia.azurecontainerapps.io",
+        "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io",
     timeout: 10000,
     headers: { "Content-Type": "application/json" },
     withCredentials: true,
@@ -52,7 +52,7 @@ api.interceptors.response.use(
             try {
                 const refreshResponse = await axios.post(
                     `${process.env.NEXT_PUBLIC_APP_API_URL ||
-                    "https://pento-api.jollyground-f3462e5a.southeastasia.azurecontainerapps.io"
+                    "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io"
                     }/users/web-refresh`,
                     {},
                     {
@@ -73,7 +73,7 @@ api.interceptors.response.use(
                 try {
                     await axios.post(
                         `${process.env.NEXT_PUBLIC_APP_API_URL ||
-                        "https://pento-api.jollyground-f3462e5a.southeastasia.azurecontainerapps.io"
+                        "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io"
                         }/users/sign-out`,
                         {},
                         { withCredentials: true }
