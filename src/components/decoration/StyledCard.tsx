@@ -66,7 +66,7 @@ const StyledCard: React.FC<StyledCardProps> = ({
 
   return (
     <div
-      className={`relative ${fullWidth ? 'w-full' : 'max-w-sm'} rounded-2xl px-5 py-4 shadow-lg ring-1 backdrop-blur-sm breathing-glow ${className}`}
+      className={`relative ${fullWidth ? 'w-full' : 'max-w-sm'} rounded-2xl px-6 py-6 shadow-lg ring-1 backdrop-blur-sm breathing-glow ${className}`}
       style={{
         background: styles.background,
         color: styles.color,

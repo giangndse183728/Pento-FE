@@ -48,17 +48,17 @@ const cardData: BentoCardProps[] = [
   },
   {
     color: '#060010',
-    title: 'Scan Food',
-    description: 'Add items by scanning packaging',
-    label: 'Quick Add',
-    backgroundImage: '/assets/img/scan.png'
+    title: 'Manage Together',
+    description: 'Organize and share your household food items with family members',
+    label: 'Collaborate',
+    backgroundImage: '/assets/img/together.png'
   },
   {
     color: '#060010',
-    title: 'Barcode & Receipt Scanner',
-    description: 'Instant product recognition',
-    label: 'Auto-Detection',
-    backgroundImage: '/assets/img/barcode.jpg'
+    title: 'Meal Planner',
+    description: 'Plan weekly meals and manage ingredients easily',
+    label: 'Smart Planning',
+    backgroundImage: '/assets/img/mealplan.png'
   },
   {
     color: '#060010',

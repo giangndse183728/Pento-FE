@@ -15,12 +15,12 @@ function CameraController({ scrollProgress, featureProgress }: { scrollProgress:
   const cameraKeyframes = [
     { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },   
     { pos: new THREE.Vector3(0, 0, -12), zoom: 5 }, 
-    { pos: new THREE.Vector3(11, 1, -12), zoom: 6 },     
+    { pos: new THREE.Vector3(11, 1, -12), zoom: 5.5 },     
   ];
 
   const featureCameraKeyframes = [,  
     { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },   
-    { pos: new THREE.Vector3(0, -12, -12), zoom: 6 }, 
+    { pos: new THREE.Vector3(0, -12, -12), zoom: 4 }, 
     { pos: new THREE.Vector3(0, 0, -14), zoom: 5 },  
   ];
 
