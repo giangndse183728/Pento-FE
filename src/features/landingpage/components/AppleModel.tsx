@@ -44,7 +44,7 @@ function AppleModel() {
             minDistance={3}
             maxDistance={8}
             autoRotate
-            autoRotateSpeed={1}
+            autoRotateSpeed={4}
           />
           <Environment preset="sunset" />
         </Suspense>

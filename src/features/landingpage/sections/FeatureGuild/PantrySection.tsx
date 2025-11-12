@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { lazy, memo, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { LayoutGroup, motion } from "framer-motion";
@@ -8,8 +8,9 @@ import { ArrowLeftRight, Image, Camera, Menu } from "lucide-react";
 import { useGLTF } from "@react-three/drei";
 import ShinyText from "@/components/decoration/ShinyText";
 import { ColorTheme } from "@/constants/color";
-import AppleModel from "@/features/landingpage/components/AppleModel";
 import TextRevealParallax from "@/components/animation/TextRevealParallax";
+
+const AppleModel = lazy(() => import("@/features/landingpage/components/AppleModel"));
 
 interface FoodItem {
   id: string;
