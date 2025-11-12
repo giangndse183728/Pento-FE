@@ -12,7 +12,7 @@ export default function Home() {
 
  return (
     <>
- <div id="prosol-section" className="relative z-10 bg-gradient-to-b from-black/70 to-blue-200/50 snap-start h-screen">
+ <div id="prosol-section" className="relative z-10  snap-start h-screen">
  <div className="max-w-8xl mx-auto px-12 py-8 flex items-center">
   <div className="w-full grid grid-cols-[60%_40%] gap-12">
     <div className="space-y-6 relative">
