@@ -1,54 +1,71 @@
 "use client";
 
-import { AnimatedBeamMultipleOutputDemo } from "../../components/MultiBeam";
-import { ColorTheme } from "@/constants/color";
-import { memo } from "react";
+import StyledCard from "@/components/decoration/StyledCard";
+import { Snowflake } from "lucide-react";
+import { lazy, useRef, memo } from "react";
+
+const Beam = lazy(() => import("../../components/LaserFlow"));
+const MagicBento = lazy(() => import("../../components/MagicBento"));
 
 function HouseholdSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+ 
+
   return (
     <div 
-      className="min-h-screen w-screen flex-shrink-0 flex items-center justify-center px-12 relative"
-      style={{ contain: 'layout style paint' }}
-    >
-      <div 
-        className="absolute inset-0 pointer-events-none "
-        style={{
-          background: 'linear-gradient(to right, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%)',
-        }}
-      />
-      
-      <div className="w-full h-full grid grid-cols-[35%_65%] items-center relative z-0">
-        <div 
-          className="p-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
-            boxShadow: `0 8px 32px 0 ${ColorTheme.powderBlue}`,
-            backdropFilter: 'blur(21px)',
-            WebkitBackdropFilter: 'blur(21px)',
-          }}
-        >
-          <div className="space-y-6">
-            <div className="inline-block px-4 py-2 bg-blue-500/20 text-blue-100 rounded-full text-sm font-semibold">
-              Smart Household Management
-            </div>
-            <h3 className="text-5xl font-bold text-white">
-              Organize Your Home Effortlessly
-            </h3>
-            <p className="text-lg text-gray-300 leading-relaxed">
-              Coordinate family tasks, manage household schedules, and track essential supplies 
-              in one intelligent platform. Keep everyone connected with shared calendars, 
-              automated reminders, and collaborative task management.
-            </p>
+      ref={sectionRef} 
+      className="min-h-screen w-screen flex-shrink-0 flex px-12">
+
+      <div className="w-full h-full grid grid-cols-[40%_15%_45%] gap-6 items-center z-10">      
+        <div className="flex flex-col h-full relative items-center justify-center">
           
-          </div>
+            <Beam
+              fogIntensity={0.2}
+              color="#B9D7EA"
+            />
+          
+         <div className="relative">
+                <StyledCard
+                  title="Household Food Management"
+                  icon={<Snowflake className="w-6 h-6 text-white bg-blue-500/20 rounded-full p-1" />}
+                  variant="solution"
+                 fullWidth={true}
+                >
+                  <h3 className="text-4xl font-primary text-white my-5">
+                    Collaborate Household
+                  </h3>
+                  <p className="text-md text-black/60 leading-relaxed">
+                    Manage food together with household members through different routes. 
+                    Each member contributes their way—scans, manual entries, or smart suggestions. Stay synchronized as a team.
+                  </p>
+                </StyledCard>
+      </div>          
         </div>
 
-        <div className="relative px-2 w-full h-full flex items-center justify-center">
-          <AnimatedBeamMultipleOutputDemo />
+        <div className="h-full flex items-center justify-center">
+          <div className="w-px h-3/4 bg-gradient-to-b from-transparent via-purple-500/30 to-transparent"></div>
+        </div>
+
+                <div className="relative px-2 w-full h-full flex items-center justify-center">
+          <MagicBento
+            textAutoHide={true}
+            enableStars={true}
+            enableSpotlight={true}
+            enableBorderGlow={true}
+            enableTilt={false}
+            enableMagnetism={false}
+            clickEffect={true}
+            spotlightRadius={300}
+            particleCount={10}
+            glowColor="185, 215, 234"
+          />
+        </div>
+       
         </div>
       </div>
-    </div>
   );
 }
 
 export default memo(HouseholdSection);
+

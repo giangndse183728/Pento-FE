@@ -224,7 +224,7 @@ export default function FeatureSection() {
         </Suspense>
       </div>
 
-      <div className="absolute bottom-14 right-14 z-20 flex gap-3">
+      <div className="absolute bottom-14 left-14 z-20 flex gap-3">
         {slideIndicators}
       </div>
 
