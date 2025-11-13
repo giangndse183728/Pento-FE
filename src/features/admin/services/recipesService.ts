@@ -1,4 +1,4 @@
-import api, { ApiResponse } from '@/lib/axios';
+import { apiRequest } from '@/lib/apiRequest';
 
 export type IngredientInput = {
     foodRefId: string;
@@ -46,20 +46,16 @@ export type RecipeSummary = {
 };
 
 export const getRecipes = async (): Promise<RecipeSummary[]> => {
-
     try {
-        const res = await api.get<ApiResponse<RecipeSummary[]>>('/recipes');
-        return res.data?.data ?? [];
+        return await apiRequest<RecipeSummary[]>('get', '/recipes');
     } catch (err) {
-        const axiosErr = err as { response?: { status?: number; data?: unknown } };
-        console.error('getRecipes failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        console.error('getRecipes failed:', err);
         return [];
     }
 };
 
 export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
-    const res = await api.post<ApiResponse<Record<string, unknown>>>('/recipes/detailed', payload);
-    return res.data;
+    return apiRequest<unknown>('post', '/recipes/detailed', payload);
 };
 
 export type Unit = {
@@ -80,22 +76,45 @@ export type FoodRef = {
 
 export const getUnits = async (): Promise<Unit[]> => {
     try {
-        const res = await api.get<ApiResponse<Unit[]>>('/units');
-        return res.data?.data ?? [];
+        return await apiRequest<Unit[]>('get', '/units');
     } catch (err) {
-        const axiosErr = err as { response?: { status?: number; data?: unknown } };
-        console.error('getUnits failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        console.error('getUnits failed:', err);
         return [];
     }
 };
 
-export const getFoodReferences = async (): Promise<FoodRef[]> => {
+export type FoodReferencesQuery = {
+    foodGroup?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+};
+
+export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<FoodRef[]> => {
     try {
-        const res = await api.get<ApiResponse<FoodRef[]>>('/food-references');
-        return res.data?.data ?? [];
+        const qs = params
+            ? '?' + Object.entries(params)
+                .filter(([, v]) => v !== undefined && v !== null && v !== '')
+                .map(([k, v]) => {
+                    // trim string searches to avoid sending empty values
+                    const val = typeof v === 'string' ? v.trim() : v;
+                    return `${encodeURIComponent(k)}=${encodeURIComponent(String(val))}`;
+                })
+                .join('&')
+            : '';
+
+        const res = await apiRequest<unknown>('get', `/food-references${qs}`);
+
+        // API may return either an array or an object with `items`.
+        if (Array.isArray(res)) return res as FoodRef[];
+        if (res && typeof res === 'object') {
+            const asObj = res as Record<string, unknown>;
+            if (Array.isArray(asObj.items)) return asObj.items as unknown as FoodRef[];
+        }
+
+        return [];
     } catch (err) {
-        const axiosErr = err as { response?: { status?: number; data?: unknown } };
-        console.error('getFoodReferences failed:', axiosErr.response?.status, axiosErr.response?.data ?? err);
+        console.error('getFoodReferences failed:', err);
         return [];
     }
 };

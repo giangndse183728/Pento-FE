@@ -2,7 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getRecipes, postRecipeDetailed, getUnits, getFoodReferences, RecipeDetailedInput, RecipeSummary, Unit, FoodRef } from '../services/recipesService';
+import { getRecipes, postRecipeDetailed, RecipeDetailedInput, RecipeSummary } from '../services/recipesService';
+import useUnits from './useUnit';
+import useFoodReferences from './useFoodReferences';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
 
 export const useRecipesList = () => {
@@ -13,42 +15,11 @@ export const useRecipesList = () => {
     });
 };
 
-export const useUnits = () => {
-    type AxiosLike = { response?: { status?: number } };
-    return useQuery<Unit[]>({
-        queryKey: ['units'],
-        queryFn: getUnits,
-        staleTime: 1000 * 60 * 10,
-        // Provide an empty array as initial data so components don't receive `undefined`.
-        initialData: [],
-        // If the API returns a 4xx (bad request), don't retry automatically.
-        retry: (failureCount: number, error: unknown) => {
-            const status = (error as AxiosLike)?.response?.status;
-            return typeof status === 'number' && status >= 500;
-        },
-    });
-};
-
-export const useFoodReferences = () => {
-    type AxiosLike = { response?: { status?: number } };
-    return useQuery<FoodRef[]>({
-        queryKey: ['foodReferences'],
-        queryFn: getFoodReferences,
-        staleTime: 1000 * 60 * 10,
-        initialData: [],
-        retry: (failureCount: number, error: unknown) => {
-            const status = (error as AxiosLike)?.response?.status;
-            return typeof status === 'number' && status >= 500;
-        },
-    });
-};
-
 export const useCreateRecipe = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (payload: RecipeDetailedInput) => {
-            // validate payload with zod schema before sending
             const result = recipeDetailedSchema.safeParse(payload);
             if (!result.success) {
                 const messages = result.error.errors.map((e) => {
@@ -73,7 +44,7 @@ export const useCreateRecipe = () => {
     });
 };
 
-export default function useRecipes() {
+export function useRecipes() {
     const list = useRecipesList();
     const units = useUnits();
     const foodRefs = useFoodReferences();
@@ -86,3 +57,5 @@ export default function useRecipes() {
         create,
     };
 }
+
+export default useRecipes;
