@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { getFoodReferences, FoodRef } from '../services/recipesService';
+import { getFoodReferences, FoodRef, FoodReferencesQuery } from '../services/recipesService';
 
-export const useFoodReferences = () => {
+export const useFoodReferences = (params?: FoodReferencesQuery) => {
     type AxiosLike = { response?: { status?: number } };
     return useQuery<FoodRef[]>({
-        queryKey: ['foodReferences'],
-        queryFn: getFoodReferences,
+        queryKey: ['foodReferences', params ?? {}],
+        queryFn: () => getFoodReferences(params),
         staleTime: 1000 * 60 * 10,
         initialData: [],
         retry: (failureCount: number, error: unknown) => {

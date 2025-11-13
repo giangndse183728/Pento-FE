@@ -1,61 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import AdminLayout from './AdminLayout';
 import { useRecipes } from '../hooks';
-import { recipeDetailedSchema } from '../schema/recipeSchema';
+import RecipesCreateForm from './RecipesCreateForm';
+import RecipesTable from './RecipesTable';
 
 export default function RecipesManager() {
-    const { list, units, foodRefs, create } = useRecipes();
-
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [ingredientFoodRef, setIngredientFoodRef] = useState('');
-    const [ingredientUnit, setIngredientUnit] = useState('');
-    const [ingredientQuantity, setIngredientQuantity] = useState<number>(100);
-    const [formErrors, setFormErrors] = useState<string[]>([]);
-
-    const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        const payload = {
-            title,
-            description,
-            isPublic: true,
-            ingredients: [
-                {
-                    foodRefId: ingredientFoodRef,
-                    quantity: ingredientQuantity,
-                    unitId: ingredientUnit,
-                },
-            ],
-        };
-
-        const result = recipeDetailedSchema.safeParse(payload);
-        if (!result.success) {
-            const messages = result.error.errors.map((err) => {
-                const path = err.path.length ? err.path.join('.') : 'root';
-                return `${path}: ${err.message}`;
-            });
-            setFormErrors(messages);
-            return;
-        }
-
-        setFormErrors([]);
-
-        try {
-            await create.mutateAsync(result.data as unknown as Parameters<typeof create.mutateAsync>[0]);
-            // Optionally reset form
-            setTitle('');
-            setDescription('');
-            setIngredientFoodRef('');
-            setIngredientUnit('');
-            setIngredientQuantity(100);
-        } catch (err) {
-            // create.mutateAsync will already trigger toast on error
-            console.error(err);
-        }
-    };
+    const { list, units, create } = useRecipes();
 
     return (
         <AdminLayout>
@@ -63,92 +15,9 @@ export default function RecipesManager() {
                 <h1 className="text-2xl font-semibold">Recipes Manager</h1>
             </div>
 
-            <form onSubmit={onSubmit} className="w-full max-w-3xl">
-                {formErrors.length > 0 && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-                        <strong className="block font-semibold">Validation errors:</strong>
-                        <ul className="mt-2 list-disc list-inside">
-                            {formErrors.map((m, i) => (
-                                <li key={i}>{m}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+            <RecipesCreateForm units={units} create={create} />
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                    <input className="p-2 border rounded" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                    <input className="p-2 border rounded" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                    <select className="p-2 border rounded" value={ingredientFoodRef} onChange={(e) => setIngredientFoodRef(e.target.value)}>
-                        <option value="">Select ingredient</option>
-                        {foodRefs.data?.map((fr) => (
-                            <option key={fr.id} value={fr.id}>{fr.name}</option>
-                        ))}
-                    </select>
-
-                    <input type="number" className="p-2 border rounded" value={ingredientQuantity} onChange={(e) => setIngredientQuantity(Number(e.target.value))} />
-
-                    <select className="p-2 border rounded" value={ingredientUnit} onChange={(e) => setIngredientUnit(e.target.value)}>
-                        <option value="">Select unit</option>
-                        {units.data?.map((u) => (
-                            <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="flex gap-2">
-                    <button type="submit" className="px-4 py-2 rounded bg-green-600 text-white" disabled={create.isPending}>Create</button>
-                </div>
-            </form>
-
-            {/* Recipes table view */}
-            <div className="mt-8">
-                <h2 className="text-xl font-semibold mb-4">Recipes</h2>
-
-                {list.isLoading && <div>Loading recipes...</div>}
-                {list.isError && <div className="text-red-600">Failed to load recipes.</div>}
-
-                <div className="overflow-auto bg-white rounded border">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Servings</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Difficulty</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Created By</th>
-                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Visibility</th>
-                            </tr>
-                        </thead>
-
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {(list.data ?? []).map((r) => (
-                                <tr key={r.id}>
-                                    <td className="px-4 py-2 align-top">
-                                        {r.imageUrl ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={r.imageUrl} alt={r.title} className="w-16 h-12 object-cover rounded" />
-                                        ) : (
-                                            <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-500">No image</div>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-2 align-top">{r.title}</td>
-                                    <td className="px-4 py-2 align-top text-sm text-gray-600">{r.description}</td>
-                                    <td className="px-4 py-2 align-top">{r.totalTimes ?? '—'}</td>
-                                    <td className="px-4 py-2 align-top">{r.servings ?? '—'}</td>
-                                    <td className="px-4 py-2 align-top">{r.difficultyLevel ?? '—'}</td>
-                                    <td className="px-4 py-2 align-top">{r.createdBy ?? '—'}</td>
-                                    <td className="px-4 py-2 align-top">{r.isPublic ? 'Public' : 'Private'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <RecipesTable list={list} />
         </AdminLayout>
     );
 }

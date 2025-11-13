@@ -83,9 +83,36 @@ export const getUnits = async (): Promise<Unit[]> => {
     }
 };
 
-export const getFoodReferences = async (): Promise<FoodRef[]> => {
+export type FoodReferencesQuery = {
+    foodGroup?: string;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+};
+
+export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<FoodRef[]> => {
     try {
-        return await apiRequest<FoodRef[]>('get', '/food-references');
+        const qs = params
+            ? '?' + Object.entries(params)
+                .filter(([, v]) => v !== undefined && v !== null && v !== '')
+                .map(([k, v]) => {
+                    // trim string searches to avoid sending empty values
+                    const val = typeof v === 'string' ? v.trim() : v;
+                    return `${encodeURIComponent(k)}=${encodeURIComponent(String(val))}`;
+                })
+                .join('&')
+            : '';
+
+        const res = await apiRequest<unknown>('get', `/food-references${qs}`);
+
+        // API may return either an array or an object with `items`.
+        if (Array.isArray(res)) return res as FoodRef[];
+        if (res && typeof res === 'object') {
+            const asObj = res as Record<string, unknown>;
+            if (Array.isArray(asObj.items)) return asObj.items as unknown as FoodRef[];
+        }
+
+        return [];
     } catch (err) {
         console.error('getFoodReferences failed:', err);
         return [];
