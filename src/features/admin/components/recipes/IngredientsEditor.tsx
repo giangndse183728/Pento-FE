@@ -33,6 +33,7 @@ export default function IngredientsEditor({ ingredients, setIngredients, units, 
         })
     );
     const [openIndex, setOpenIndex] = useState<number | null>(null);
+    const [showUnitsModal, setShowUnitsModal] = useState(false);
 
     // keep nameInputs in sync when ingredients or fetched foodRefs change
     useEffect(() => {
@@ -89,6 +90,40 @@ export default function IngredientsEditor({ ingredients, setIngredients, units, 
             {(!foodRefs.isFetching && (foodRefs.data == null || foodRefs.data.length === 0)) && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded">
                     No food references found. Try entering a search term and click Search.
+                </div>
+            )}
+
+            {/* Units Modal Popup */}
+            {showUnitsModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setShowUnitsModal(false)}>
+                    <div className="bg-white rounded-lg p-6 max-w-2xl w-11/12 max-h-96 overflow-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-semibold text-lg">Available Units</h3>
+                            <button type="button" className="text-gray-500 hover:text-gray-700" onClick={() => setShowUnitsModal(false)}>✕</button>
+                        </div>
+                        <table className="w-full text-sm border-collapse">
+                            <thead>
+                                <tr className="border-b">
+                                    <th className="text-left p-2">Name</th>
+                                    <th className="text-left p-2">Abbr</th>
+                                    <th className="text-left p-2">Factor</th>
+                                    <th className="text-left p-2">Explanation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {units?.map((u) => (
+                                    <tr key={u.id} className="border-b hover:bg-blue-100">
+                                        <td className="p-2">{u.name}</td>
+                                        <td className="p-2">{u.abbreviation ?? '—'}</td>
+                                        <td className="p-2">{u.toBaseFactor ?? '—'}</td>
+                                        <td className="p-2">
+                                            {u.toBaseFactor && u.toBaseFactor !== 1 ? `1 ${u.name} = ${u.toBaseFactor} base units` : ''}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
@@ -167,12 +202,15 @@ export default function IngredientsEditor({ ingredients, setIngredients, units, 
 
                                 <input type="number" className="p-2 border rounded" value={ing.quantity} onChange={(e) => updateAt(idx, { quantity: Number(e.target.value) || 0 })} />
 
-                                <select className="p-2 border rounded" value={ing.unitId} onChange={(e) => updateAt(idx, { unitId: e.target.value })}>
-                                    <option value="">Select unit</option>
-                                    {units?.map((u) => (
-                                        <option key={u.id} value={u.id}>{u.name}</option>
-                                    ))}
-                                </select>
+                                <div className="flex gap-1 items-center">
+                                    <select className="p-2 border rounded flex-1" value={ing.unitId} onChange={(e) => updateAt(idx, { unitId: e.target.value })}>
+                                        <option value="">Select unit</option>
+                                        {units?.map((u) => (
+                                            <option key={u.id} value={u.id}>{u.name}</option>
+                                        ))}
+                                    </select>
+                                    <button type="button" className="w-8 h-8 rounded-full bg-gray-300 hover:bg-gray-400 text-white font-bold flex items-center justify-center text-sm" onClick={() => setShowUnitsModal(true)} title="View available units">!</button>
+                                </div>
                             </div>
                         </div>
                     );
