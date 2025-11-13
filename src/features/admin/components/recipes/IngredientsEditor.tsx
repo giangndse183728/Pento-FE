@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Unit, FoodRef, IngredientInput } from '../../services/recipesService';
+import { FoodRef, IngredientInput } from '../../services/recipesService';
+import useUnits from '../../hooks/useUnit';
+import UnitsModal from './UnitsModel';
 
 type Props = {
     ingredients: IngredientInput[];
     setIngredients: (next: IngredientInput[] | ((prev: IngredientInput[]) => IngredientInput[])) => void;
-    units: Unit[] | undefined;
     foodRefs: { data?: FoodRef[]; isFetching?: boolean };
     foodGroup?: string | undefined;
     setFoodGroup?: (v?: string) => void;
@@ -20,7 +21,8 @@ type Props = {
     onSearch?: (v?: string) => void;
 };
 
-export default function IngredientsEditor({ ingredients, setIngredients, units, foodRefs, foodGroup, setFoodGroup, searchInput, setSearchInput, page, setPage, pageSize, setPageSize, setSearch, onSearch }: Props) {
+export default function IngredientsEditor({ ingredients, setIngredients, foodRefs, foodGroup, setFoodGroup, searchInput, setSearchInput, page, setPage, pageSize, setPageSize, setSearch, onSearch }: Props) {
+    const { data: units } = useUnits();
     const updateAt = (idx: number, patch: Partial<IngredientInput>) => {
         setIngredients((prev) => prev.map((p, i) => i === idx ? { ...p, ...patch } : p));
     };
@@ -93,39 +95,8 @@ export default function IngredientsEditor({ ingredients, setIngredients, units, 
                 </div>
             )}
 
-            {/* Units Modal Popup */}
-            {showUnitsModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setShowUnitsModal(false)}>
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-11/12 max-h-96 overflow-auto" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-semibold text-lg">Available Units</h3>
-                            <button type="button" className="text-gray-500 hover:text-gray-700" onClick={() => setShowUnitsModal(false)}>✕</button>
-                        </div>
-                        <table className="w-full text-sm border-collapse">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left p-2">Name</th>
-                                    <th className="text-left p-2">Abbr</th>
-                                    <th className="text-left p-2">Factor</th>
-                                    <th className="text-left p-2">Explanation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {units?.map((u) => (
-                                    <tr key={u.id} className="border-b hover:bg-blue-100">
-                                        <td className="p-2">{u.name}</td>
-                                        <td className="p-2">{u.abbreviation ?? '—'}</td>
-                                        <td className="p-2">{u.toBaseFactor ?? '—'}</td>
-                                        <td className="p-2">
-                                            {u.toBaseFactor && u.toBaseFactor !== 1 ? `1 ${u.name} = ${u.toBaseFactor} base units` : ''}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
+            {/* Units Modal */}
+            <UnitsModal isOpen={showUnitsModal} onClose={() => setShowUnitsModal(false)} units={units} />
 
             {/* Results panel*/}
             {foodRefs.data && foodRefs.data.length > 0 && (

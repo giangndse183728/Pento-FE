@@ -9,7 +9,6 @@ export const useUnits = () => {
         queryKey: ['units'],
         queryFn: getUnits,
         staleTime: 1000 * 60 * 10,
-        initialData: [],
         // If the API returns a 4xx (bad request), don't retry automatically.
         retry: (failureCount: number, error: unknown) => {
             const status = (error as AxiosLike)?.response?.status;

@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState } from 'react';
-import { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
+import { UseMutationResult } from '@tanstack/react-query';
 import { recipeDetailedSchema } from '../../schema/recipeSchema';
-import { Unit, RecipeDetailedInput, IngredientInput } from '../../services/recipesService';
+import { RecipeDetailedInput, IngredientInput } from '../../services/recipesService';
 import useFoodReferences from '../../hooks/useFoodReferences';
 import BasicInfo from './BasicInfo';
 import IngredientsEditor from './IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
 
 type Props = {
-    units: UseQueryResult<Unit[], unknown>;
     create: UseMutationResult<unknown, unknown, RecipeDetailedInput, unknown>;
 };
 
-export default function RecipesCreateForm({ units, create }: Props) {
+export default function RecipesCreateForm({ create }: Props) {
     // Local controls for fetching food references
     const [foodGroup, setFoodGroup] = React.useState<string | undefined>(undefined);
     const [search, setSearch] = React.useState<string | undefined>(undefined);
@@ -130,7 +129,6 @@ export default function RecipesCreateForm({ units, create }: Props) {
             <IngredientsEditor
                 ingredients={ingredients}
                 setIngredients={setIngredients}
-                units={units.data}
                 foodRefs={{ data: foodRefs.data, isFetching: foodRefs.isFetching }}
                 foodGroup={foodGroup}
                 setFoodGroup={setFoodGroup}
