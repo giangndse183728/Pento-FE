@@ -27,7 +27,6 @@ export default function RecipesCreateForm({ units, create }: Props) {
     // Debounce search input to avoid refetching on every keystroke
     React.useEffect(() => {
         const handler = setTimeout(() => {
-            // empty string => undefined (no filter)
             setSearch(searchInput?.trim() ? searchInput.trim() : undefined);
             // reset to first page when search changes
             setPage(1);
@@ -137,6 +136,12 @@ export default function RecipesCreateForm({ units, create }: Props) {
                 setFoodGroup={setFoodGroup}
                 searchInput={searchInput}
                 setSearchInput={setSearchInput}
+                setSearch={setSearch}
+                onSearch={(q?: string) => {
+                    setSearch(q);
+                    setPage(1);
+                    void foodRefs.refetch();
+                }}
                 page={page}
                 setPage={setPage}
                 pageSize={pageSize}
