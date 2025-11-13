@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
-import { RecipeSummary } from '../services/recipesService';
+import { RecipeSummary } from '../../services/recipesService';
 
 type Props = {
     list: UseQueryResult<RecipeSummary[], unknown>;

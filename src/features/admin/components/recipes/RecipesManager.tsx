@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import AdminLayout from './AdminLayout';
-import { useRecipes } from '../hooks';
+import AdminLayout from '../AdminLayout';
+import { useRecipes } from '../../hooks';
 import RecipesCreateForm from './RecipesCreateForm';
 import RecipesTable from './RecipesTable';
 
