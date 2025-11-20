@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FoodRef, IngredientInput, Unit } from '../../../services/recipesService';
+import { FoodRef, IngredientInput, Unit } from '../../services/recipesService';
 import IngredientRow from './IngredientRow';
 
 type Props = {
@@ -45,10 +45,10 @@ export default function IngredientsList({ ingredients, setIngredients, foodRefs,
                     />
                 );
             })}
-             <div className="flex gap-2 mt-3">
-                    <button type="button" className="px-3 py-1 border rounded" onClick={() => setIngredients((p) => [...p, { foodRefId: '', quantity: 100, unitId: '' }])}>Add ingredient</button>
-                    <button type="button" className="px-3 py-1 border rounded" onClick={() => setIngredients((p) => p.slice(0, -1))}>Remove last</button>
-                </div>
+            <div className="flex gap-2 mt-3">
+                <button type="button" className="px-3 py-1 border rounded" onClick={() => setIngredients((p) => [...p, { foodRefId: '', quantity: 100, unitId: '' }])}>Add ingredient</button>
+                <button type="button" className="px-3 py-1 border rounded" onClick={() => setIngredients((p) => p.slice(0, -1))}>Remove last</button>
+            </div>
         </div>
     );
 }

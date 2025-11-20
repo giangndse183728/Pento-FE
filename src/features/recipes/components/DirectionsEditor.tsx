@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { DirectionInput } from '../../services/recipesService';
+import { DirectionInput } from '../services/recipesService';
 import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
 
 type Props = {

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { FoodRef, IngredientInput, Unit } from '../../../services/recipesService';
+import { FoodRef, IngredientInput, Unit } from '../../services/recipesService';
 
 type Props = {
     ingredient: IngredientInput;

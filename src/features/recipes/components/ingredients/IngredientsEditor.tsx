@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { FoodRef, IngredientInput } from '../../../services/recipesService';
-import useUnits from '../../../hooks/useUnit';
+import { FoodRef, IngredientInput } from '../../services/recipesService';
+import useUnits from '../../hooks/useUnit';
 import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
 import UnitsModal from '../UnitsModel';
 import FoodReferencesSearch from './FoodReferencesSearch';

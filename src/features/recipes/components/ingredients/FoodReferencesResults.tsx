@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { FoodRef, IngredientInput } from '../../../services/recipesService';
+import { FoodRef, IngredientInput } from '../../services/recipesService';
 
 type Props = {
     foodRefs: { data?: FoodRef[]; isFetching?: boolean };

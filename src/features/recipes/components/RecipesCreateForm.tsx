@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { UseMutationResult } from '@tanstack/react-query';
-import { recipeDetailedSchema } from '../../schema/recipeSchema';
-import { RecipeDetailedInput, IngredientInput } from '../../services/recipesService';
-import useFoodReferences from '../../hooks/useFoodReferences';
-import { FieldSet, FieldGroup, Field, FieldLabel, FieldContent, FieldError, FieldLegend } from '@/components/ui/field';
+import { recipeDetailedSchema } from '../schema/recipeSchema';
+import { RecipeDetailedInput, IngredientInput } from '../services/recipesService';
+import useFoodReferences from '../hooks/useFoodReferences';
+import { FieldSet } from '@/components/ui/field';
 import BasicInfo from './BasicInfo';
 import IngredientsEditor from './ingredients/IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
