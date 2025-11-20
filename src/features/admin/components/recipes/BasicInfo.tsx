@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
 
 type Props = {
     title: string;
@@ -24,31 +25,65 @@ type Props = {
 export default function BasicInfo({ title, setTitle, description, setDescription, prepTimeMinutes, setPrepTimeMinutes, cookTimeMinutes, setCookTimeMinutes, servings, setServings, difficultyLevel, setDifficultyLevel, imageUrl, setImageUrl, notes, setNotes }: Props) {
     return (
         <>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <input className="p-2 border rounded" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <input className="p-2 border rounded" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-            </div>
+            <Field>
+                <FieldLabel>Title</FieldLabel>
+                <FieldContent>
+                    <input className="p-2 border rounded w-full" placeholder="Recipe title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                </FieldContent>
+            </Field>
 
-            <div className="grid grid-cols-3 gap-4 mb-4">
-                <input type="number" className="p-2 border rounded" placeholder="Prep minutes" value={prepTimeMinutes} onChange={(e) => setPrepTimeMinutes(Number(e.target.value) || undefined)} />
-                <input type="number" className="p-2 border rounded" placeholder="Cook minutes" value={cookTimeMinutes} onChange={(e) => setCookTimeMinutes(Number(e.target.value) || undefined)} />
-                <input type="number" className="p-2 border rounded" placeholder="Servings" value={servings} onChange={(e) => setServings(Number(e.target.value) || undefined)} />
-            </div>
+            <Field>
+                <FieldLabel>Description</FieldLabel>
+                <FieldContent>
+                    <input className="p-2 border rounded w-full" placeholder="Recipe description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                </FieldContent>
+            </Field>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <select className="p-2 border rounded" value={difficultyLevel} onChange={(e) => setDifficultyLevel(e.target.value)}>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-                <input className="p-2 border rounded" placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-            </div>
+            <Field>
+                <FieldLabel>Prep Time (minutes)</FieldLabel>
+                <FieldContent>
+                    <input type="number" className="p-2 border rounded w-full" placeholder="Prep time" value={prepTimeMinutes} onChange={(e) => setPrepTimeMinutes(Number(e.target.value) || undefined)} />
+                </FieldContent>
+            </Field>
 
-            <div className="mb-4">
-                <textarea className="w-full p-2 border rounded" placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
-            </div>
+            <Field>
+                <FieldLabel>Cook Time (minutes)</FieldLabel>
+                <FieldContent>
+                    <input type="number" className="p-2 border rounded w-full" placeholder="Cook time" value={cookTimeMinutes} onChange={(e) => setCookTimeMinutes(Number(e.target.value) || undefined)} />
+                </FieldContent>
+            </Field>
+
+            <Field>
+                <FieldLabel>Servings</FieldLabel>
+                <FieldContent>
+                    <input type="number" className="p-2 border rounded w-full" placeholder="Servings" value={servings} onChange={(e) => setServings(Number(e.target.value) || undefined)} />
+                </FieldContent>
+            </Field>
+
+            <Field>
+                <FieldLabel>Difficulty Level</FieldLabel>
+                <FieldContent>
+                    <select className="p-2 border rounded w-full" value={difficultyLevel} onChange={(e) => setDifficultyLevel(e.target.value)}>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </FieldContent>
+            </Field>
+
+            <Field>
+                <FieldLabel>Image URL</FieldLabel>
+                <FieldContent>
+                    <input className="p-2 border rounded w-full" placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                </FieldContent>
+            </Field>
+
+            <Field>
+                <FieldLabel>Notes</FieldLabel>
+                <FieldContent>
+                    <textarea className="w-full p-2 border rounded" placeholder="Additional notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                </FieldContent>
+            </Field>
         </>
     );
 }
