@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import AdminLayout from './AdminLayout';
+import AdminLayout from '@/features/admin/components/AdminLayout';
 import { useRecipes } from '../hooks';
-import RecipesCreateForm from './recipes/RecipesCreateForm';
-import RecipesTable from './recipes/RecipesTable';
+import RecipesCreateForm from './RecipesCreateForm';
+import RecipesTable from './RecipesTable';
 
 export default function RecipesManager() {
     const { list, create } = useRecipes();

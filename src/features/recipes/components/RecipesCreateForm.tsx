@@ -7,7 +7,7 @@ import { RecipeDetailedInput, IngredientInput } from '../../services/recipesServ
 import useFoodReferences from '../../hooks/useFoodReferences';
 import { FieldSet, FieldGroup, Field, FieldLabel, FieldContent, FieldError, FieldLegend } from '@/components/ui/field';
 import BasicInfo from './BasicInfo';
-import IngredientsEditor from './IngredientsEditor';
+import IngredientsEditor from './ingredients/IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
 
 type Props = {
