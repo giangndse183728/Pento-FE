@@ -5,6 +5,7 @@ import AdminLayout from '@/features/admin/components/AdminLayout';
 import { useRecipes } from '../hooks';
 import RecipesCreateForm from './RecipesCreateForm';
 import RecipesTable from './RecipesTable';
+import { ColorTheme } from '@/constants/color';
 
 export default function RecipesManager() {
     const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
@@ -27,9 +28,10 @@ export default function RecipesManager() {
                         type="button"
                         onClick={() => setActiveTab('create')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'create'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? ''
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
+                        style={activeTab === 'create' ? { borderColor: ColorTheme.darkBlue, color: ColorTheme.darkBlue } : undefined}
                     >
                         Create Recipe
                     </button>
@@ -37,9 +39,10 @@ export default function RecipesManager() {
                         type="button"
                         onClick={() => setActiveTab('list')}
                         className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'list'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? ''
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
+                        style={activeTab === 'list' ? { borderColor: ColorTheme.darkBlue, color: ColorTheme.darkBlue } : undefined}
                     >
                         Recipes List
                     </button>

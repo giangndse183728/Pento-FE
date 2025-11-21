@@ -6,6 +6,8 @@ import { recipeDetailedSchema } from '../schema/recipeSchema';
 import { RecipeDetailedInput, IngredientInput } from '../services/recipesService';
 import useFoodReferences from '../hooks/useFoodReferences';
 import { FieldSet } from '@/components/ui/field';
+import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { ColorTheme } from '@/constants/color';
 import BasicInfo from './BasicInfo';
 import IngredientsEditor from './ingredients/IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
@@ -96,62 +98,92 @@ export default function RecipesCreateForm({ create }: Props) {
     };
 
     return (
-        <form onSubmit={onSubmit} className="w-full max-w-4xl">
+        <form onSubmit={onSubmit} className="w-full max-w-5xl space-y-6">
             <FieldSet>
                 {formErrors.length > 0 && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-                        <strong className="block font-semibold">Validation errors:</strong>
-                        <ul className="mt-2 list-disc list-inside">
-                            {formErrors.map((m, i) => (
-                                <li key={i}>{m}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    <WhiteCard className="mb-4">
+                        <div className="text-red-700">
+                            <strong className="block font-semibold">Validation errors:</strong>
+                            <ul className="mt-2 list-disc list-inside">
+                                {formErrors.map((m, i) => (
+                                    <li key={i}>{m}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </WhiteCard>
                 )}
 
-                <BasicInfo
-                    title={title}
-                    setTitle={setTitle}
-                    description={description}
-                    setDescription={setDescription}
-                    prepTimeMinutes={prepTimeMinutes}
-                    setPrepTimeMinutes={setPrepTimeMinutes}
-                    cookTimeMinutes={cookTimeMinutes}
-                    setCookTimeMinutes={setCookTimeMinutes}
-                    servings={servings}
-                    setServings={setServings}
-                    difficultyLevel={difficultyLevel}
-                    setDifficultyLevel={setDifficultyLevel}
-                    imageUrl={imageUrl}
-                    setImageUrl={setImageUrl}
-                    notes={notes}
-                    setNotes={setNotes}
-                />
+                {/* Section 1: Basic Info */}
+                <WhiteCard className="w-full">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>1</div>
+                        <h2 className="text-lg md:text-xl font-semibold">Basic Information</h2>
+                    </div>
+                    <BasicInfo
+                        title={title}
+                        setTitle={setTitle}
+                        description={description}
+                        setDescription={setDescription}
+                        prepTimeMinutes={prepTimeMinutes}
+                        setPrepTimeMinutes={setPrepTimeMinutes}
+                        cookTimeMinutes={cookTimeMinutes}
+                        setCookTimeMinutes={setCookTimeMinutes}
+                        servings={servings}
+                        setServings={setServings}
+                        difficultyLevel={difficultyLevel}
+                        setDifficultyLevel={setDifficultyLevel}
+                        imageUrl={imageUrl}
+                        setImageUrl={setImageUrl}
+                        notes={notes}
+                        setNotes={setNotes}
+                    />
+                </WhiteCard>
 
-                <IngredientsEditor
-                    ingredients={ingredients}
-                    setIngredients={setIngredients}
-                    foodRefs={{ data: foodRefs.data, isFetching: foodRefs.isFetching }}
-                    foodGroup={foodGroup}
-                    setFoodGroup={setFoodGroup}
-                    searchInput={searchInput}
-                    setSearchInput={setSearchInput}
-                    page={page}
-                    setPage={setPage}
-                    pageSize={pageSize}
-                    setPageSize={setPageSize}
-                    setSearch={setSearch}
-                    onSearch={(q?: string) => {
-                        setSearch(q);
-                        setPage(1);
-                        void foodRefs.refetch();
-                    }}
-                />
+                {/* Section 2: Ingredients */}
+                <WhiteCard className="w-full">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>2</div>
+                        <h2 className="text-lg md:text-xl font-semibold">Ingredients</h2>
+                    </div>
+                    <IngredientsEditor
+                        ingredients={ingredients}
+                        setIngredients={setIngredients}
+                        foodRefs={{ data: foodRefs.data, isFetching: foodRefs.isFetching }}
+                        foodGroup={foodGroup}
+                        setFoodGroup={setFoodGroup}
+                        searchInput={searchInput}
+                        setSearchInput={setSearchInput}
+                        page={page}
+                        setPage={setPage}
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        setSearch={setSearch}
+                        onSearch={(q?: string) => {
+                            setSearch(q);
+                            setPage(1);
+                            void foodRefs.refetch();
+                        }}
+                    />
+                </WhiteCard>
 
-                <DirectionsEditor directions={directions} setDirections={setDirections} />
+                {/* Section 3: Directions */}
+                <WhiteCard className="w-full">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>3</div>
+                        <h2 className="text-lg md:text-xl font-semibold">Directions</h2>
+                    </div>
+                    <DirectionsEditor directions={directions} setDirections={setDirections} />
+                </WhiteCard>
 
                 <div className="flex gap-2">
-                    <button type="submit" className="px-4 py-2 rounded bg-green-600 text-white" disabled={create.isPending}>Create</button>
+                    <button
+                        type="submit"
+                        className="px-4 py-2 rounded text-white transition hover:brightness-110"
+                        style={{ backgroundColor: ColorTheme.blueGray }}
+                        disabled={create.isPending}
+                    >
+                        Create
+                    </button>
                 </div>
             </FieldSet>
         </form>

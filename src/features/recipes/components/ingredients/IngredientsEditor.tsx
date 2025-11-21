@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FoodRef, IngredientInput } from '../../services/recipesService';
 import useUnits from '../../hooks/useUnit';
 import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
+import { ColorTheme } from '@/constants/color';
 import UnitsModal from '../UnitsModel';
 import FoodReferencesSearch from './FoodReferencesSearch';
 import FoodReferencesResults from './FoodReferencesResults';
@@ -53,8 +54,8 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     }, [ingredients, foodRefs.data]);
 
     return (
-        <Field>
-            <FieldLabel>Ingredients</FieldLabel>
+        <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+            <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Ingredients</FieldLabel>
             <FieldContent>
                 <FoodReferencesSearch
                     foodGroup={foodGroup}
