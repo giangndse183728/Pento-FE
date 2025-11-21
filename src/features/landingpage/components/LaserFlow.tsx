@@ -293,7 +293,7 @@ export const LaserFlow: React.FC<Props> = ({
     });
     renderer.setClearColor(0x000000, 1);
     renderer.domElement.style.width = '120%';
-    renderer.domElement.style.height = '80%';
+    renderer.domElement.style.height = '75%';
     renderer.domElement.style.display = 'block';
     mount.appendChild(renderer.domElement);
 

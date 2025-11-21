@@ -143,3 +143,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .font-primary {
+    font-family: var(--font-primary), var(--font-geist-sans), sans-serif;
+  }
+}

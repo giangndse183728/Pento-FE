@@ -103,7 +103,7 @@ export function AnimatedBeamMultipleOutputDemo({
         <div className="flex flex-col justify-center">
         <Circle ref={familyRef}  title="Track who's responsible for food management tasks">
             <div className="flex flex-col items-center justify-center gap-2 px-4">
-              <Image src="/assets/img/logo2.png" alt="Family Food Management" width={72} height={72} className="rounded" objectFit="contain" />
+              <Image src="/logo2.png" alt="Family Food Management" width={72} height={72} className="rounded" objectFit="contain" />
             
             </div>
            

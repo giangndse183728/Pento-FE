@@ -133,7 +133,7 @@ export default function Home() {
                     <div className="space-y-6 text-right pl-8">
                       <TextRevealParallax direction="right" delay={1400} duration={800}>
                         <div className="backdrop-blur-sm bg-white/10 rounded-2xl pt-8 pb-6 pl-16 pr-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                          <h3 className="text-lg font-semibold text-white mb-4 text-center">Impact</h3>
+                          <h3 className="text-lg font-primary text-white mb-4 text-center">Impact</h3>
                           <div className="grid grid-cols-1 gap-4 text-center">
                             <ProgressBar 
                               label="Reduce Waste" 

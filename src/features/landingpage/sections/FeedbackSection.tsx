@@ -110,7 +110,7 @@ function FeedbackSection() {
             status="Active"
             showUserInfo={true}
             enableTilt={true}
-            miniAvatarUrl="/assets/img/logo2.png"
+            miniAvatarUrl="/logo2.png"
             contactText="Contact Us"
           />
                 
