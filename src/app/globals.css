@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import '@mantine/core/styles.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -116,11 +117,12 @@ body {
   overflow-x: hidden;
 }
 
-html, body {
+html,
+body {
   overflow: auto;
-  scrollbar-gutter: stable both-edges; 
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 ::-webkit-scrollbar {
@@ -136,6 +138,7 @@ html, body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

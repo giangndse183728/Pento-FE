@@ -45,9 +45,31 @@ export type RecipeSummary = {
     updatedOnUtc?: string;
 };
 
-export const getRecipes = async (): Promise<RecipeSummary[]> => {
+export type RecipesQuery = {
+    pageNumber: number;
+    pageSize: number;
+    difficulty?: string;
+};
+
+export type PaginatedResponse<T> = {
+    items: T[];
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+};
+
+export const getRecipes = async (params: RecipesQuery): Promise<RecipeSummary[]> => {
     try {
-        return await apiRequest<RecipeSummary[]>('get', '/recipes');
+        const qs = '?' + Object.entries(params)
+            .filter(([, v]) => v !== undefined && v !== null && v !== '')
+            .map(([k, v]) => {
+                const val = typeof v === 'string' ? v.trim() : v;
+                return `${encodeURIComponent(k)}=${encodeURIComponent(String(val))}`;
+            })
+            .join('&');
+        const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/recipes${qs}`);
+        // API returns paginated response, extract items array
+        return response.items ?? [];
     } catch (err) {
         console.error('getRecipes failed:', err);
         return [];
