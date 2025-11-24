@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { FoodRef, IngredientInput } from '../../services/recipesService';
+import { UseQueryResult } from '@tanstack/react-query';
+import { FoodReferencesResponse } from '../../services/recipesService';
 import useUnits from '../../hooks/useUnit';
 import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
 import { ColorTheme } from '@/constants/color';
@@ -13,7 +15,7 @@ import IngredientsList from './IngredientsList';
 type Props = {
     ingredients: IngredientInput[];
     setIngredients: (next: IngredientInput[] | ((prev: IngredientInput[]) => IngredientInput[])) => void;
-    foodRefs: { data?: FoodRef[]; isFetching?: boolean };
+    foodRefs: UseQueryResult<FoodReferencesResponse, Error>;
     foodGroup?: string | undefined;
     setFoodGroup?: (v?: string) => void;
     searchInput?: string;
@@ -35,7 +37,7 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     // per-row typed name inputs so we can show suggestions and allow typing
     const [nameInputs, setNameInputs] = useState<string[]>(() =>
         ingredients.map((ing) => {
-            const found = foodRefs.data?.find((f) => f.id === ing.foodRefId);
+            const found = foodRefs.data?.items.find((f) => f.id === ing.foodRefId);
             return found ? found.name : '';
         })
     );
@@ -46,7 +48,7 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     useEffect(() => {
         setNameInputs((prev) =>
             ingredients.map((ing, i) => {
-                const found = foodRefs.data?.find((f) => f.id === ing.foodRefId);
+                const found = foodRefs.data?.items.find((f) => f.id === ing.foodRefId);
                 if (found) return found.name;
                 return prev[i] ?? '';
             })
@@ -77,6 +79,10 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
                     openIndex={openIndex}
                     setNameInputs={setNameInputs}
                     updateAt={updateAt}
+                    page={page}
+                    setPage={setPage}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
                 />
 
                 <UnitsModal isOpen={showUnitsModal} onClose={() => setShowUnitsModal(false)} units={units} />

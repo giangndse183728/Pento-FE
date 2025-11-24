@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FoodRef, IngredientInput, Unit } from '../../services/recipesService';
+import { FoodRef, IngredientInput, Unit, FoodReferencesResponse } from '../../services/recipesService';
+import { UseQueryResult } from '@tanstack/react-query';
 import IngredientRow from './IngredientRow';
 
 type Props = {
     ingredients: IngredientInput[];
     setIngredients: (next: IngredientInput[] | ((prev: IngredientInput[]) => IngredientInput[])) => void;
-    foodRefs: { data?: FoodRef[] };
+    foodRefs: UseQueryResult<FoodReferencesResponse, Error>;
     units: Unit[];
     nameInputs: string[];
     setNameInputs: (next: string[] | ((prev: string[]) => string[])) => void;
@@ -22,7 +23,7 @@ export default function IngredientsList({ ingredients, setIngredients, foodRefs,
         <div className="space-y-2">
             {ingredients.map((ing, idx) => {
                 const typed = nameInputs[idx] ?? '';
-                const suggestions = (foodRefs.data ?? []).filter((fr) => fr.name.toLowerCase().includes(typed.toLowerCase())).slice(0, 10);
+                const suggestions = (foodRefs.data?.items ?? []).filter((fr) => fr.name.toLowerCase().includes(typed.toLowerCase())).slice(0, 10);
 
                 return (
                     <IngredientRow
