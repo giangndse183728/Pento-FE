@@ -23,19 +23,9 @@ export default function RecipesCreateForm({ create }: Props) {
     const [searchInput, setSearchInput] = React.useState<string>('');
     const [page, setPage] = React.useState<number>(1);
     const [pageSize, setPageSize] = React.useState<number>(24);
-
     const foodRefs = useFoodReferences({ foodGroup, search, page, pageSize });
 
-    // Debounce search input to avoid refetching on every keystroke
-    React.useEffect(() => {
-        const handler = setTimeout(() => {
-            setSearch(searchInput?.trim() ? searchInput.trim() : undefined);
-            // reset to first page when search changes
-            setPage(1);
-        }, 400);
-
-        return () => clearTimeout(handler);
-    }, [searchInput]);
+    // No automatic debounce fetch: search triggers only via Search button in FoodReferencesSearch.
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -158,11 +148,6 @@ export default function RecipesCreateForm({ create }: Props) {
                         pageSize={pageSize}
                         setPageSize={setPageSize}
                         setSearch={setSearch}
-                        onSearch={(q?: string) => {
-                            setSearch(q);
-                            setPage(1);
-                            void foodRefs.refetch();
-                        }}
                     />
                 </WhiteCard>
 

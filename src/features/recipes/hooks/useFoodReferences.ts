@@ -6,9 +6,9 @@ import { getFoodReferences, FoodRef, FoodReferencesQuery } from '../services/rec
 export const useFoodReferences = (params?: FoodReferencesQuery) => {
     type AxiosLike = { response?: { status?: number } };
     return useQuery<FoodRef[]>({
-        queryKey: ['foodReferences', params ?? {}],
+        queryKey: ['foodReferences', params?.foodGroup, params?.search, params?.page, params?.pageSize],
         queryFn: () => getFoodReferences(params),
-        staleTime: 1000 * 60 * 10,
+        staleTime: 0, // Changed from 10 minutes to 0 to force refetch on param changes
         initialData: [],
         retry: (failureCount: number, error: unknown) => {
             const status = (error as AxiosLike)?.response?.status;

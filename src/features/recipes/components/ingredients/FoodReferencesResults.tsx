@@ -14,28 +14,32 @@ type Props = {
 
 export default function FoodReferencesResults({ foodRefs, ingredients, setIngredients, openIndex, setNameInputs, updateAt }: Props) {
     return (
-        <>
-            <div className="mb-2 text-sm text-gray-500">{foodRefs.isFetching ? 'Searching...' : `${foodRefs.data?.length ?? 0} results`}</div>
+        <div className="mb-4">
+            <div className="mb-3 flex items-center justify-between">
+                <h4 className="font-semibold text-gray-700">
+                    {foodRefs.isFetching ? 'Searching...' : `Available Ingredients (${foodRefs.data?.length ?? 0})`}
+                </h4>
+            </div>
 
-            {(!foodRefs.isFetching && (foodRefs.data == null || foodRefs.data.length === 0)) && (
-                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded">
-                    No food references found. Try entering a search term and click Search.
+            {!foodRefs.isFetching && (!foodRefs.data || foodRefs.data.length === 0) && (
+                <div className="p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl text-sm">
+                    No ingredients found. Try adjusting your search or food group filter.
                 </div>
             )}
 
             {foodRefs.data && foodRefs.data.length > 0 && (
-                <div className="mb-4">
-                    <h4 className="font-medium mb-2">Results</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                        {foodRefs.data.map((fr) => (
-                            <div key={fr.id} className="flex items-center justify-between p-2 border rounded bg-white">
-                                <div>
-                                    <div className="font-semibold">{fr.name}</div>
-                                    <div className="text-sm text-gray-500">{fr.foodGroup ?? '—'}</div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button type="button" className="px-2 py-1 border rounded" onClick={() => {
-                                        // if a row is focused, fill that row, otherwise append a new ingredient
+                <div className="max-h-80 overflow-y-auto space-y-2 pr-2">
+                    {foodRefs.data.map((fr) => (
+                        <div key={fr.id} className="flex items-center justify-between p-3 border border-white hover:border-gray-200 rounded-xl bg-white shadow-sm hover:shadow transition-shadow">
+                            <div className="flex-1">
+                                <div className="font-medium text-gray-900">{fr.name}</div>
+                                <div className="text-sm text-gray-500">{fr.foodGroup ?? 'Unknown group'}</div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm transition"
+                                    onClick={() => {
                                         if (openIndex !== null && openIndex >= 0 && openIndex < ingredients.length) {
                                             setNameInputs((prev) => prev.map((p, i) => i === openIndex ? fr.name : p));
                                             updateAt(openIndex, { foodRefId: fr.id });
@@ -43,17 +47,15 @@ export default function FoodReferencesResults({ foodRefs, ingredients, setIngred
                                             setIngredients((p) => [...p, { foodRefId: fr.id, quantity: 100, unitId: '' }]);
                                             setNameInputs((prev) => [...prev, fr.name]);
                                         }
-                                    }}>Add</button>
-                                    <button type="button" className="px-2 py-1 border rounded" onClick={() => {
-                                        // copy name to clipboard as quick action (optional)
-                                        try { navigator.clipboard.writeText(fr.name); } catch { /* ignore */ }
-                                    }}>Copy name</button>
-                                </div>
+                                    }}
+                                >
+                                    Add
+                                </button>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             )}
-        </>
+        </div>
     );
 }
