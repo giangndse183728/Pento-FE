@@ -22,7 +22,7 @@ export default function RecipesCreateForm({ create }: Props) {
     const [search, setSearch] = React.useState<string | undefined>(undefined);
     const [searchInput, setSearchInput] = React.useState<string>('');
     const [page, setPage] = React.useState<number>(1);
-    const [pageSize, setPageSize] = React.useState<number>(24);
+    const [pageSize, setPageSize] = React.useState<number>(6);
     const foodRefs = useFoodReferences({ foodGroup, search, page, pageSize });
 
     // No automatic debounce fetch: search triggers only via Search button in FoodReferencesSearch.
@@ -138,7 +138,7 @@ export default function RecipesCreateForm({ create }: Props) {
                     <IngredientsEditor
                         ingredients={ingredients}
                         setIngredients={setIngredients}
-                        foodRefs={{ data: foodRefs.data, isFetching: foodRefs.isFetching }}
+                        foodRefs={foodRefs}
                         foodGroup={foodGroup}
                         setFoodGroup={setFoodGroup}
                         searchInput={searchInput}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ColorTheme } from '@/constants/color';
+import { CusButton } from '@/components/ui/cusButton';
 
 type Props = {
     foodGroup?: string | undefined;
@@ -30,10 +30,10 @@ export default function FoodReferencesSearch({ foodGroup, setFoodGroup, searchIn
             handleSearch();
         }
     }; return (
-        <div className="mb-4 space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="mb-4">
+            <div className="flex gap-3">
                 <select
-                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
+                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl"
                     value={foodGroup ?? ''}
                     onChange={(e) => {
                         setFoodGroup?.(e.target.value || undefined);
@@ -55,44 +55,20 @@ export default function FoodReferencesSearch({ foodGroup, setFoodGroup, searchIn
                 </select>
 
                 <input
-                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full md:col-span-2"
-                    placeholder="Search ingredients (auto-debounced)..."
+                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl flex-1"
+                    placeholder="Search ingredients..."
                     value={searchInput ?? ''}
                     onChange={(e) => setSearchInput?.(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
-            </div>
-
-            <div className="flex flex-wrap gap-3 items-center text-sm">
-                <label className="flex items-center gap-2">
-                    <span className="text-gray-600">Page:</span>
-                    <input
-                        type="number"
-                        className="p-2 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-lg w-20"
-                        value={page}
-                        min={1}
-                        onChange={(e) => setPage?.(Number(e.target.value) || 1)}
-                    />
-                </label>
-                <label className="flex items-center gap-2">
-                    <span className="text-gray-600">Per page:</span>
-                    <input
-                        type="number"
-                        className="p-2 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-lg w-20"
-                        value={pageSize}
-                        min={1}
-                        max={100}
-                        onChange={(e) => setPageSize?.(Number(e.target.value) || 24)}
-                    />
-                </label>
-                <button
+                <CusButton
                     type="button"
-                    className="px-4 py-2 rounded text-white transition hover:brightness-110"
-                    style={{ backgroundColor: ColorTheme.darkBlue }}
+                    variant="blueGray"
+                    size="default"
                     onClick={handleSearch}
                 >
                     Search
-                </button>
+                </CusButton>
             </div>
         </div>
     );
