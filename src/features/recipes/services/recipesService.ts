@@ -58,7 +58,7 @@ export type PaginatedResponse<T> = {
     pageSize: number;
 };
 
-export const getRecipes = async (params: RecipesQuery): Promise<RecipeSummary[]> => {
+export const getRecipes = async (params: RecipesQuery): Promise<PaginatedResponse<RecipeSummary>> => {
     try {
         const qs = '?' + Object.entries(params)
             .filter(([, v]) => v !== undefined && v !== null && v !== '')
@@ -68,16 +68,31 @@ export const getRecipes = async (params: RecipesQuery): Promise<RecipeSummary[]>
             })
             .join('&');
         const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/recipes${qs}`);
-        // API returns paginated response, extract items array
-        return response.items ?? [];
+        console.log('✅ getRecipes response:', response);
+        // Return full paginated response
+        return response;
     } catch (err) {
-        console.error('getRecipes failed:', err);
-        return [];
+        console.error('❌ getRecipes failed:', err);
+        // Return empty paginated response on error
+        return {
+            items: [],
+            totalCount: 0,
+            pageNumber: params.pageNumber,
+            pageSize: params.pageSize
+        };
     }
 };
 
 export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
-    return apiRequest<unknown>('post', '/recipes/detailed', payload);
+    console.log('📡 postRecipeDetailed called with payload:', JSON.stringify(payload, null, 2));
+    try {
+        const result = await apiRequest<unknown>('post', '/recipes/detailed', payload);
+        console.log('✅ postRecipeDetailed response:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ postRecipeDetailed error:', error);
+        throw error;
+    }
 };
 
 export type Unit = {
