@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  width: 12rem;
+  width: 100%;
 }
 
 .slider-wrapper {
@@ -13,7 +13,7 @@
   touch-action: none;
   user-select: none;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1rem;
 }
 
@@ -21,13 +21,17 @@
   position: relative;
   display: flex;
   width: 100%;
-  max-width: 200px;
   flex-grow: 1;
   cursor: grab;
   touch-action: none;
   user-select: none;
   align-items: center;
   padding: 1rem 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.slider-root:hover {
+  transform: scale(0.95);
 }
 
 .slider-root:active {
@@ -51,7 +55,7 @@
 .slider-range {
   position: absolute;
   height: 100%;
-  background-color: #888;
+  background-color: #113F67;
   border-radius: 9999px;
 }
 
@@ -59,8 +63,8 @@
   color: #808080;
   position: absolute;
   transform: translateY(-1rem);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
 }
 

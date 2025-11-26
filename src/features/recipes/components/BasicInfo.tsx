@@ -3,7 +3,8 @@
 import React from "react";
 import { Field, FieldLabel, FieldContent } from "@/components/ui/field";
 import { ColorTheme } from "@/constants/color";
-import { Slider } from "@/components/ui/slider";
+import ElasticSlider from "@/components/decoration/ElasticSlider";
+import { CirclePlus, CircleMinus } from "lucide-react";
 
 type Props = {
     title: string;
@@ -43,7 +44,7 @@ export default function BasicInfo(props: Props) {
 
             {/* Title */}
             <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Title</FieldLabel>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Title</FieldLabel>
                 <FieldContent>
                     <input
                         className="neomorphic-input w-full"
@@ -57,7 +58,7 @@ export default function BasicInfo(props: Props) {
 
             {/* Description */}
             <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Description</FieldLabel>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Description</FieldLabel>
                 <FieldContent>
                     <textarea
                         className="neomorphic-textarea w-full overflow-hidden min-h-[48px]"
@@ -74,68 +75,80 @@ export default function BasicInfo(props: Props) {
             </Field>
 
             {/* Prep + Cook + Total Time */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-[2fr_2fr_1fr] gap-6">
                 {/* Prep Time */}
                 <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Prep Time (min)</FieldLabel>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Prep Time (min)</FieldLabel>
                     <FieldContent>
-                        <div className="flex gap-3 items-center">
-                            <div className="flex-1">
-                                <Slider
-                                    value={[prepTimeMinutes ?? 0]}
-                                    min={0}
-                                    max={240}
-                                    step={5}
-                                    onValueChange={([val]) => setPrepTimeMinutes(val)}
-                                    className="w-full"
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setPrepTimeMinutes(Math.max(0, (prepTimeMinutes ?? 0) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={prepTimeMinutes ?? 0}
+                                    startingValue={0}
+                                    maxValue={600}
+                                    isStepped={true}
+                                    stepSize={5}
+                                    onChange={(val) => setPrepTimeMinutes(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
                                 />
                             </div>
-                            <input
-                                type="number"
-                                className="neomorphic-input w-20 text-center"
-                                min={0}
-                                value={prepTimeMinutes ?? ""}
-                                onChange={(e) => {
-                                    const val = e.target.value ? Number(e.target.value) : undefined;
-                                    setPrepTimeMinutes(val !== undefined && val >= 0 ? val : undefined);
-                                }}
-                            />
+                            <button
+                                type="button"
+                                onClick={() => setPrepTimeMinutes(Math.min(600, (prepTimeMinutes ?? 0) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
                         </div>
                     </FieldContent>
                 </Field>
 
                 {/* Cook Time */}
                 <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Cook Time (min)</FieldLabel>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Cook Time (min)</FieldLabel>
                     <FieldContent>
-                        <div className="flex gap-3 items-center">
-                            <div className="flex-1">
-                                <Slider
-                                    value={[cookTimeMinutes ?? 0]}
-                                    min={0}
-                                    max={240}
-                                    step={5}
-                                    onValueChange={([val]) => setCookTimeMinutes(val)}
-                                    className="w-full"
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setCookTimeMinutes(Math.max(0, (cookTimeMinutes ?? 0) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={cookTimeMinutes ?? 0}
+                                    startingValue={0}
+                                    maxValue={600}
+                                    isStepped={true}
+                                    stepSize={5}
+                                    onChange={(val) => setCookTimeMinutes(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
                                 />
                             </div>
-                            <input
-                                type="number"
-                                className="neomorphic-input w-20 text-center"
-                                min={0}
-                                value={cookTimeMinutes ?? ""}
-                                onChange={(e) => {
-                                    const val = e.target.value ? Number(e.target.value) : undefined;
-                                    setCookTimeMinutes(val !== undefined && val >= 0 ? val : undefined);
-                                }}
-                            />
+                            <button
+                                type="button"
+                                onClick={() => setCookTimeMinutes(Math.min(600, (cookTimeMinutes ?? 0) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
                         </div>
                     </FieldContent>
                 </Field>
 
                 {/* Total Time */}
                 <Field className="bg-slate-50 p-4 rounded-2xl shadow">
-                    <FieldLabel className="font-semibold text-slate-600">Total Time</FieldLabel>
+                    <FieldLabel className="font-semibold text-slate-600" style={{ fontSize: "1.1rem" }}>Total Time</FieldLabel>
                     <FieldContent>
                         <input
                             className="p-3 border rounded-xl w-full bg-slate-100 text-slate-500"
@@ -151,36 +164,42 @@ export default function BasicInfo(props: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Servings */}
                 <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Servings</FieldLabel>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Servings</FieldLabel>
                     <FieldContent>
-                        <div className="flex gap-3 items-center">
-                            <div className="flex-1">
-                                <Slider
-                                    value={[servings ?? 1]}
-                                    min={1}
-                                    max={20}
-                                    step={1}
-                                    onValueChange={([val]) => setServings(val)}
-                                    className="w-full"
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setServings(Math.max(1, (servings ?? 1) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={servings ?? 1}
+                                    startingValue={1}
+                                    maxValue={50}
+                                    isStepped={true}
+                                    stepSize={1}
+                                    onChange={(val) => setServings(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
                                 />
                             </div>
-                            <input
-                                type="number"
-                                className="neomorphic-input w-20 text-center"
-                                min={1}
-                                value={servings ?? ""}
-                                onChange={(e) => {
-                                    const val = e.target.value ? Number(e.target.value) : undefined;
-                                    setServings(val !== undefined && val >= 1 ? val : undefined);
-                                }}
-                            />
+                            <button
+                                type="button"
+                                onClick={() => setServings(Math.min(50, (servings ?? 1) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
                         </div>
                     </FieldContent>
                 </Field>
 
                 {/* Difficulty */}
                 <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Difficulty</FieldLabel>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Difficulty</FieldLabel>
                     <FieldContent>
                         <select
                             className="neomorphic-select w-full"
@@ -197,7 +216,7 @@ export default function BasicInfo(props: Props) {
 
             {/* Image */}
             <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Image URL</FieldLabel>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Image URL</FieldLabel>
                 <FieldContent>
                     <input
                         className="neomorphic-input w-full"
@@ -211,7 +230,7 @@ export default function BasicInfo(props: Props) {
 
             {/* Notes */}
             <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Notes</FieldLabel>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Notes</FieldLabel>
                 <FieldContent>
                     <textarea
                         className="neomorphic-textarea w-full overflow-hidden min-h-[48px]"

@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Slider } from "@/components/ui/slider";
+import ElasticSlider from "@/components/decoration/ElasticSlider";
 import { FoodRef, IngredientInput, Unit } from "../../services/recipesService";
 import { CusButton } from "@/components/ui/cusButton";
-import { BadgeInfo } from "lucide-react";
+import { BadgeInfo, CircleMinus, CirclePlus } from "lucide-react";
 
 type Props = {
     ingredient: IngredientInput;
@@ -70,29 +70,34 @@ export default function IngredientRow(props: Props) {
                     )}
                 </div>
 
-                {/* 🎚️ SLIDER + NUMBER */}
-                <div className="flex gap-3 items-center col-span-4">
-                    <div className="flex-1">
-                        <Slider
-                            value={[ingredient.quantity]}
-                            min={0}
-                            max={99}
-                            step={1}
-                            onValueChange={([val]) => updateAt({ quantity: val })}
-                            className="w-full"
+                {/* 🎚️ SLIDER + BUTTONS */}
+                <div className="flex gap-3 items-center justify-center col-span-4">
+                    <button
+                        type="button"
+                        onClick={() => updateAt({ quantity: Math.max(0, ingredient.quantity - 1) })}
+                        className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                    >
+                        <CircleMinus className="w-5 h-5" />
+                    </button>
+                    <div className="flex-1 flex items-center">
+                        <ElasticSlider
+                            defaultValue={ingredient.quantity}
+                            startingValue={0}
+                            maxValue={99}
+                            isStepped={true}
+                            stepSize={1}
+                            onChange={(val) => updateAt({ quantity: val })}
+                            leftIcon={<span />}
+                            rightIcon={<span />}
                         />
                     </div>
-
-                    <input
-                        type="number"
-                        className="neomorphic-input w-20 text-center"
-                        min={0}
-                        value={ingredient.quantity}
-                        onChange={(e) => {
-                            const val = Number(e.target.value);
-                            updateAt({ quantity: val >= 0 ? val : 0 });
-                        }}
-                    />
+                    <button
+                        type="button"
+                        onClick={() => updateAt({ quantity: Math.min(99, ingredient.quantity + 1) })}
+                        className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                    >
+                        <CirclePlus className="w-5 h-5" />
+                    </button>
                 </div>
 
                 {/* UNIT SELECT */}
