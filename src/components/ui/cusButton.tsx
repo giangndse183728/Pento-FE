@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils"
 import { ColorTheme } from "@/constants/color"
 
 const cusButtonVariants = cva(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all shadow-sm hover:shadow disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all shadow-sm hover:shadow disabled:pointer-events-none disabled:opacity-50",
     {
         variants: {
             variant: {
                 blue: "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white",
                 blueGray: "hover:brightness-110 text-white",
+                darkBlue: "hover:brightness-110 text-white",
                 green: "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white",
                 red: "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white",
                 purple: "bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white",
@@ -40,8 +41,10 @@ export interface CusButtonProps
 const CusButton = React.forwardRef<HTMLButtonElement, CusButtonProps>(
     ({ className, variant, size, children, style, ...props }, ref) => {
         const inlineStyle = variant === "blueGray"
-            ? { backgroundColor: ColorTheme.blueGray, ...style }
-            : style;
+            ? { backgroundColor: ColorTheme.blueGray, borderRadius: '20px', ...style }
+            : variant === "darkBlue"
+                ? { backgroundColor: ColorTheme.darkBlue, borderRadius: '20px', ...style }
+                : { borderRadius: '20px', ...style };
 
         return (
             <button

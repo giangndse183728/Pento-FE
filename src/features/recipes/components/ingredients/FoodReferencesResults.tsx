@@ -169,7 +169,7 @@ export default function FoodReferencesResults({ foodRefs, ingredients, setIngred
                                                 setNameInputs((prev) => prev.map((p, i) => i === openIndex ? fr.name : p));
                                                 updateAt(openIndex, { foodRefId: fr.id });
                                             } else {
-                                                setIngredients((p) => [...p, { foodRefId: fr.id, quantity: 100, unitId: '' }]);
+                                                setIngredients((p) => [...p, { foodRefId: fr.id, quantity: 1, unitId: '' }]);
                                                 setNameInputs((prev) => [...prev, fr.name]);
                                             }
                                         }}

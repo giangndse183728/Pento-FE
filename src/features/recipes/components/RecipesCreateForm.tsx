@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { UseMutationResult } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
 import { RecipeDetailedInput, IngredientInput } from '../services/recipesService';
 import useFoodReferences from '../hooks/useFoodReferences';
@@ -38,11 +39,12 @@ export default function RecipesCreateForm({ create }: Props) {
     const [directions, setDirections] = useState<Array<{ stepNumber: number; description: string; imageUrl?: string }>>([
         { stepNumber: 1, description: '', imageUrl: '' },
     ]);
-    const [ingredients, setIngredients] = useState<IngredientInput[]>([{ foodRefId: '', quantity: 100, unitId: '' }]);
-    const [formErrors, setFormErrors] = useState<string[]>([]);
+    const [ingredients, setIngredients] = useState<IngredientInput[]>([{ foodRefId: '', quantity: 1, unitId: '' }]);
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        console.log('🔵 Form submitted - preparing payload...');
 
         const payload: RecipeDetailedInput = {
             title,
@@ -58,20 +60,28 @@ export default function RecipesCreateForm({ create }: Props) {
             directions: directions.map((d) => ({ stepNumber: d.stepNumber, description: d.description, imageUrl: d.imageUrl || undefined })),
         };
 
+        console.log('📦 Payload before validation:', JSON.stringify(payload, null, 2));
+
         const result = recipeDetailedSchema.safeParse(payload);
         if (!result.success) {
-            const messages = result.error.errors.map((err) => {
+            console.error('❌ Validation failed:', result.error.errors);
+            const errorMessages = result.error.errors.map((err) => {
                 const path = err.path.length ? err.path.join('.') : 'root';
                 return `${path}: ${err.message}`;
             });
-            setFormErrors(messages);
+            toast.error('Validation failed', {
+                description: errorMessages.join('\n'),
+            });
             return;
         }
 
-        setFormErrors([]);
+        console.log('✅ Validation passed');
 
         try {
+            console.log('🚀 Calling create.mutateAsync with:', JSON.stringify(result.data, null, 2));
             await create.mutateAsync(result.data as RecipeDetailedInput);
+            console.log('✅ Recipe created successfully!');
+            toast.success('Recipe created successfully!');
             setTitle('');
             setDescription('');
             setPrepTimeMinutes(1);
@@ -80,29 +90,17 @@ export default function RecipesCreateForm({ create }: Props) {
             setServings(1);
             setDifficultyLevel('Medium');
             setImageUrl('');
-            setIngredients([{ foodRefId: '', quantity: 100, unitId: '' }]);
+            setIngredients([{ foodRefId: '', quantity: 1, unitId: '' }]);
             setDirections([{ stepNumber: 1, description: '', imageUrl: '' }]);
         } catch (err) {
-            console.error(err);
+            console.error('❌ Recipe creation failed:', err);
+            toast.error(err instanceof Error ? err.message : 'Failed to create recipe');
         }
     };
 
     return (
         <form onSubmit={onSubmit} className="w-full max-w-5xl space-y-6">
             <FieldSet>
-                {formErrors.length > 0 && (
-                    <WhiteCard className="mb-4">
-                        <div className="text-red-700">
-                            <strong className="block font-semibold">Validation errors:</strong>
-                            <ul className="mt-2 list-disc list-inside">
-                                {formErrors.map((m, i) => (
-                                    <li key={i}>{m}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    </WhiteCard>
-                )}
-
                 {/* Section 1: Basic Info */}
                 <WhiteCard className="w-full">
                     <div className="mb-4 flex items-center gap-3">

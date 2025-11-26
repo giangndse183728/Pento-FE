@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { FoodRef, IngredientInput } from '../../services/recipesService';
+import styled from 'styled-components';
+import { IngredientInput } from '../../services/recipesService';
 import { UseQueryResult } from '@tanstack/react-query';
 import { FoodReferencesResponse } from '../../services/recipesService';
 import useUnits from '../../hooks/useUnit';
@@ -10,7 +11,20 @@ import { ColorTheme } from '@/constants/color';
 import UnitsModal from '../UnitsModel';
 import FoodReferencesSearch from './FoodReferencesSearch';
 import FoodReferencesResults from './FoodReferencesResults';
-import IngredientsList from './IngredientsList';
+import IngredientRow from './IngredientsRow';
+import { CusButton } from '@/components/ui/cusButton';
+
+const StyledField = styled(Field)`
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    background: ${ColorTheme.babyBlue};
+`;
+
+const StyledFieldLabel = styled(FieldLabel)`
+    font-weight: 600;
+    color: ${ColorTheme.darkBlue};
+`;
 
 type Props = {
     ingredients: IngredientInput[];
@@ -56,8 +70,8 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     }, [ingredients, foodRefs.data]);
 
     return (
-        <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-            <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Ingredients</FieldLabel>
+        <StyledField>
+            <StyledFieldLabel>Ingredients</StyledFieldLabel>
             <FieldContent>
                 <FoodReferencesSearch
                     foodGroup={foodGroup}
@@ -87,17 +101,53 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
 
                 <UnitsModal isOpen={showUnitsModal} onClose={() => setShowUnitsModal(false)} units={units} />
 
-                <IngredientsList
-                    ingredients={ingredients}
-                    setIngredients={setIngredients}
-                    foodRefs={foodRefs}
-                    units={units || []}
-                    nameInputs={nameInputs}
-                    setNameInputs={setNameInputs}
-                    updateAt={updateAt}
-                    setShowUnitsModal={setShowUnitsModal}
-                />
+                {/* Ingredients List - Previously IngredientsList component */}
+                <div className="space-y-2">
+                    {ingredients.map((ing, idx) => {
+                        const typed = nameInputs[idx] ?? '';
+                        const suggestions = (foodRefs.data?.items ?? []).filter((fr) => fr.name.toLowerCase().includes(typed.toLowerCase())).slice(0, 10);
+
+                        return (
+                            <IngredientRow
+                                key={idx}
+                                ingredient={ing}
+                                units={units || []}
+                                updateAt={(patch) => updateAt(idx, patch)}
+                                nameInput={typed}
+                                setNameInput={(name) => setNameInputs((prev) => prev.map((p, i) => (i === idx ? name : p)))}
+                                suggestions={suggestions}
+                                open={openIndex === idx}
+                                onOpen={() => setOpenIndex(idx)}
+                                onClose={() => setOpenIndex((cur) => (cur === idx ? null : cur))}
+                                onSuggestionClick={(fr) => {
+                                    setNameInputs((prev) => prev.map((p, i) => (i === idx ? fr.name : p)));
+                                    updateAt(idx, { foodRefId: fr.id });
+                                    setOpenIndex(null);
+                                }}
+                                setShowUnitsModal={setShowUnitsModal}
+                            />
+                        );
+                    })}
+                    <div className="flex gap-2 mt-8">
+                        <CusButton
+                            type="button"
+                            variant="blueGray"
+                            size="lg"
+                            onClick={() => setIngredients((p) => [...p, { foodRefId: '', quantity: 1, unitId: '' }])}
+                        >
+                            Add ingredient
+                        </CusButton>
+                        <CusButton
+                            type="button"
+                            variant="darkBlue"
+                            size="lg"
+                            onClick={() => setIngredients((p) => p.slice(0, -1))}
+                        >
+                            Remove last
+                        </CusButton>
+                    </div>
+                </div>
             </FieldContent>
-        </Field>
+        </StyledField>
     );
 }

@@ -33,7 +33,7 @@ export default function FoodReferencesSearch({ foodGroup, setFoodGroup, searchIn
         <div className="mb-4">
             <div className="flex gap-3">
                 <select
-                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl"
+                    className="neomorphic-select"
                     value={foodGroup ?? ''}
                     onChange={(e) => {
                         setFoodGroup?.(e.target.value || undefined);
@@ -55,9 +55,10 @@ export default function FoodReferencesSearch({ foodGroup, setFoodGroup, searchIn
                 </select>
 
                 <input
-                    className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl flex-1"
+                    className="neomorphic-input flex-1"
                     placeholder="Search ingredients..."
                     value={searchInput ?? ''}
+                    autoComplete="off"
                     onChange={(e) => setSearchInput?.(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
