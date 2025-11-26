@@ -16,6 +16,7 @@ function shouldHideNavbar(pathname: string): boolean {
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideNavbar = shouldHideNavbar(pathname || '/');
+  const isAdminRoute = pathname?.startsWith('/admin');
 
   // Create QueryClient once per mounted LayoutClient
   const [queryClient] = useState(() => new QueryClient());
@@ -23,19 +24,21 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   return (
     <MantineProvider>
       <QueryClientProvider client={queryClient}>
-        {/* Fixed Video Background */}
-        <div className="fixed inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/vecteezy_fantasy-landscape-and-falling-snow_1625855.webm" type="video/webm" />
-          </video>
-          <div className="absolute inset-0 bg-black/30"></div>
-        </div>
+        {/* Fixed Video Background - only show if not admin route */}
+        {!isAdminRoute && (
+          <div className="fixed inset-0 z-0">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            >
+              <source src="/vecteezy_fantasy-landscape-and-falling-snow_1625855.webm" type="video/webm" />
+            </video>
+            <div className="absolute inset-0 bg-black/30"></div>
+          </div>
+        )}
 
         {/* Content */}
         <div className="relative z-10">
