@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import '@mantine/core/styles.css';
+@import '../styles/neomorphic.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -148,4 +149,32 @@ body {
   .font-primary {
     font-family: var(--font-primary), var(--font-geist-sans), sans-serif;
   }
+}
+
+/* Sonner Toast Styles */
+[data-sonner-toast][data-type="success"] {
+  background-color: #C7DB9C !important;
+  border-color: #059669 !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background-color: #FF748B !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: #000000 !important;
+  opacity: 0.9;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  color: #ffffff !important;
+  opacity: 0.95;
+}
+
+[data-sonner-toast][data-type="error"] [data-description] {
+  color: #ffffff !important;
+  opacity: 0.95;
 }

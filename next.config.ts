@@ -25,8 +25,11 @@ const nextConfig: NextConfig = {
     largePageDataBytes: 128 * 100000,
   },
   eslint: {
-    ignoreDuringBuilds: true, 
+    ignoreDuringBuilds: true,
   },
+  compiler: {
+    styledComponents: true
+  }
 };
 
 export default nextConfig;
