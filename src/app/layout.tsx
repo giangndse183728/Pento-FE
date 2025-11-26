@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import LayoutClient from '../components/layouts/LayoutClient';
 import ChatbotWidget from '../features/chatbot/components/ChatbotWidget';
+import { Toaster } from '@/components/ui/sonner';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} ${momoTrustDisplay.variable} antialiased`}>
         <LayoutClient>{children}</LayoutClient>
         <ChatbotWidget />
+        <Toaster />
       </body>
     </html>
   );
