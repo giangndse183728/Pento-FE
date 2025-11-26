@@ -43,7 +43,7 @@ export default function BasicInfo(props: Props) {
         <div className="space-y-8">
 
             {/* Title */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+            <Field>
                 <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Title</FieldLabel>
                 <FieldContent>
                     <input
@@ -57,7 +57,7 @@ export default function BasicInfo(props: Props) {
             </Field>
 
             {/* Description */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+            <Field>
                 <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Description</FieldLabel>
                 <FieldContent>
                     <textarea
@@ -77,7 +77,7 @@ export default function BasicInfo(props: Props) {
             {/* Prep + Cook + Total Time */}
             <div className="grid grid-cols-[2fr_2fr_1fr] gap-6">
                 {/* Prep Time */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+                <Field>
                     <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Prep Time (min)</FieldLabel>
                     <FieldContent>
                         <div className="flex gap-3 items-center justify-center">
@@ -112,7 +112,7 @@ export default function BasicInfo(props: Props) {
                 </Field>
 
                 {/* Cook Time */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+                <Field>
                     <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Cook Time (min)</FieldLabel>
                     <FieldContent>
                         <div className="flex gap-3 items-center justify-center">
@@ -163,7 +163,7 @@ export default function BasicInfo(props: Props) {
             {/* Servings + Difficulty */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Servings */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+                <Field>
                     <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Servings</FieldLabel>
                     <FieldContent>
                         <div className="flex gap-3 items-center justify-center">
@@ -198,7 +198,7 @@ export default function BasicInfo(props: Props) {
                 </Field>
 
                 {/* Difficulty */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+                <Field>
                     <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Difficulty</FieldLabel>
                     <FieldContent>
                         <select
@@ -215,7 +215,7 @@ export default function BasicInfo(props: Props) {
             </div>
 
             {/* Image */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+            <Field>
                 <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Image URL</FieldLabel>
                 <FieldContent>
                     <input
@@ -229,7 +229,7 @@ export default function BasicInfo(props: Props) {
             </Field>
 
             {/* Notes */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
+            <Field>
                 <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Notes</FieldLabel>
                 <FieldContent>
                     <textarea

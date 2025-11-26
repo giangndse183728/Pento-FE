@@ -9,6 +9,7 @@ import useFoodReferences from '../hooks/useFoodReferences';
 import { FieldSet } from '@/components/ui/field';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
+import Stepper, { Step } from '@/components/decoration/Stepper';
 import BasicInfo from './BasicInfo';
 import IngredientsEditor from './ingredients/IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
@@ -41,10 +42,20 @@ export default function RecipesCreateForm({ create }: Props) {
     ]);
     const [ingredients, setIngredients] = useState<IngredientInput[]>([{ foodRefId: '', quantity: 1, unitId: '' }]);
 
-    const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         console.log('🔵 Form submitted - preparing payload...');
+
+        // Filter out incomplete ingredients (those with empty foodRefId or unitId)
+        const validIngredients = ingredients.filter(
+            (i) => i.foodRefId && i.foodRefId.trim() !== '' && i.unitId && i.unitId.trim() !== ''
+        );
+
+        // Filter out empty directions
+        const validDirections = directions.filter(
+            (d) => d.description && d.description.trim() !== ''
+        );
 
         const payload: RecipeDetailedInput = {
             title,
@@ -56,8 +67,8 @@ export default function RecipesCreateForm({ create }: Props) {
             difficultyLevel,
             imageUrl: imageUrl || undefined,
             isPublic: true,
-            ingredients: ingredients.map((i) => ({ foodRefId: i.foodRefId, quantity: i.quantity, unitId: i.unitId, notes: i.notes })),
-            directions: directions.map((d) => ({ stepNumber: d.stepNumber, description: d.description, imageUrl: d.imageUrl || undefined })),
+            ingredients: validIngredients.map((i) => ({ foodRefId: i.foodRefId, quantity: i.quantity, unitId: i.unitId, notes: i.notes })),
+            directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, imageUrl: d.imageUrl || undefined })),
         };
 
         console.log('📦 Payload before validation:', JSON.stringify(payload, null, 2));
@@ -94,80 +105,109 @@ export default function RecipesCreateForm({ create }: Props) {
             setDirections([{ stepNumber: 1, description: '', imageUrl: '' }]);
         } catch (err) {
             console.error('❌ Recipe creation failed:', err);
-            toast.error(err instanceof Error ? err.message : 'Failed to create recipe');
+
+            // Extract detailed error message from API response
+            const axiosError = err as { response?: { data?: { errors?: unknown[]; detail?: string; title?: string } } };
+            let errorMessage = 'Failed to create recipe';
+
+            if (axiosError?.response?.data) {
+                const apiError = axiosError.response.data;
+                console.log('API Error Details:', apiError);
+
+                // Check for validation errors array
+                if (apiError.errors && Array.isArray(apiError.errors)) {
+                    errorMessage = apiError.errors.map((e: unknown) =>
+                        typeof e === 'string' ? e : JSON.stringify(e)
+                    ).join('\n');
+                } else if (apiError.detail) {
+                    errorMessage = apiError.detail;
+                } else if (apiError.title) {
+                    errorMessage = apiError.title;
+                }
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            }
+
+            toast.error('Failed to create recipe', {
+                description: errorMessage,
+            });
         }
     };
 
     return (
-        <form onSubmit={onSubmit} className="w-full max-w-5xl space-y-6">
+        <form onSubmit={onSubmit} className="w-full max-w-5xl">
             <FieldSet>
-                {/* Section 1: Basic Info */}
-                <WhiteCard className="w-full">
-                    <div className="mb-4 flex items-center gap-3">
-                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>1</div>
-                        <h2 className="text-lg md:text-xl font-semibold">Basic Information</h2>
-                    </div>
-                    <BasicInfo
-                        title={title}
-                        setTitle={setTitle}
-                        description={description}
-                        setDescription={setDescription}
-                        prepTimeMinutes={prepTimeMinutes}
-                        setPrepTimeMinutes={setPrepTimeMinutes}
-                        cookTimeMinutes={cookTimeMinutes}
-                        setCookTimeMinutes={setCookTimeMinutes}
-                        servings={servings}
-                        setServings={setServings}
-                        difficultyLevel={difficultyLevel}
-                        setDifficultyLevel={setDifficultyLevel}
-                        imageUrl={imageUrl}
-                        setImageUrl={setImageUrl}
-                        notes={notes}
-                        setNotes={setNotes}
-                    />
-                </WhiteCard>
+                <Stepper
+                    initialStep={1}
+                    stepCircleContainerClassName="w-full"
+                    contentClassName="w-full"
+                    backButtonText="Previous"
+                    nextButtonText="Next"
+                    onFinalStepCompleted={onSubmit}
+                >
+                    {/* Step 1: Basic Info */}
+                    <Step>
+                        <WhiteCard className="w-full">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>1</div>
+                                <h2 className="text-lg md:text-xl font-semibold">Basic Information</h2>
+                            </div>
+                            <BasicInfo
+                                title={title}
+                                setTitle={setTitle}
+                                description={description}
+                                setDescription={setDescription}
+                                prepTimeMinutes={prepTimeMinutes}
+                                setPrepTimeMinutes={setPrepTimeMinutes}
+                                cookTimeMinutes={cookTimeMinutes}
+                                setCookTimeMinutes={setCookTimeMinutes}
+                                servings={servings}
+                                setServings={setServings}
+                                difficultyLevel={difficultyLevel}
+                                setDifficultyLevel={setDifficultyLevel}
+                                imageUrl={imageUrl}
+                                setImageUrl={setImageUrl}
+                                notes={notes}
+                                setNotes={setNotes}
+                            />
+                        </WhiteCard>
+                    </Step>
 
-                {/* Section 2: Ingredients */}
-                <WhiteCard className="w-full">
-                    <div className="mb-4 flex items-center gap-3">
-                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>2</div>
-                        <h2 className="text-lg md:text-xl font-semibold">Ingredients</h2>
-                    </div>
-                    <IngredientsEditor
-                        ingredients={ingredients}
-                        setIngredients={setIngredients}
-                        foodRefs={foodRefs}
-                        foodGroup={foodGroup}
-                        setFoodGroup={setFoodGroup}
-                        searchInput={searchInput}
-                        setSearchInput={setSearchInput}
-                        page={page}
-                        setPage={setPage}
-                        pageSize={pageSize}
-                        setPageSize={setPageSize}
-                        setSearch={setSearch}
-                    />
-                </WhiteCard>
+                    {/* Step 2: Ingredients */}
+                    <Step>
+                        <WhiteCard className="w-full">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>2</div>
+                                <h2 className="text-lg md:text-xl font-semibold">Ingredients</h2>
+                            </div>
+                            <IngredientsEditor
+                                ingredients={ingredients}
+                                setIngredients={setIngredients}
+                                foodRefs={foodRefs}
+                                foodGroup={foodGroup}
+                                setFoodGroup={setFoodGroup}
+                                searchInput={searchInput}
+                                setSearchInput={setSearchInput}
+                                page={page}
+                                setPage={setPage}
+                                pageSize={pageSize}
+                                setPageSize={setPageSize}
+                                setSearch={setSearch}
+                            />
+                        </WhiteCard>
+                    </Step>
 
-                {/* Section 3: Directions */}
-                <WhiteCard className="w-full">
-                    <div className="mb-4 flex items-center gap-3">
-                        <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>3</div>
-                        <h2 className="text-lg md:text-xl font-semibold">Directions</h2>
-                    </div>
-                    <DirectionsEditor directions={directions} setDirections={setDirections} />
-                </WhiteCard>
-
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        className="px-4 py-2 rounded text-white transition hover:brightness-110"
-                        style={{ backgroundColor: ColorTheme.blueGray }}
-                        disabled={create.isPending}
-                    >
-                        Create
-                    </button>
-                </div>
+                    {/* Step 3: Directions */}
+                    <Step>
+                        <WhiteCard className="w-full">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>3</div>
+                                <h2 className="text-lg md:text-xl font-semibold">Directions</h2>
+                            </div>
+                            <DirectionsEditor directions={directions} setDirections={setDirections} />
+                        </WhiteCard>
+                    </Step>
+                </Stepper>
             </FieldSet>
         </form>
     );
