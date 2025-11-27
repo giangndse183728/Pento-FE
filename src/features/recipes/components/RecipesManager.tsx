@@ -10,7 +10,7 @@ import { ColorTheme } from '@/constants/color';
 export default function RecipesManager() {
     const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
     const [pageNumber, setPageNumber] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const pageSize = 6;
     const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
 
     const { list, create } = useRecipes({ pageNumber, pageSize, difficulty });
@@ -60,13 +60,13 @@ export default function RecipesManager() {
                     {/* Filter Controls */}
                     <div className="flex gap-4 items-center">
                         <select
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl"
+                            className="neomorphic-select"
                             value={difficulty ?? ''}
                             onChange={(e) => {
                                 setDifficulty(e.target.value || undefined);
                                 setPageNumber(1);
                             }}
-                            style={{ backgroundColor: ColorTheme.babyBlue }}
+
                         >
                             <option value="">All Difficulties</option>
                             <option value="Easy">Easy</option>

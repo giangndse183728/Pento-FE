@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { IngredientInput, FoodReferencesResponse } from '../../services/recipesService';
+import { IngredientInput, FoodReferencesResponse, FoodRef } from '../../services/recipesService';
 import { UseQueryResult } from '@tanstack/react-query';
 import {
     Pagination,
@@ -29,9 +29,10 @@ type Props = {
     setPage?: (n: number) => void;
     pageSize?: number;
     setPageSize?: (n: number) => void;
+    cacheFoodRef: (foodRef: FoodRef) => void;
 };
 
-export default function FoodReferencesResults({ foodRefs, ingredients, setIngredients, openIndex, setNameInputs, updateAt, page = 1, setPage, pageSize = 6, setPageSize }: Props) {
+export default function FoodReferencesResults({ foodRefs, ingredients, setIngredients, openIndex, setNameInputs, updateAt, page = 1, setPage, pageSize = 6, setPageSize, cacheFoodRef }: Props) {
     const data = foodRefs.data;
     const totalPages = data ? Math.ceil(data.totalCount / data.pageSize) : 0;
     const [erroredIds, setErroredIds] = React.useState<Set<string | number>>(new Set());
@@ -81,7 +82,7 @@ export default function FoodReferencesResults({ foodRefs, ingredients, setIngred
                 <div className="flex items-center gap-2 text-sm">
                     <span className="text-gray-600">Items per page:</span>
                     <select
-                        className="p-2 border border-gray-300 hover:border-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none rounded-lg bg-white"
+                        className="neomorphic-select"
                         value={pageSize}
                         onChange={(e) => {
                             setPageSize?.(Number(e.target.value));
@@ -165,13 +166,31 @@ export default function FoodReferencesResults({ foodRefs, ingredients, setIngred
                                         size="default"
                                         className="w-full"
                                         onClick={() => {
+                                            cacheFoodRef(fr);
+
                                             if (openIndex !== null && openIndex >= 0 && openIndex < ingredients.length) {
-                                                setNameInputs((prev) => prev.map((p, i) => i === openIndex ? fr.name : p));
-                                                updateAt(openIndex, { foodRefId: fr.id });
-                                            } else {
-                                                setIngredients((p) => [...p, { foodRefId: fr.id, quantity: 1, unitId: '' }]);
-                                                setNameInputs((prev) => [...prev, fr.name]);
+                                                setNameInputs((prev) => prev.map((p, i) => (i === openIndex ? fr.name : p)));
+                                                updateAt(openIndex, { foodRefId: fr.id, unitId: '' });
+                                                return;
                                             }
+
+                                            const firstEmptyIndex = ingredients.findIndex((ing) => !ing.foodRefId);
+                                            if (firstEmptyIndex !== -1) {
+                                                setNameInputs((prev) => {
+                                                    const next = [...prev];
+                                                    if (firstEmptyIndex >= next.length) {
+                                                        next.push(fr.name);
+                                                    } else {
+                                                        next[firstEmptyIndex] = fr.name;
+                                                    }
+                                                    return next;
+                                                });
+                                                updateAt(firstEmptyIndex, { foodRefId: fr.id, unitId: '' });
+                                                return;
+                                            }
+
+                                            setIngredients((prev) => [...prev, { foodRefId: fr.id, quantity: 1, unitId: '' }]);
+                                            setNameInputs((prev) => [...prev, fr.name]);
                                         }}
                                     >
                                         Add to Recipe

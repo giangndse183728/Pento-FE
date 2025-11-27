@@ -4,11 +4,13 @@ import React from "react";
 import ElasticSlider from "@/components/decoration/ElasticSlider";
 import { FoodRef, IngredientInput, Unit } from "../../services/recipesService";
 import { CusButton } from "@/components/ui/cusButton";
-import { BadgeInfo, CircleMinus, CirclePlus } from "lucide-react";
+import { BadgeInfo, CircleMinus, CirclePlus, Trash } from "lucide-react";
 
 type Props = {
     ingredient: IngredientInput;
     units: Unit[];
+    unitSelectDisabled: boolean;
+    onRemove: () => void;
     updateAt: (patch: Partial<IngredientInput>) => void;
     nameInput: string;
     setNameInput: (name: string) => void;
@@ -24,6 +26,8 @@ export default function IngredientRow(props: Props) {
     const {
         ingredient,
         units,
+        unitSelectDisabled,
+        onRemove,
         updateAt,
         nameInput,
         setNameInput,
@@ -47,7 +51,7 @@ export default function IngredientRow(props: Props) {
                         autoComplete="off"
                         onChange={(e) => {
                             setNameInput(e.target.value);
-                            updateAt({ foodRefId: "" });
+                            updateAt({ foodRefId: "", unitId: "" });
                             onOpen();
                         }}
                         onFocus={onOpen}
@@ -70,7 +74,7 @@ export default function IngredientRow(props: Props) {
                     )}
                 </div>
 
-                {/* 🎚️ SLIDER + BUTTONS */}
+                {/* slider and buttons */}
                 <div className="flex gap-3 items-center justify-center col-span-4">
                     <button
                         type="button"
@@ -83,7 +87,7 @@ export default function IngredientRow(props: Props) {
                         <ElasticSlider
                             defaultValue={ingredient.quantity}
                             startingValue={0}
-                            maxValue={99}
+                            maxValue={1000}
                             isStepped={true}
                             stepSize={1}
                             onChange={(val) => updateAt({ quantity: val })}
@@ -103,16 +107,23 @@ export default function IngredientRow(props: Props) {
                 {/* UNIT SELECT */}
                 <div className="flex gap-2 items-center col-span-3">
                     <select
-                        className="neomorphic-select flex-1"
+                        className={`neomorphic-select flex-1 ${unitSelectDisabled ? "text-gray-400" : ""}`}
                         value={ingredient.unitId}
                         onChange={(e) => updateAt({ unitId: e.target.value })}
+                        disabled={unitSelectDisabled}
                     >
                         <option value="">Select unit</option>
-                        {units?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                                {u.name}
+                        {!unitSelectDisabled && units?.length === 0 && (
+                            <option value="" disabled>
+                                No units available
                             </option>
-                        ))}
+                        )}
+                        {!unitSelectDisabled &&
+                            units?.map((u) => (
+                                <option key={u.id} value={u.id}>
+                                    {u.name}
+                                </option>
+                            ))}
                     </select>
 
                     <CusButton
@@ -125,6 +136,21 @@ export default function IngredientRow(props: Props) {
                     >
                         <BadgeInfo className="w-5 h-5" />
                     </CusButton>
+
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="
+                        w-8 h-8 rounded-full shrink-0 
+                        flex items-center justify-center
+                        bg-red-50 hover:bg-red-100 
+                        text-red-500 hover:text-red-600 
+                        transition-colors"
+                        aria-label="Remove ingredient"
+                    >
+                        <Trash className="w-5 h-5" />
+                    </button>
+
                 </div>
             </div>
         </div>

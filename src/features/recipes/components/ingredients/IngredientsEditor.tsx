@@ -1,30 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { IngredientInput } from '../../services/recipesService';
+import { IngredientInput, FoodRef } from '../../services/recipesService';
 import { UseQueryResult } from '@tanstack/react-query';
 import { FoodReferencesResponse } from '../../services/recipesService';
 import useUnits from '../../hooks/useUnit';
-import { Field, FieldLabel, FieldContent } from '@/components/ui/field';
-import { ColorTheme } from '@/constants/color';
+import { FieldContent } from '@/components/ui/field';
 import UnitsModal from '../UnitsModel';
 import FoodReferencesSearch from './FoodReferencesSearch';
 import FoodReferencesResults from './FoodReferencesResults';
 import IngredientRow from './IngredientsRow';
 import { CusButton } from '@/components/ui/cusButton';
-
-const StyledField = styled(Field)`
-    padding: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    background: ${ColorTheme.babyBlue};
-`;
-
-const StyledFieldLabel = styled(FieldLabel)`
-    font-weight: 600;
-    color: ${ColorTheme.darkBlue};
-`;
 
 type Props = {
     ingredients: IngredientInput[];
@@ -57,6 +43,22 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     );
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const [showUnitsModal, setShowUnitsModal] = useState(false);
+    const [foodRefCache, setFoodRefCache] = useState<Record<string, FoodRef>>({});
+
+    useEffect(() => {
+        if (!foodRefs.data?.items) return;
+        setFoodRefCache((prev) => {
+            const next = { ...prev };
+            foodRefs.data?.items.forEach((item) => {
+                next[item.id] = item;
+            });
+            return next;
+        });
+    }, [foodRefs.data?.items]);
+
+    const cacheFoodRef = (fr: FoodRef) => {
+        setFoodRefCache((prev) => ({ ...prev, [fr.id]: fr }));
+    };
 
     // keep nameInputs in sync when ingredients or fetched foodRefs change
     useEffect(() => {
@@ -69,9 +71,31 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
         );
     }, [ingredients, foodRefs.data]);
 
+    const handleRemoveRow = (idx: number) => {
+        setIngredients((prev) => {
+            if (prev.length <= 1) {
+                return [{ foodRefId: '', quantity: 1, unitId: '' }];
+            }
+            return prev.filter((_, i) => i !== idx);
+        });
+
+        setNameInputs((prev) => {
+            if (prev.length <= 1) {
+                return [''];
+            }
+            return prev.filter((_, i) => i !== idx);
+        });
+
+        setOpenIndex((cur) => {
+            if (cur === null) return null;
+            if (cur === idx) return null;
+            if (cur > idx) return cur - 1;
+            return cur;
+        });
+    };
+
     return (
-        <StyledField>
-            <StyledFieldLabel>Ingredients</StyledFieldLabel>
+        <>
             <FieldContent>
                 <FoodReferencesSearch
                     foodGroup={foodGroup}
@@ -97,21 +121,33 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
                     setPage={setPage}
                     pageSize={pageSize}
                     setPageSize={setPageSize}
+                    cacheFoodRef={cacheFoodRef}
                 />
 
                 <UnitsModal isOpen={showUnitsModal} onClose={() => setShowUnitsModal(false)} units={units} />
 
-                {/* Ingredients List - Previously IngredientsList component */}
-                <div className="space-y-2">
+                {/* Ingredients List */}
+                <div className="space-y-8">
                     {ingredients.map((ing, idx) => {
                         const typed = nameInputs[idx] ?? '';
                         const suggestions = (foodRefs.data?.items ?? []).filter((fr) => fr.name.toLowerCase().includes(typed.toLowerCase())).slice(0, 10);
+                        const selectedFoodRef = ing.foodRefId ? foodRefCache[ing.foodRefId] : undefined;
+                        const unitTypeLabel = selectedFoodRef?.unitType;
+                        const filteredUnits =
+                            selectedFoodRef && unitTypeLabel
+                                ? (units ?? []).filter((unit) => unit.type === unitTypeLabel)
+                                : selectedFoodRef
+                                    ? units ?? []
+                                    : [];
+                        const unitDisabled = !selectedFoodRef;
 
                         return (
                             <IngredientRow
                                 key={idx}
                                 ingredient={ing}
-                                units={units || []}
+                                units={filteredUnits}
+                                unitSelectDisabled={unitDisabled}
+                                onRemove={() => handleRemoveRow(idx)}
                                 updateAt={(patch) => updateAt(idx, patch)}
                                 nameInput={typed}
                                 setNameInput={(name) => setNameInputs((prev) => prev.map((p, i) => (i === idx ? name : p)))}
@@ -121,7 +157,8 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
                                 onClose={() => setOpenIndex((cur) => (cur === idx ? null : cur))}
                                 onSuggestionClick={(fr) => {
                                     setNameInputs((prev) => prev.map((p, i) => (i === idx ? fr.name : p)));
-                                    updateAt(idx, { foodRefId: fr.id });
+                                    cacheFoodRef(fr);
+                                    updateAt(idx, { foodRefId: fr.id, unitId: '' });
                                     setOpenIndex(null);
                                 }}
                                 setShowUnitsModal={setShowUnitsModal}
@@ -133,21 +170,16 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
                             type="button"
                             variant="blueGray"
                             size="lg"
-                            onClick={() => setIngredients((p) => [...p, { foodRefId: '', quantity: 1, unitId: '' }])}
+                            onClick={() => {
+                                setIngredients((p) => [...p, { foodRefId: '', quantity: 1, unitId: '' }]);
+                                setNameInputs((prev) => [...prev, '']);
+                            }}
                         >
                             Add ingredient
-                        </CusButton>
-                        <CusButton
-                            type="button"
-                            variant="darkBlue"
-                            size="lg"
-                            onClick={() => setIngredients((p) => p.slice(0, -1))}
-                        >
-                            Remove last
                         </CusButton>
                     </div>
                 </div>
             </FieldContent>
-        </StyledField>
+        </>
     );
 }

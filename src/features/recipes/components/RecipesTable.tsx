@@ -5,7 +5,7 @@ import { UseQueryResult } from '@tanstack/react-query';
 import { RecipeSummary, PaginatedResponse } from '../services/recipesService';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
-import { Clock, Users, ChefHat, Eye, EyeOff } from 'lucide-react';
+import { ChefHat } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     Pagination,
@@ -16,15 +16,16 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import RecipesTableCards from './RecipesTableCards';
 
 type Props = {
     list: UseQueryResult<PaginatedResponse<RecipeSummary>, unknown>;
     pageNumber: number;
     setPageNumber: (page: number) => void;
-    pageSize: number;
+    pageSize?: number;
 };
 
-export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize }: Props) {
+export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 6 }: Props) {
     const items = list.data?.items ?? [];
     const totalCount = list.data?.totalCount ?? 0;
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -46,12 +47,31 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
     };
     return (
         <div className="w-full max-w-5xl space-y-6">
-            <div className="flex items-center gap-3">
-                <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: ColorTheme.blueGray }}>
-                    {items.length}
+            <div className="flex items-center justify-between">
+                {/* Left section: count + title */}
+                <div className="flex items-center gap-3">
+                    <h2 className="text-lg md:text-xl font-semibold">My Recipes</h2>
+                    <span
+                        className="inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm"
+                    >
+                        <span className="text-[10px] uppercase tracking-widest text-gray-500">Total</span>
+                        <span className="text-sm font-semibold text-gray-900" style={{ color: ColorTheme.blueGray }}>
+                            {totalCount}
+                        </span>
+                    </span>
                 </div>
-                <h2 className="text-lg md:text-xl font-semibold">My Recipes</h2>
+
+
+
+                {/* Right section: showing text */}
+                <p className="text-sm text-gray-600 whitespace-nowrap">
+                    Showing{' '}
+                    {Math.min((pageNumber - 1) * pageSize + 1, totalCount)}-
+                    {Math.min(pageNumber * pageSize, totalCount)} of {totalCount} items
+                </p>
             </div>
+
+
 
             {list.isLoading && (
                 <div className="space-y-4">
@@ -88,100 +108,11 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
                 </WhiteCard>
             )}
 
-            <div className="space-y-4">
-                {items.map((recipe) => (
-                    <WhiteCard key={recipe.id} className="p-6 hover:shadow-lg transition-shadow">
-                        <div className="flex gap-6">
-                            {/* Recipe Image */}
-                            <div className="flex-shrink-0">
-                                {recipe.imageUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                        src={recipe.imageUrl}
-                                        alt={recipe.title}
-                                        className="w-32 h-24 object-cover rounded-xl shadow-sm"
-                                    />
-                                ) : (
-                                    <div
-                                        className="w-32 h-24 rounded-xl flex items-center justify-center text-white"
-                                        style={{ backgroundColor: ColorTheme.powderBlue }}
-                                    >
-                                        <ChefHat className="w-8 h-8 opacity-50" />
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Recipe Details */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-4 mb-3">
-                                    <h3 className="text-xl font-semibold text-gray-900 truncate">
-                                        {recipe.title}
-                                    </h3>
-                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                        {recipe.isPublic ? (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: ColorTheme.babyBlue, color: ColorTheme.darkBlue }}>
-                                                <Eye className="w-3 h-3" />
-                                                Public
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                <EyeOff className="w-3 h-3" />
-                                                Private
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {recipe.description && (
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                                        {recipe.description}
-                                    </p>
-                                )}
-
-                                {/* Recipe Metadata */}
-                                <div className="flex flex-wrap gap-4 text-sm">
-                                    {recipe.totalTimes !== undefined && recipe.totalTimes > 0 && (
-                                        <div className="flex items-center gap-1.5 text-gray-600">
-                                            <Clock className="w-4 h-4" style={{ color: ColorTheme.blueGray }} />
-                                            <span>{recipe.totalTimes} min</span>
-                                        </div>
-                                    )}
-
-                                    {recipe.servings && (
-                                        <div className="flex items-center gap-1.5 text-gray-600">
-                                            <Users className="w-4 h-4" style={{ color: ColorTheme.blueGray }} />
-                                            <span>{recipe.servings} {recipe.servings === 1 ? 'serving' : 'servings'}</span>
-                                        </div>
-                                    )}
-
-                                    {recipe.difficultyLevel && (
-                                        <div className="flex items-center gap-1.5">
-                                            <ChefHat className="w-4 h-4" style={{ color: ColorTheme.blueGray }} />
-                                            <span
-                                                className="font-medium"
-                                                style={{
-                                                    color: recipe.difficultyLevel === 'Easy' ? '#10b981' :
-                                                        recipe.difficultyLevel === 'Medium' ? '#f59e0b' :
-                                                            '#ef4444'
-                                                }}
-                                            >
-                                                {recipe.difficultyLevel}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </WhiteCard>
-                ))}
-            </div>
+            <RecipesTableCards items={items} />
 
             {/* Pagination */}
             {!list.isLoading && totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
-                    <p className="text-sm text-gray-600">
-                        Showing {items.length > 0 ? (pageNumber - 1) * pageSize + 1 : 0} to {Math.min(pageNumber * pageSize, totalCount)} of {totalCount} recipes
-                    </p>
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>

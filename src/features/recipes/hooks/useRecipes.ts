@@ -52,7 +52,7 @@ export function useRecipes(params?: RecipesQuery): {
     foodRefs: ReturnType<typeof useFoodReferences>;
     create: ReturnType<typeof useCreateRecipe>;
 } {
-    const defaultParams: RecipesQuery = params ?? { pageNumber: 1, pageSize: 10 };
+    const defaultParams: RecipesQuery = params ?? { pageNumber: 1, pageSize: 6 };
     const list = useRecipesList(defaultParams);
     const units = useUnits();
     const foodRefs = useFoodReferences();
