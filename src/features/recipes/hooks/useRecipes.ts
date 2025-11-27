@@ -2,13 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getRecipes, postRecipeDetailed, RecipeDetailedInput, RecipeSummary, RecipesQuery } from '../services/recipesService';
+import { getRecipes, postRecipeDetailed, RecipeDetailedInput, RecipeSummary, RecipesQuery, PaginatedResponse } from '../services/recipesService';
 import useUnits from './useUnit';
 import useFoodReferences from './useFoodReferences';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
 
 export const useRecipesList = (params: RecipesQuery) => {
-    return useQuery<RecipeSummary[]>({
+    return useQuery<PaginatedResponse<RecipeSummary>>({
         queryKey: ['recipes', params],
         queryFn: () => getRecipes(params),
         staleTime: 1000 * 60 * 2,
@@ -44,8 +44,15 @@ export const useCreateRecipe = () => {
     });
 };
 
-export function useRecipes(params?: RecipesQuery) {
-    const defaultParams: RecipesQuery = params ?? { pageNumber: 1, pageSize: 10 };
+import type { UseQueryResult } from '@tanstack/react-query';
+
+export function useRecipes(params?: RecipesQuery): {
+    list: UseQueryResult<PaginatedResponse<RecipeSummary>, unknown>;
+    units: ReturnType<typeof useUnits>;
+    foodRefs: ReturnType<typeof useFoodReferences>;
+    create: ReturnType<typeof useCreateRecipe>;
+} {
+    const defaultParams: RecipesQuery = params ?? { pageNumber: 1, pageSize: 6 };
     const list = useRecipesList(defaultParams);
     const units = useUnits();
     const foodRefs = useFoodReferences();

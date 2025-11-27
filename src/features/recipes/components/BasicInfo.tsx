@@ -3,6 +3,8 @@
 import React from "react";
 import { Field, FieldLabel, FieldContent } from "@/components/ui/field";
 import { ColorTheme } from "@/constants/color";
+import ElasticSlider from "@/components/decoration/ElasticSlider";
+import { CirclePlus, CircleMinus } from "lucide-react";
 
 type Props = {
     title: string;
@@ -40,72 +42,113 @@ export default function BasicInfo(props: Props) {
     return (
         <div className="space-y-8">
 
-            {/* Title + Description */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Title */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Title</FieldLabel>
-                    <FieldContent>
-                        <input
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
-                            placeholder="Recipe title"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                    </FieldContent>
-                </Field>
+            {/* Title */}
+            <Field>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Title</FieldLabel>
+                <FieldContent>
+                    <input
+                        className="neomorphic-input w-full"
+                        placeholder="Recipe title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        autoComplete="off"
+                    />
+                </FieldContent>
+            </Field>
 
-                {/* Description */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Description</FieldLabel>
-                    <FieldContent>
-                        <input
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
-                            placeholder="Recipe description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-                    </FieldContent>
-                </Field>
-            </div>
+            {/* Description */}
+            <Field>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Description</FieldLabel>
+                <FieldContent>
+                    <textarea
+                        className="neomorphic-textarea w-full overflow-hidden min-h-[48px]"
+                        placeholder="Recipe description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            target.style.height = 'auto';
+                            target.style.height = target.scrollHeight + 'px';
+                        }}
+                    />
+                </FieldContent>
+            </Field>
 
             {/* Prep + Cook + Total Time */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-[2fr_2fr_1fr] gap-6">
                 {/* Prep Time */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Prep Time</FieldLabel>
+                <Field>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Prep Time (min)</FieldLabel>
                     <FieldContent>
-                        <input
-                            type="number"
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
-                            placeholder="Minutes"
-                            value={prepTimeMinutes ?? ""}
-                            onChange={(e) =>
-                                setPrepTimeMinutes(e.target.value ? Number(e.target.value) : undefined)
-                            }
-                        />
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setPrepTimeMinutes(Math.max(0, (prepTimeMinutes ?? 0) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={prepTimeMinutes ?? 0}
+                                    startingValue={0}
+                                    maxValue={600}
+                                    isStepped={true}
+                                    stepSize={5}
+                                    onChange={(val) => setPrepTimeMinutes(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setPrepTimeMinutes(Math.min(600, (prepTimeMinutes ?? 0) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
+                        </div>
                     </FieldContent>
                 </Field>
 
                 {/* Cook Time */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Cook Time</FieldLabel>
+                <Field>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Cook Time (min)</FieldLabel>
                     <FieldContent>
-                        <input
-                            type="number"
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
-                            placeholder="Minutes"
-                            value={cookTimeMinutes ?? ""}
-                            onChange={(e) =>
-                                setCookTimeMinutes(e.target.value ? Number(e.target.value) : undefined)
-                            }
-                        />
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setCookTimeMinutes(Math.max(0, (cookTimeMinutes ?? 0) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={cookTimeMinutes ?? 0}
+                                    startingValue={0}
+                                    maxValue={600}
+                                    isStepped={true}
+                                    stepSize={5}
+                                    onChange={(val) => setCookTimeMinutes(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setCookTimeMinutes(Math.min(600, (cookTimeMinutes ?? 0) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
+                        </div>
                     </FieldContent>
                 </Field>
 
                 {/* Total Time */}
                 <Field className="bg-slate-50 p-4 rounded-2xl shadow">
-                    <FieldLabel className="font-semibold text-slate-600">Total Time</FieldLabel>
+                    <FieldLabel className="font-semibold text-slate-600" style={{ fontSize: "1.1rem" }}>Total Time</FieldLabel>
                     <FieldContent>
                         <input
                             className="p-3 border rounded-xl w-full bg-slate-100 text-slate-500"
@@ -120,60 +163,85 @@ export default function BasicInfo(props: Props) {
             {/* Servings + Difficulty */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Servings */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Servings</FieldLabel>
+                <Field>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Servings</FieldLabel>
                     <FieldContent>
-                        <input
-                            type="number"
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
-                            placeholder="Servings"
-                            value={servings ?? ""}
-                            onChange={(e) =>
-                                setServings(e.target.value ? Number(e.target.value) : undefined)
-                            }
-                        />
+                        <div className="flex gap-3 items-center justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setServings(Math.max(1, (servings ?? 1) - 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CircleMinus className="w-5 h-5" />
+                            </button>
+                            <div className="flex-1 flex items-center">
+                                <ElasticSlider
+                                    defaultValue={servings ?? 1}
+                                    startingValue={1}
+                                    maxValue={50}
+                                    isStepped={true}
+                                    stepSize={1}
+                                    onChange={(val) => setServings(val)}
+                                    leftIcon={<span />}
+                                    rightIcon={<span />}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setServings(Math.min(50, (servings ?? 1) + 1))}
+                                className="p-2 hover:scale-110 transition-transform flex-shrink-0"
+                            >
+                                <CirclePlus className="w-5 h-5" />
+                            </button>
+                        </div>
                     </FieldContent>
                 </Field>
 
                 {/* Difficulty */}
-                <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Difficulty</FieldLabel>
+                <Field>
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Difficulty</FieldLabel>
                     <FieldContent>
                         <select
-                            className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
+                            className="neomorphic-select w-full"
                             value={difficultyLevel}
                             onChange={(e) => setDifficultyLevel(e.target.value)}
                         >
-                            <option value="Easy">Easy 😋</option>
-                            <option value="Medium">Medium 😎</option>
-                            <option value="Hard">Hard 🔥</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
                         </select>
                     </FieldContent>
                 </Field>
             </div>
 
             {/* Image */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Image URL</FieldLabel>
+            <Field>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Image URL</FieldLabel>
                 <FieldContent>
                     <input
-                        className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl w-full"
+                        className="neomorphic-input w-full"
                         placeholder="https://example.com/pic.jpg"
                         value={imageUrl}
                         onChange={(e) => setImageUrl(e.target.value)}
+                        autoComplete="off"
                     />
                 </FieldContent>
             </Field>
 
             {/* Notes */}
-            <Field className="p-4 rounded-2xl shadow" style={{ background: ColorTheme.babyBlue }}>
-                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue }}>Notes</FieldLabel>
+            <Field>
+                <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Notes</FieldLabel>
                 <FieldContent>
                     <textarea
-                        className="w-full p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl"
+                        className="neomorphic-textarea w-full overflow-hidden min-h-[48px]"
                         placeholder="Additional notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
+                        onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            target.style.height = 'auto';
+                            target.style.height = target.scrollHeight + 'px';
+                        }}
                     />
                 </FieldContent>
             </Field>

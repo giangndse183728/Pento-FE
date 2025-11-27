@@ -10,7 +10,7 @@ import { ColorTheme } from '@/constants/color';
 export default function RecipesManager() {
     const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
     const [pageNumber, setPageNumber] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const pageSize = 6;
     const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
 
     const { list, create } = useRecipes({ pageNumber, pageSize, difficulty });
@@ -56,66 +56,32 @@ export default function RecipesManager() {
 
             {/* Recipes List Tab */}
             {activeTab === 'list' && (
-                <>
-                    {/* Pagination and Filter Controls */}
-                    <div className="mb-4 flex gap-4 items-center">
+                <div className="space-y-6">
+                    {/* Filter Controls */}
+                    <div className="flex gap-4 items-center">
                         <select
-                            className="p-2 border rounded"
+                            className="neomorphic-select"
                             value={difficulty ?? ''}
                             onChange={(e) => {
                                 setDifficulty(e.target.value || undefined);
-                                setPageNumber(1); // Reset to first page when filtering
+                                setPageNumber(1);
                             }}
+
                         >
                             <option value="">All Difficulties</option>
                             <option value="Easy">Easy</option>
                             <option value="Medium">Medium</option>
                             <option value="Hard">Hard</option>
                         </select>
-
-                        <div className="flex gap-2 items-center">
-                            <label className="text-sm">Page:</label>
-                            <input
-                                type="number"
-                                className="p-2 border rounded w-20"
-                                value={pageNumber}
-                                min={1}
-                                onChange={(e) => setPageNumber(Number(e.target.value) || 1)}
-                            />
-                        </div>
-
-                        <div className="flex gap-2 items-center">
-                            <label className="text-sm">Per page:</label>
-                            <input
-                                type="number"
-                                className="p-2 border rounded w-20"
-                                value={pageSize}
-                                min={1}
-                                max={100}
-                                onChange={(e) => setPageSize(Number(e.target.value) || 10)}
-                            />
-                        </div>
-
-                        <button
-                            type="button"
-                            className="px-3 py-2 border rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
-                            disabled={pageNumber <= 1}
-                        >
-                            Previous
-                        </button>
-                        <button
-                            type="button"
-                            className="px-3 py-2 border rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => setPageNumber(pageNumber + 1)}
-                            disabled={!list.data || list.data.length < pageSize}
-                        >
-                            Next
-                        </button>
                     </div>
 
-                    <RecipesTable list={list} />
-                </>
+                    <RecipesTable
+                        list={list}
+                        pageNumber={pageNumber}
+                        setPageNumber={setPageNumber}
+                        pageSize={pageSize}
+                    />
+                </div>
             )}
         </AdminLayout>
     );

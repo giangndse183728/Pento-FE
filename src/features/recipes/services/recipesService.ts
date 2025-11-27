@@ -58,7 +58,7 @@ export type PaginatedResponse<T> = {
     pageSize: number;
 };
 
-export const getRecipes = async (params: RecipesQuery): Promise<RecipeSummary[]> => {
+export const getRecipes = async (params: RecipesQuery): Promise<PaginatedResponse<RecipeSummary>> => {
     try {
         const qs = '?' + Object.entries(params)
             .filter(([, v]) => v !== undefined && v !== null && v !== '')
@@ -68,16 +68,31 @@ export const getRecipes = async (params: RecipesQuery): Promise<RecipeSummary[]>
             })
             .join('&');
         const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/recipes${qs}`);
-        // API returns paginated response, extract items array
-        return response.items ?? [];
+        console.log('✅ getRecipes response:', response);
+        // Return full paginated response
+        return response;
     } catch (err) {
-        console.error('getRecipes failed:', err);
-        return [];
+        console.error('❌ getRecipes failed:', err);
+        // Return empty paginated response on error
+        return {
+            items: [],
+            totalCount: 0,
+            pageNumber: params.pageNumber,
+            pageSize: params.pageSize
+        };
     }
 };
 
 export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
-    return apiRequest<unknown>('post', '/recipes/detailed', payload);
+    console.log('📡 postRecipeDetailed called with payload:', JSON.stringify(payload, null, 2));
+    try {
+        const result = await apiRequest<unknown>('post', '/recipes/detailed', payload);
+        console.log('✅ postRecipeDetailed response:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ postRecipeDetailed error:', error);
+        throw error;
+    }
 };
 
 export type Unit = {
@@ -112,7 +127,14 @@ export type FoodReferencesQuery = {
     pageSize?: number;
 };
 
-export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<FoodRef[]> => {
+export type FoodReferencesResponse = {
+    items: FoodRef[];
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+};
+
+export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<FoodReferencesResponse> => {
     try {
         const qs = params
             ? '?' + Object.entries(params)
@@ -120,7 +142,8 @@ export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<F
                 .map(([k, v]) => {
                     // trim string searches to avoid sending empty values
                     const val = typeof v === 'string' ? v.trim() : v;
-                    return `${encodeURIComponent(k)}=${encodeURIComponent(String(val))}`;
+                    const key = k === 'page' ? 'pageNumber' : k;
+                    return `${encodeURIComponent(key)}=${encodeURIComponent(String(val))}`;
                 })
                 .join('&')
             : '';
@@ -128,15 +151,29 @@ export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<F
         const res = await apiRequest<unknown>('get', `/food-references${qs}`);
 
         // API may return either an array or an object with `items`.
-        if (Array.isArray(res)) return res as FoodRef[];
+        if (Array.isArray(res)) {
+            return {
+                items: res as FoodRef[],
+                totalCount: res.length,
+                pageNumber: params?.page ?? 1,
+                pageSize: params?.pageSize ?? 24
+            };
+        }
         if (res && typeof res === 'object') {
             const asObj = res as Record<string, unknown>;
-            if (Array.isArray(asObj.items)) return asObj.items as unknown as FoodRef[];
+            if (Array.isArray(asObj.items)) {
+                return {
+                    items: asObj.items as FoodRef[],
+                    totalCount: typeof asObj.totalCount === 'number' ? asObj.totalCount : asObj.items.length,
+                    pageNumber: typeof asObj.pageNumber === 'number' ? asObj.pageNumber : params?.page ?? 1,
+                    pageSize: typeof asObj.pageSize === 'number' ? asObj.pageSize : params?.pageSize ?? 24
+                };
+            }
         }
 
-        return [];
+        return { items: [], totalCount: 0, pageNumber: 1, pageSize: 24 };
     } catch (err) {
         console.error('getFoodReferences failed:', err);
-        return [];
+        return { items: [], totalCount: 0, pageNumber: 1, pageSize: 24 };
     }
 };

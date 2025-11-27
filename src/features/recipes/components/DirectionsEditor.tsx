@@ -17,18 +17,35 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
             <FieldContent>
                 {directions.map((d, idx) => (
                     <div key={idx} className="grid grid-cols-4 gap-2 mb-2 items-center">
-                        <input type="number" className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl" value={d.stepNumber} onChange={(e) => {
-                            const v = Number(e.target.value) || 0;
-                            setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, stepNumber: v } : p));
-                        }} />
-                        <input className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl col-span-2" placeholder="Step description" value={d.description} onChange={(e) => {
-                            const v = e.target.value;
-                            setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, description: v } : p));
-                        }} />
-                        <input className="p-3 border border-white hover:border-white focus:border-white focus:ring-2 focus:ring-white focus:outline-none rounded-xl" placeholder="Image URL" value={d.imageUrl ?? ''} onChange={(e) => {
-                            const v = e.target.value;
-                            setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, imageUrl: v } : p));
-                        }} />
+                        <input
+                            type="number"
+                            className="neomorphic-input"
+                            value={d.stepNumber}
+                            onChange={(e) => {
+                                const v = Number(e.target.value) || 0;
+                                setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, stepNumber: v } : p));
+                            }}
+                        />
+                        <input
+                            className="neomorphic-input col-span-2"
+                            placeholder="Step description"
+                            value={d.description}
+                            autoComplete="off"
+                            onChange={(e) => {
+                                const v = e.target.value;
+                                setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, description: v } : p));
+                            }}
+                        />
+                        <input
+                            className="neomorphic-input"
+                            placeholder="Image URL"
+                            value={d.imageUrl ?? ''}
+                            autoComplete="off"
+                            onChange={(e) => {
+                                const v = e.target.value;
+                                setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, imageUrl: v } : p));
+                            }}
+                        />
                     </div>
                 ))}
                 <div className="flex gap-2">
