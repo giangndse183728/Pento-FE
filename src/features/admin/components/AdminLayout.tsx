@@ -12,6 +12,7 @@ const AdminLayout = ({ children }: Props) => {
             className="min-h-screen p-4 md:p-6 bg-cover bg-center bg-no-repeat font-primary"
             style={{
                 backgroundImage: 'url("/assets/img/admin-background.jpg")',
+                backgroundAttachment: 'fixed',
                 backgroundBlendMode: 'overlay',
                 backgroundColor: 'rgba(219, 234, 254, 0.1)',
                 color: '#113F67',
