@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MantineProvider } from '@mantine/core';
 import Navbar from '@/components/layouts/Navbar';
 import { ROUTES_NO_LAYOUT } from '@/constants/routes';
+import QueryProvider from '../../../public/providers/QueryProvider';
 
 function shouldHideNavbar(pathname: string): boolean {
   return ROUTES_NO_LAYOUT.some((route) =>
@@ -18,12 +17,9 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
   const hideNavbar = shouldHideNavbar(pathname || '/');
   const isAdminRoute = pathname?.startsWith('/admin');
 
-  // Create QueryClient once per mounted LayoutClient
-  const [queryClient] = useState(() => new QueryClient());
-
   return (
     <MantineProvider>
-      <QueryClientProvider client={queryClient}>
+      <QueryProvider>
         {/* Fixed Video Background - only show if not admin route */}
         {!isAdminRoute && (
           <div className="fixed inset-0 z-0">
@@ -45,7 +41,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
           {!hideNavbar && <Navbar />}
           <div className="max-w-[1600px] mx-auto">{children}</div>
         </div>
-      </QueryClientProvider>
+      </QueryProvider>
     </MantineProvider>
   );
 }
