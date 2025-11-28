@@ -6,6 +6,7 @@ import {
     ChartColumnBig,
     BookMarked,
     UtensilsCrossed,
+    CalendarPlus
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -53,6 +54,13 @@ const AdminSidebar = () => {
                         >
                             <UtensilsCrossed className="w-5 h-5 flex-shrink-0" />
                             <span className="truncate">Food References</span>
+                        </Link>
+                        <Link
+                            href={ROUTES.SUBSCRIPTIONS}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100/50 min-w-[160px] justify-start text-left"
+                        >
+                            <CalendarPlus className="w-5 h-5 flex-shrink-0" />
+                            <span className="truncate">Subscriptions</span>
                         </Link>
                     </nav>
                 </div>
