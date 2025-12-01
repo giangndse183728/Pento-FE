@@ -45,9 +45,7 @@ export default function RecipesCreateForm({ create }: Props) {
     const onSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
-        console.log('🔵 Form submitted - preparing payload...');
-
-        // Filter out incomplete ingredients (those with empty foodRefId or unitId)
+        // Only validate and create on final step completion
         const validIngredients = ingredients.filter(
             (i) => i.foodRefId && i.foodRefId.trim() !== '' && i.unitId && i.unitId.trim() !== ''
         );
@@ -71,27 +69,19 @@ export default function RecipesCreateForm({ create }: Props) {
             directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, imageUrl: d.imageUrl || undefined })),
         };
 
-        console.log('📦 Payload before validation:', JSON.stringify(payload, null, 2));
-
-        const result = recipeDetailedSchema.safeParse(payload);
-        if (!result.success) {
-            console.error('❌ Validation failed:', result.error.errors);
-            const errorMessages = result.error.errors.map((err) => {
-                const path = err.path.length ? err.path.join('.') : 'root';
-                return `${path}: ${err.message}`;
-            });
-            toast.error('Validation failed', {
-                description: errorMessages.join('\n'),
-            });
-            return;
-        }
-
-        console.log('✅ Validation passed');
-
         try {
-            console.log('🚀 Calling create.mutateAsync with:', JSON.stringify(result.data, null, 2));
+            const result = recipeDetailedSchema.safeParse(payload);
+            if (!result.success) {
+                const errorMessages = result.error.errors.map((err) => {
+                    const path = err.path.length ? err.path.join('.') : 'root';
+                    return `${path}: ${err.message}`;
+                });
+                toast.error('Validation failed', {
+                    description: errorMessages.join('\n'),
+                });
+                return;
+            }
             await create.mutateAsync(result.data as RecipeDetailedInput);
-            console.log('✅ Recipe created successfully!');
             toast.success('Recipe created successfully!');
             setTitle('');
             setDescription('');
@@ -104,17 +94,12 @@ export default function RecipesCreateForm({ create }: Props) {
             setIngredients([{ foodRefId: '', quantity: 1, unitId: '' }]);
             setDirections([{ stepNumber: 1, description: '', imageUrl: '' }]);
         } catch (err) {
-            console.error('❌ Recipe creation failed:', err);
-
             // Extract detailed error message from API response
             const axiosError = err as { response?: { data?: { errors?: unknown[]; detail?: string; title?: string } } };
             let errorMessage = 'Failed to create recipe';
 
             if (axiosError?.response?.data) {
                 const apiError = axiosError.response.data;
-                console.log('API Error Details:', apiError);
-
-                // Check for validation errors array
                 if (apiError.errors && Array.isArray(apiError.errors)) {
                     errorMessage = apiError.errors.map((e: unknown) =>
                         typeof e === 'string' ? e : JSON.stringify(e)

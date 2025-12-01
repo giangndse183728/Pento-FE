@@ -16,6 +16,8 @@ interface ElasticSliderProps {
   stepSize?: number;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  valueSuffix?: string;
+  valueFormatter?: (value: number) => string;
   onChange?: (value: number) => void;
 }
 
@@ -28,6 +30,8 @@ const ElasticSlider: React.FC<ElasticSliderProps> = ({
   stepSize = 1,
   leftIcon = <Icon as={RiVolumeDownFill} />,
   rightIcon = <Icon as={RiVolumeUpFill} />,
+  valueSuffix = '',
+  valueFormatter,
   onChange
 }) => {
   return (
@@ -40,6 +44,8 @@ const ElasticSlider: React.FC<ElasticSliderProps> = ({
         stepSize={stepSize}
         leftIcon={leftIcon}
         rightIcon={rightIcon}
+        valueSuffix={valueSuffix}
+        valueFormatter={valueFormatter}
         onChange={onChange}
       />
     </div>
@@ -54,6 +60,8 @@ interface SliderProps {
   stepSize: number;
   leftIcon: React.ReactNode;
   rightIcon: React.ReactNode;
+  valueSuffix?: string;
+  valueFormatter?: (value: number) => string;
   onChange?: (value: number) => void;
 }
 
@@ -65,6 +73,8 @@ const Slider: React.FC<SliderProps> = ({
   stepSize,
   leftIcon,
   rightIcon,
+  valueSuffix,
+  valueFormatter,
   onChange
 }) => {
   const [value, setValue] = useState<number>(defaultValue);
@@ -198,7 +208,10 @@ const Slider: React.FC<SliderProps> = ({
           {rightIcon}
         </motion.div>
       </motion.div>
-      <p className="value-indicator">{Math.round(value)}</p>
+      <p className="value-indicator">
+        {valueFormatter ? valueFormatter(Math.round(value)) : Math.round(value)}
+        {valueSuffix}
+      </p>
     </>
   );
 };

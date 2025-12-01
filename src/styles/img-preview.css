@@ -1,0 +1,44 @@
+.card {
+    width: 400px;
+    height: 450px;
+    margin: 25px;
+    background-color: #F8FBFE;
+    border-radius: 15px;
+    z-index: 1;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+}
+
+.tools {
+    display: flex;
+    align-items: center;
+    padding-top: 9px;
+
+}
+
+.circle {
+    padding: 0 4px;
+}
+
+.box {
+    display: inline-block;
+    align-items: center;
+    width: 15px;
+    height: 15px;
+    padding: 1px;
+    border-radius: 50%;
+    margin-top: 5px;
+}
+
+.red {
+    background-color: #ff605c;
+}
+
+.yellow {
+    background-color: #ffbd44;
+}
+
+.green {
+    background-color: #00ca4e;
+}
