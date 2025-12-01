@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
@@ -9,7 +9,7 @@ import useFoodReferences from '../hooks/useFoodReferences';
 import { FieldSet } from '@/components/ui/field';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
-import Stepper, { Step } from '@/components/decoration/Stepper';
+import Stepper, { Step, StepperRef } from '@/components/decoration/Stepper';
 import BasicInfo from './BasicInfo';
 import IngredientsEditor from './ingredients/IngredientsEditor';
 import DirectionsEditor from './DirectionsEditor';
@@ -19,6 +19,8 @@ type Props = {
 };
 
 export default function RecipesCreateForm({ create }: Props) {
+    const stepperRef = useRef<StepperRef>(null);
+
     // Local controls for fetching food references
     const [foodGroup, setFoodGroup] = React.useState<string | undefined>(undefined);
     const [search, setSearch] = React.useState<string | undefined>(undefined);
@@ -79,6 +81,23 @@ export default function RecipesCreateForm({ create }: Props) {
                 toast.error('Validation failed', {
                     description: errorMessages.join('\n'),
                 });
+
+                // Navigate to the step with the first validation error
+                const firstError = result.error.errors[0];
+                const firstErrorPath = firstError.path[0];
+
+                // Map field to step: 1 = Basic Info, 2 = Ingredients, 3 = Directions
+                let targetStep = 1;
+                if (firstErrorPath === 'ingredients') {
+                    targetStep = 2;
+                } else if (firstErrorPath === 'directions') {
+                    targetStep = 3;
+                } else {
+                    // Basic info fields: title, description, prepTimeMinutes, cookTimeMinutes, notes, servings, difficultyLevel, imageUrl
+                    targetStep = 1;
+                }
+
+                stepperRef.current?.goToStep(targetStep);
                 return;
             }
             await create.mutateAsync(result.data as RecipeDetailedInput);
@@ -120,14 +139,16 @@ export default function RecipesCreateForm({ create }: Props) {
     };
 
     return (
-        <form onSubmit={onSubmit} className="w-full max-w-5xl">
+        <form onSubmit={(e) => e.preventDefault()} className="w-full max-w-5xl">
             <FieldSet>
                 <Stepper
+                    ref={stepperRef}
                     initialStep={1}
                     stepCircleContainerClassName="w-full"
                     contentClassName="w-full"
                     backButtonText="Previous"
                     nextButtonText="Next"
+                    completeButtonText="Create Recipe"
                     onFinalStepCompleted={onSubmit}
                 >
                     {/* Step 1: Basic Info */}

@@ -1,7 +1,11 @@
-import React, { useState, Children, useRef, useLayoutEffect, HTMLAttributes, ReactNode } from 'react';
+import React, { useState, Children, useRef, useLayoutEffect, HTMLAttributes, ReactNode, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence, Variants } from 'motion/react';
 
 import './Stepper.css';
+
+export interface StepperRef {
+  goToStep: (step: number) => void;
+}
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -16,6 +20,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   nextButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
   backButtonText?: string;
   nextButtonText?: string;
+  completeButtonText?: string;
   disableStepIndicators?: boolean;
   renderStepIndicator?: (props: RenderStepIndicatorProps) => ReactNode;
 }
@@ -26,7 +31,7 @@ interface RenderStepIndicatorProps {
   onStepClick: (clicked: number) => void;
 }
 
-export default function Stepper({
+const Stepper = forwardRef<StepperRef, StepperProps>(function Stepper({
   children,
   initialStep = 1,
   onStepChange = () => { },
@@ -39,10 +44,11 @@ export default function Stepper({
   nextButtonProps = {},
   backButtonText = 'Back',
   nextButtonText = 'Continue',
+  completeButtonText = 'Complete',
   disableStepIndicators = false,
   renderStepIndicator,
   ...rest
-}: StepperProps) {
+}: StepperProps, ref) {
   const [currentStep, setCurrentStep] = useState<number>(initialStep);
   const [direction, setDirection] = useState<number>(0);
   const stepsArray = Children.toArray(children);
@@ -58,6 +64,15 @@ export default function Stepper({
       onStepChange(newStep);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    goToStep: (step: number) => {
+      if (step >= 1 && step <= totalSteps) {
+        setDirection(step > currentStep ? 1 : -1);
+        updateStep(step);
+      }
+    }
+  }), [currentStep, totalSteps]);
 
   const handleBack = () => {
     if (currentStep > 1) {
@@ -135,7 +150,7 @@ export default function Stepper({
                 </button>
               )}
               <button onClick={isLastStep ? handleComplete : handleNext} className="next-button" {...nextButtonProps}>
-                {isLastStep ? 'Complete' : nextButtonText}
+                {isLastStep ? completeButtonText : nextButtonText}
               </button>
             </div>
           </div>
@@ -143,7 +158,9 @@ export default function Stepper({
       </div>
     </div>
   );
-}
+});
+
+export default Stepper;
 
 interface StepContentWrapperProps {
   isCompleted: boolean;

@@ -43,7 +43,7 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
                                     aria-label="Remove step"
                                 >
                                     <Trash className="w-4 h-4" />
-                                    <span className="text-xs font-medium">Remove row</span>
+                                    <span className="text-xs font-medium">Remove step</span>
                                 </button>
                             </div>
                             <div className="flex flex-row gap-4 items-start">
