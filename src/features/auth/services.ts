@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 // Login request
 export async function login(credentials: LoginFormData): Promise<LoginResponse> {
     try {
-        const response = await apiRequest<LoginResponse>('post', '/users/web-sign-in', credentials);
+        const response = await apiRequest<LoginResponse>('post', '/auth/web-sign-in', credentials);
         return response;
     } catch (error) {
         if (error instanceof AxiosError) {
@@ -20,7 +20,7 @@ export async function login(credentials: LoginFormData): Promise<LoginResponse> 
 // Logout request
 export async function logout(): Promise<void> {
     try {
-        await apiRequest('post', '/users/sign-out');
+        await apiRequest('post', '/auth/sign-out');
     } catch (error) {
         if (error instanceof AxiosError) {
             throw new Error(error.response?.data?.message || "Logout failed. Please try again.");
