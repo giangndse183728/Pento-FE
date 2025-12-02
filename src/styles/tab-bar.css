@@ -1,0 +1,97 @@
+html {
+    color-scheme: light dark;
+    background-color: light-dark(#FCFDFD, #0C0E12);
+    font-family: sans-serif;
+    min-height: 100dvh;
+    /* safe */
+}
+
+.segmented-wrapper {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    padding: 2rem 0;
+}
+
+.segmented {
+    --padding: 0.25rem;
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    padding: var(--padding);
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    anchor-name: --segmented-button-hover;
+}
+
+.segmented::before,
+.segmented::after {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    transition: inset 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    inset:
+        calc(anchor(start) + var(--padding)) calc(anchor(end) + var(--padding)) calc(anchor(end) + var(--padding)) calc(anchor(start) + var(--padding));
+}
+
+/* Hover indicator (lighter glass) */
+.segmented::before {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px);
+    position-anchor: --segmented-button-hover;
+}
+
+/* Active indicator (glass highlight) */
+.segmented::after {
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(18px);
+    position-anchor: --segmented-button-checked;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.4),
+        0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.segmented-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.6rem 1.3rem;
+    font-size: 0.95rem;
+    border-radius: inherit;
+    position: relative;
+    z-index: 1;
+    color: light-dark(#111, #f5f5f5);
+    transition: color 0.2s ease;
+    color: #113F67;
+
+    anchor-name: var(--anchor-name-1, --a), var(--anchor-name-2, --b);
+}
+
+.segmented-button:hover {
+    --anchor-name-1: --segmented-button-hover;
+}
+
+.segmented-button:has(:checked) {
+    --anchor-name-2: --segmented-button-checked;
+    color: light-dark(#000, #fff);
+    font-weight: 600;
+    color: #113F67;
+}
+
+.segmented-button:has(:focus-visible) {
+    outline: 2px solid #007acc;
+    border-radius: inherit;
+}
+
+/* Visually hidden radio input */
+.segmented-button input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+}
