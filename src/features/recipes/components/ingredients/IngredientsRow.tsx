@@ -97,7 +97,7 @@ export default function IngredientRow(props: Props) {
                     </div>
                     <button
                         type="button"
-                        onClick={() => updateAt({ quantity: Math.min(99, ingredient.quantity + 1) })}
+                        onClick={() => updateAt({ quantity: Math.min(1000, ingredient.quantity + 1) })}
                         className="p-2 hover:scale-110 transition-transform flex-shrink-0"
                     >
                         <CirclePlus className="w-5 h-5" />

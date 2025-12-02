@@ -14,7 +14,7 @@
     display: flex;
     align-items: center;
     padding-top: 9px;
-
+    margin-bottom: 12px;
 }
 
 .circle {
@@ -41,4 +41,25 @@
 
 .green {
     background-color: #00ca4e;
+}
+
+.address-bar {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: all 0.2s ease;
+    color: #555;
+}
+
+.address-bar:focus {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.address-bar::placeholder {
+    color: #999;
 }

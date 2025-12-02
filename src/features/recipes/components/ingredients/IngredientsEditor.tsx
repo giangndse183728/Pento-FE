@@ -6,7 +6,7 @@ import { UseQueryResult } from '@tanstack/react-query';
 import { FoodReferencesResponse } from '../../services/recipesService';
 import useUnits from '../../hooks/useUnit';
 import { FieldContent } from '@/components/ui/field';
-import UnitsModal from '../UnitsModel';
+import UnitsModal from '../ingredients/UnitsModel';
 import FoodReferencesSearch from './FoodReferencesSearch';
 import FoodReferencesResults from './FoodReferencesResults';
 import IngredientRow from './IngredientsRow';
@@ -64,12 +64,17 @@ export default function IngredientsEditor({ ingredients, setIngredients, foodRef
     useEffect(() => {
         setNameInputs((prev) =>
             ingredients.map((ing, i) => {
-                const found = foodRefs.data?.items.find((f) => f.id === ing.foodRefId);
-                if (found) return found.name;
+                // First try to find in cache, then in foodRefs.data
+                if (ing.foodRefId) {
+                    const cached = foodRefCache[ing.foodRefId];
+                    if (cached) return cached.name;
+                    const found = foodRefs.data?.items.find((f) => f.id === ing.foodRefId);
+                    if (found) return found.name;
+                }
                 return prev[i] ?? '';
             })
         );
-    }, [ingredients, foodRefs.data]);
+    }, [ingredients, foodRefs.data, foodRefCache]);
 
     const handleRemoveRow = (idx: number) => {
         setIngredients((prev) => {
