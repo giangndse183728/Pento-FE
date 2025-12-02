@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import GlassSurface from '@/components/decoration/Liquidglass';
+import { usePathname } from 'next/navigation';
+import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ROUTES } from '@/constants/routes';
+import { ColorTheme } from '@/constants/color';
 import {
     ChartColumnBig,
     BookMarked,
@@ -9,64 +11,104 @@ import {
     CalendarPlus
 } from 'lucide-react';
 
+const navItems = [
+    { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: ChartColumnBig },
+    { href: ROUTES.RECIPES, label: 'Recipes', icon: BookMarked },
+    { href: '#', label: 'Food References', icon: UtensilsCrossed },
+    { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: CalendarPlus },
+];
+
 const AdminSidebar = () => {
+    const pathname = usePathname();
+    const [hovered, setHovered] = useState<string | null>(null);
+
     return (
-        <div className="w-full md:w-[35%] lg:w-[20%] lg:fixed lg:left-6 lg:top-6 lg:bottom-6">
-            <GlassSurface
+        <div className="w-full md:w-[35%] lg:w-[20%] lg:fixed lg:left-6 lg:top-6 lg:bottom-6 min-h-screen lg:min-h-0">
+            <WhiteCard
                 width="100%"
                 height="100%"
-                borderRadius={12}
-                blur={10}
-                opacity={0.9}
-                style={{ border: '1px solid rgba(255, 255, 255, 0.3)' }}
+                style={{
+                    border: `1px solid rgba(0,0,0,0.05)`,
+                    background: ColorTheme.iceberg,
+                    height: '100%',
+                }}
+                className="h-full shadow-lg rounded-xl"
             >
-                <div className="p-4 h-full w-full flex flex-col items-start justify-start">
+                <div className="p-5 h-full w-full flex flex-col items-start justify-start">
                     {/* Profile */}
-                    <div className="flex items-center gap-3 mb-6 w-full">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <div className="flex items-center gap-4 mb-8 w-full cursor-pointer group">
+                        <div
+                            className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold transition-transform shadow-md hover:scale-105"
+                            style={{ background: ColorTheme.blueGray }}
+                        >
+                            A
+                        </div>
                         <div className="text-left">
-                            <p className="text-sm font-semibold">Admin</p>
-                            <p className="text-xs text-gray-500">Creator</p>
+                            <p className="text-sm font-semibold" style={{ color: ColorTheme.darkBlue }}>
+                                Admin
+                            </p>
+                            <p className="text-xs" style={{ color: ColorTheme.blueGray }}>
+                                Creator
+                            </p>
                         </div>
                     </div>
 
+                    {/* Divider */}
+                    <div className="w-full border-t border-gray-300 mb-6" />
+
                     {/* Navigation */}
-                    <nav className="flex flex-col space-y-1 w-full">
-                        <Link
-                            href={ROUTES.DASHBOARD}
-                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100/50 min-w-[160px] justify-start text-left"
-                        >
-                            <ChartColumnBig className="w-5 h-5 flex-shrink-0" />
-                            <span className="truncate">Dashboard</span>
-                        </Link>
+                    <nav className="flex flex-col space-y-3 w-full relative">
+                        {navItems.map(({ href, label, icon: Icon }) => {
+                            const isActive = pathname === href;
+                            const isHovered = hovered === href;
 
-                        <Link
-                            href={ROUTES.RECIPES}
-                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100/50 min-w-[160px] justify-start text-left"
-                        >
-                            <BookMarked className="w-5 h-5 flex-shrink-0" />
-                            <span className="truncate">Recipes</span>
-                        </Link>
+                            return (
+                                <div key={href} className="relative w-full">
+                                    {/* Active indicator */}
+                                    {isActive && (
+                                        <div
+                                            className="absolute left-0 top-0 h-full w-1 rounded-tr-lg rounded-br-lg"
+                                            style={{ backgroundColor: ColorTheme.powderBlue }}
+                                        />
+                                    )}
 
-                        <Link
-                            href="#"
-                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100/50 min-w-[160px] justify-start text-left"
-                        >
-                            <UtensilsCrossed className="w-5 h-5 flex-shrink-0" />
-                            <span className="truncate">Food References</span>
-                        </Link>
-                        <Link
-                            href={ROUTES.SUBSCRIPTIONS}
-                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100/50 min-w-[160px] justify-start text-left"
-                        >
-                            <CalendarPlus className="w-5 h-5 flex-shrink-0" />
-                            <span className="truncate">Subscriptions</span>
-                        </Link>
+                                    <Link
+                                        href={href}
+                                        onMouseEnter={() => setHovered(href)}
+                                        onMouseLeave={() => setHovered(null)}
+                                        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all transform cursor-pointer`}
+                                        style={{
+                                            backgroundColor: isActive
+                                                ? ColorTheme.iceberg
+                                                : isHovered
+                                                    ? ColorTheme.babyBlue
+                                                    : 'transparent',
+                                            boxShadow: isHovered ? `0 4px 10px rgba(0,0,0,0.08)` : 'none',
+                                        }}
+                                    >
+                                        <Icon
+                                            className={`w-5 h-5 flex-shrink-0 transition-transform`}
+                                            style={{
+                                                color: isActive || isHovered ? ColorTheme.blueGray : ColorTheme.darkBlue,
+                                                transform: isHovered ? 'translateX(2px)' : 'translateX(0)',
+                                            }}
+                                        />
+                                        <span
+                                            className="truncate font-medium transition-colors"
+                                            style={{
+                                                color: isActive || isHovered ? ColorTheme.blueGray : ColorTheme.darkBlue,
+                                            }}
+                                        >
+                                            {label}
+                                        </span>
+                                    </Link>
+                                </div>
+                            );
+                        })}
                     </nav>
                 </div>
-            </GlassSurface>
+            </WhiteCard>
         </div>
-
     );
 };
 
