@@ -6,9 +6,10 @@ interface WhiteCardProps {
     width?: number | string
     height?: number | string
     style?: React.CSSProperties
+    onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
-export function WhiteCard({ children, className = "", width = 500, height = 250, style = {} }: WhiteCardProps) {
+export function WhiteCard({ children, className = "", width = 500, height = 250, style = {}, onClick }: WhiteCardProps) {
     const resolvedStyle: React.CSSProperties = {
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,
@@ -18,8 +19,9 @@ export function WhiteCard({ children, className = "", width = 500, height = 250,
     return (
         <div
             className={`relative rounded-2xl bg-white/50 backdrop-blur-sm shadow-lg border border-white/60 overflow-hidden ${className}`}
+            onClick={onClick}
         >
-            {/* Noise Overlay */}
+            {/* Noise Overlay - preparing to add onClick support */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.08] mix-blend-overlay"
                 style={{
                     backgroundImage: `width='200' height='200'>

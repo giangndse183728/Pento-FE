@@ -106,6 +106,46 @@ export const deleteRecipe = async (id: string): Promise<void> => {
     }
 };
 
+export type RecipeDetailsResponse = {
+    recipeTitle: string;
+    description?: string | null;
+    prepTimeMinutes?: number | null;
+    cookTimeMinutes?: number | null;
+    totalTimeMinutes?: number | null;
+    notes?: string | null;
+    servings?: number | null;
+    difficultyLevel?: string | null;
+    imageUrl?: string | null;
+    isPublic?: boolean;
+    ingredients: Array<{
+        ingredientId?: string;
+        foodRefId: string;
+        foodRefName: string;
+        imageUrl?: string | null;
+        quantity: number;
+        unitId: string;
+        unitName: string;
+        notes?: string | null;
+    }>;
+    directions: Array<{
+        directionId?: string;
+        stepNumber: number;
+        description: string;
+        imageUrl?: string | null;
+    }>;
+};
+
+export const getRecipeDetails = async (recipeId: string): Promise<RecipeDetailsResponse> => {
+    try {
+        const qs = `?include=all`;
+        const res = await apiRequest<RecipeDetailsResponse>('get', `/recipes/${encodeURIComponent(recipeId)}${qs}`);
+        return res;
+    } catch (error) {
+        console.error('❌ getRecipeDetails error:', error);
+        throw error;
+    }
+};
+
 export type Unit = {
     id: string;
     name: string;

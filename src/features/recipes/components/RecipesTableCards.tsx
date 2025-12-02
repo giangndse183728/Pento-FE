@@ -7,6 +7,7 @@ import ConfirmModal from '@/components/decoration/ConfirmModal';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
 import { Clock, Users, ChefHat, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 type RecipesTableCardsProps = {
     items: RecipeSummary[];
@@ -20,6 +21,7 @@ const difficultyColors: Record<string, { bg: string; text: string }> = {
 };
 
 export default function RecipesTableCards({ items, deleteMode = false }: RecipesTableCardsProps) {
+    const router = useRouter();
     const deleteMutation = useDeleteRecipe();
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -70,7 +72,8 @@ export default function RecipesTableCards({ items, deleteMode = false }: Recipes
                         key={recipe.id}
                         width="100%"
                         height="auto"
-                        className="group h-full border border-white/80 shadow-xl hover:shadow-2xl transition-shadow duration-200 relative"
+                        className="group h-full border border-white/80 shadow-xl hover:shadow-2xl transition-shadow duration-200 relative cursor-pointer"
+                        onClick={() => router.push(`/admin/recipes/${recipe.id}`)}
                     >
                         {deleteMode && (
                             <button
