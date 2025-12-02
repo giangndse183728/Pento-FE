@@ -95,6 +95,17 @@ export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
     }
 };
 
+export const deleteRecipe = async (id: string): Promise<void> => {
+    console.log('📡 deleteRecipe called with id:', id);
+    try {
+        await apiRequest<void>('delete', `/recipes/${id}`);
+        console.log('✅ deleteRecipe response: success');
+    } catch (error) {
+        console.error('❌ deleteRecipe error:', error);
+        throw error;
+    }
+};
+
 export type Unit = {
     id: string;
     name: string;

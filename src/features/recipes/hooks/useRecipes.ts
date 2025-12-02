@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getRecipes, postRecipeDetailed, RecipeDetailedInput, RecipeSummary, RecipesQuery, PaginatedResponse } from '../services/recipesService';
+import { getRecipes, postRecipeDetailed, deleteRecipe, RecipeDetailedInput, RecipeSummary, RecipesQuery, PaginatedResponse } from '../services/recipesService';
 import useUnits from './useUnit';
 import useFoodReferences from './useFoodReferences';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
@@ -39,6 +39,22 @@ export const useCreateRecipe = () => {
         },
         onError: (err: unknown) => {
             const message = err instanceof Error ? err.message : 'Failed to create recipe';
+            toast.error(message);
+        },
+    });
+};
+
+export const useDeleteRecipe = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => deleteRecipe(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            toast.success('Recipe deleted successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to delete recipe';
             toast.error(message);
         },
     });

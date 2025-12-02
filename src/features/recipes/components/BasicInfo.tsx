@@ -6,6 +6,7 @@ import { ColorTheme } from "@/constants/color";
 import ElasticSlider from "@/components/decoration/ElasticSlider";
 import { CirclePlus, CircleMinus } from "lucide-react";
 import "@/styles/img-preview.css";
+import "@/styles/toggle.css";
 
 type Props = {
     title: string;
@@ -24,6 +25,8 @@ type Props = {
     setImageUrl: (s: string) => void;
     notes: string;
     setNotes: (s: string) => void;
+    isPublic: boolean;
+    setIsPublic: (b: boolean) => void;
 };
 
 export default function BasicInfo(props: Props) {
@@ -35,13 +38,32 @@ export default function BasicInfo(props: Props) {
         servings, setServings,
         difficultyLevel, setDifficultyLevel,
         imageUrl, setImageUrl,
-        notes, setNotes
+        notes, setNotes,
+        isPublic, setIsPublic
     } = props;
 
     const totalTime = (prepTimeMinutes ?? 0) + (cookTimeMinutes ?? 0);
 
     return (
         <div className="space-y-8">
+
+            {/* Post Visibility Toggle */}
+            <div className="flex items-center justify-end gap-3">
+                <span className="font-semibold text-lg" style={{ color: ColorTheme.darkBlue }}>
+                    Post Visibility:
+                </span>
+                <label className="switch">
+                    <input
+                        type="checkbox"
+                        checked={isPublic}
+                        onChange={(e) => setIsPublic(e.target.checked)}
+                    />
+                    <span className="slider"></span>
+                </label>
+                <span className="font-semibold text-lg" style={{ color: isPublic ? '#90EE90' : '#FFA07A' }}>
+                    {isPublic ? 'Public' : 'Private'}
+                </span>
+            </div>
 
             {/* Title */}
             <Field>
@@ -215,44 +237,11 @@ export default function BasicInfo(props: Props) {
                 </Field>
             </div>
 
-            {/* Notes, Image URL + Preview */}
+            {/* Image Preview + Notes */}
             <div className="flex flex-row gap-6">
-                <div className="flex flex-col gap-6 flex-1">
-                    {/* Notes */}
-                    <Field>
-                        <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Notes</FieldLabel>
-                        <FieldContent>
-                            <textarea
-                                className="neomorphic-textarea w-full overflow-hidden min-h-[180px]"
-                                placeholder="Additional notes"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                onInput={(e) => {
-                                    const target = e.target as HTMLTextAreaElement;
-                                    target.style.height = 'auto';
-                                    target.style.height = target.scrollHeight + 'px';
-                                }}
-                            />
-                        </FieldContent>
-                    </Field>
-
-                    {/* Image URL */}
-                    <Field>
-                        <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Image URL</FieldLabel>
-                        <FieldContent>
-                            <textarea
-                                className="neomorphic-textarea w-full overflow-hidden min-h-[90px]"
-                                placeholder="https://example.com/pic.jpg"
-                                value={imageUrl}
-                                onChange={(e) => setImageUrl(e.target.value)}
-                                autoComplete="off"
-                            />
-                        </FieldContent>
-                    </Field>
-                </div>
-
                 {/* Image Preview */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                    <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Image</FieldLabel>
                     <div className="card mt-4">
                         <div className="tools">
                             <div className="circle">
@@ -264,6 +253,14 @@ export default function BasicInfo(props: Props) {
                             <div className="circle">
                                 <span className="green box"></span>
                             </div>
+                            <input
+                                type="text"
+                                className="address-bar"
+                                placeholder="https://example.com/pic.jpg"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                autoComplete="off"
+                            />
                         </div>
                         <div
                             style={{
@@ -304,10 +301,30 @@ export default function BasicInfo(props: Props) {
                                 />
                             )}
                         </div>
-                        <div className="flex justify-center items-center mt-3 text-md text-gray-500 italic">
+                        <div className="flex justify-center items-center mt-1 text-md text-gray-500 italic">
                             Recipe Thumbnail
                         </div>
                     </div>
+                </div>
+
+                <div className="flex flex-col gap-6 flex-1">
+                    {/* Notes */}
+                    <Field>
+                        <FieldLabel className="font-semibold" style={{ color: ColorTheme.darkBlue, fontSize: "1.1rem" }}>Notes</FieldLabel>
+                        <FieldContent>
+                            <textarea
+                                className="neomorphic-textarea w-full overflow-hidden min-h-[180px]"
+                                placeholder="Additional notes"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                onInput={(e) => {
+                                    const target = e.target as HTMLTextAreaElement;
+                                    target.style.height = 'auto';
+                                    target.style.height = target.scrollHeight + 'px';
+                                }}
+                            />
+                        </FieldContent>
+                    </Field>
                 </div>
             </div>
         </div>
