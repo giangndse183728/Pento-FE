@@ -6,6 +6,12 @@ import { AxiosError } from "axios";
 export async function login(credentials: LoginFormData): Promise<LoginResponse> {
     try {
         const response = await apiRequest<LoginResponse>('post', '/auth/web-sign-in', credentials);
+
+        // Store access token in localStorage
+        if (response.accessToken) {
+            localStorage.setItem('accessToken', response.accessToken);
+        }
+
         return response;
     } catch (error) {
         if (error instanceof AxiosError) {
@@ -26,5 +32,8 @@ export async function logout(): Promise<void> {
             throw new Error(error.response?.data?.message || "Logout failed. Please try again.");
         }
         throw new Error("Logout failed. Please try again.");
+    } finally {
+        // Clear access token from localStorage
+        localStorage.removeItem('accessToken');
     }
 }
