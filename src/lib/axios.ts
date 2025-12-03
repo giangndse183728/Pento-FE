@@ -9,6 +9,18 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// Add request interceptor to attach access token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 
 interface FailedQueueItem {
     resolve: (value: AxiosResponse) => void;
@@ -53,7 +65,7 @@ api.interceptors.response.use(
                 const refreshResponse = await axios.post(
                     `${process.env.NEXT_PUBLIC_APP_API_URL ||
                     "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io"
-                    }/users/web-refresh`,
+                    }/auth/web-refresh`,
                     {},
                     {
                         headers: { "Content-Type": "application/json" },

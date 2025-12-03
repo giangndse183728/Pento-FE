@@ -4,8 +4,7 @@
 import Image from "next/image";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import Link from "next/link";
-
-import type { Article } from "./types";
+import { Article } from "../services/rssService";
 
 interface HeroSectionProps {
     article: Article;

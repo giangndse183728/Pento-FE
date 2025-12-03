@@ -28,7 +28,7 @@ export const recipeDetailedSchema = z.object({
         .optional()
         .nullable(),
     imageUrl: z.string().url().optional().nullable(),
-    createdBy: z.string().uuid().optional().nullable(), // server may set this; include if you pass it
+    createdBy: z.string().uuid().optional().nullable(), 
     isPublic: z.boolean().optional().default(true),
     ingredients: z.array(ingredientSchema).min(1, { message: 'At least one ingredient is required' }),
     directions: z.array(directionSchema).optional().nullable(),

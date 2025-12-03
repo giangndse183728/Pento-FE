@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getRecipes, postRecipeDetailed, RecipeDetailedInput, RecipeSummary, RecipesQuery, PaginatedResponse } from '../services/recipesService';
+import { getRecipes, postRecipeDetailed, deleteRecipe, getRecipeDetails, RecipeDetailedInput, RecipeSummary, RecipesQuery, PaginatedResponse, RecipeDetailsResponse } from '../services/recipesService';
 import useUnits from './useUnit';
 import useFoodReferences from './useFoodReferences';
 import { recipeDetailedSchema } from '../schema/recipeSchema';
@@ -41,6 +41,34 @@ export const useCreateRecipe = () => {
             const message = err instanceof Error ? err.message : 'Failed to create recipe';
             toast.error(message);
         },
+    });
+};
+
+export const useDeleteRecipe = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => deleteRecipe(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            toast.success('Recipe deleted successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to delete recipe';
+            toast.error(message);
+        },
+    });
+};
+
+export const useRecipeDetails = (recipeId?: string) => {
+    return useQuery<RecipeDetailsResponse>({
+        queryKey: ['recipe-details', recipeId],
+        queryFn: () => {
+            if (!recipeId) throw new Error('recipeId is required');
+            return getRecipeDetails(recipeId);
+        },
+        enabled: !!recipeId,
+        staleTime: 1000 * 60,
     });
 };
 

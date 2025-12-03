@@ -1,0 +1,65 @@
+.card {
+    width: 400px;
+    height: 450px;
+    margin: 25px;
+    background-color: #F8FBFE;
+    border-radius: 15px;
+    z-index: 1;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+}
+
+.tools {
+    display: flex;
+    align-items: center;
+    padding-top: 9px;
+    margin-bottom: 12px;
+}
+
+.circle {
+    padding: 0 4px;
+}
+
+.box {
+    display: inline-block;
+    align-items: center;
+    width: 15px;
+    height: 15px;
+    padding: 1px;
+    border-radius: 50%;
+    margin-top: 5px;
+}
+
+.red {
+    background-color: #ff605c;
+}
+
+.yellow {
+    background-color: #ffbd44;
+}
+
+.green {
+    background-color: #00ca4e;
+}
+
+.address-bar {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: all 0.2s ease;
+    color: #555;
+}
+
+.address-bar:focus {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.address-bar::placeholder {
+    color: #999;
+}

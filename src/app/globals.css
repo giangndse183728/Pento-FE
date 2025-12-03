@@ -153,7 +153,7 @@ body {
 
 /* Sonner Toast Styles */
 [data-sonner-toast][data-type="success"] {
-  background-color: #C7DB9C !important;
+  background-color: #67C090 !important;
   border-color: #059669 !important;
   color: white !important;
 }

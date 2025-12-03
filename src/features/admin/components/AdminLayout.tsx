@@ -22,7 +22,7 @@ const AdminLayout = ({ children }: Props) => {
                 <AdminSidebar />
 
                 {/* Main Content Area */}
-                <div className="w-full md:w-[75%] lg:w-[80%] md:ml-0 lg:ml-[calc(20%+1.5rem)] flex flex-col items-start justify-start text-left">
+                <div className="w-full md:w-[75%] lg:w-[80%] md:ml-0 lg:ml-[calc(20%+1.5rem)] flex flex-col items-start justify-start text-left text-[#113F67]" style={{ color: '#113F67' }}>
                     <BlurCard className="w-full bg-white/10 backdrop-blur-[1px]">
                         <div className="p-6 flex flex-col items-start justify-start text-left">
                             {children}
