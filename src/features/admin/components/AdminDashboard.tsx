@@ -4,9 +4,13 @@ import React from 'react';
 import AdminLayout from './AdminLayout';
 import StackedAreaChart from './StackedAreaChart';
 import PieChart from './PieChart';
+import DataCards from './DataCards';
+import { usePayments } from '../hooks/usePayments';
 
 
 const Dashboard = () => {
+    const { summary } = usePayments();
+
     return (
         <AdminLayout>
             {/* Top Bar */}
@@ -20,25 +24,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-4 mb-6 w-full">
-                {[
-                    { title: 'Luna & solder', price: '24.06 ETH', change: '+78%' },
-                    { title: 'Millenium', price: '12.03 ETH', change: '+13%' },
-                    { title: 'Florence Indigo', price: '15.08 ETH', change: '+78%' },
-                    { title: 'Purple sunlight', price: '14.06 ETH', change: '+76%' }
-                ].map((nft, index) => (
-                    <div key={index} className="w-full">
-                        <div className="p-4 flex flex-col gap-2 bg-white/5 rounded-lg">
-                            <div className="w-full aspect-square rounded-lg bg-gray-200/80"></div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm">{nft.title}</span>
-                                <span className="text-xs text-green-500">{nft.change}</span>
-                            </div>
-                            <span className="text-sm text-gray-400">{nft.price}</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <DataCards summary={summary} />
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 gap-6 w-full">

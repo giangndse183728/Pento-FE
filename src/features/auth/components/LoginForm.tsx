@@ -37,7 +37,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       setLoading(true);
       await login(data);
       toast.success("Login successful!");
-      router.push("/admin");
+      router.push("/admin/dashboard");
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please check your credentials.");
