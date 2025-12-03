@@ -42,7 +42,7 @@ export const subscriptionFeatureSchema = z.object({
     subscriptionId: z.string().uuid(),
     featureCode: z.string().min(1),
     entitlementQuota: z.number().int().nonnegative(),
-    entitlementResetPer: entitlementResetSchema,
+    entitlementResetPer: entitlementResetSchema.optional(),
     createdOnUtc: z.string().datetime().optional().nullable(),
     updatedOnUtc: z.string().datetime().optional().nullable(),
 });

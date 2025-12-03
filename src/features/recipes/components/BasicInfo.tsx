@@ -60,7 +60,7 @@ export default function BasicInfo(props: Props) {
                     />
                     <span className="slider"></span>
                 </label>
-                <span className="font-semibold text-lg" style={{ color: isPublic ? '#90EE90' : '#FFA07A' }}>
+                <span className="font-semibold text-lg" style={{ color: isPublic ? '#67C090 ' : '#FFA07A' }}>
                     {isPublic ? 'Public' : 'Private'}
                 </span>
             </div>

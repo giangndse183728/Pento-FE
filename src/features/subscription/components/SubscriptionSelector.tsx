@@ -51,7 +51,7 @@ const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
                                     className={`transition-all ${isSelected ? 'ring-2 ring-blue-400 ring-offset-2 rounded-2xl' : ''}`}
                                     onClick={() => onSelectSubscription(subId)}
                                 >
-                                    <div className="credit-card">
+                                    <div className="credit-card transition-all duration-300 hover:shadow-xl hover:shadow-blue-200/50 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.99] cursor-pointer">
                                         <div className="inner">
                                             <div className="magnetic-strip"></div>
                                             <div className="number-label">SUBSCRIPTION NAME</div>
@@ -75,7 +75,7 @@ const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
                 </div>
             ) : (
                 <div className="rounded-2xl border border-dashed border-white/60 bg-white/40 p-4 text-center text-sm text-gray-500">
-                    No subscriptions available. Create one in Step 1 first.
+                    No subscriptions available.
                 </div>
             )}
         </div>

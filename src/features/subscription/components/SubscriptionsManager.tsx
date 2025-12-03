@@ -7,9 +7,11 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useFeatures } from '../hooks/useFeatures';
 import { toast } from 'sonner';
 import CreateSubscriptionStep from './CreateSubscriptionStep';
-import AddPlansStep from './AddPlansStep';
-import AddFeaturesStep from './AddFeaturesStep';
+import AddPlansStep from './plans/AddPlansStep';
+import AddFeaturesStep from './features/AddFeaturesStep';
+import SubscriptionList from './SubscriptionList';
 import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema } from '../schema/subscriptionSchema';
+import '@/styles/tab-bar.css';
 
 
 const createInitialSubscriptionForm = (): typeof createSubscriptionSchema._type => ({
@@ -48,6 +50,7 @@ const textareaClass = 'neomorphic-textarea w-full min-h-[96px]';
 const selectClass = 'neomorphic-select w-full';
 
 export default function SubscriptionsManager() {
+    const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
     const [currentStep, setCurrentStep] = useState(1);
 
     const { createSubscription, addSubscriptionPlan, addSubscriptionFeature, subscriptions } = useSubscription();
@@ -124,7 +127,7 @@ export default function SubscriptionsManager() {
                 payload: {
                     amount: planForm.amount,
                     currency: planForm.currency,
-                    durationInDays: planForm.durationInDays,
+                    ...(planForm.durationInDays !== 366 && { durationInDays: planForm.durationInDays }),
                 },
             },
             {
@@ -149,6 +152,13 @@ export default function SubscriptionsManager() {
             return;
         }
 
+        // Validate that quota is set when reset period is chosen
+        const invalidRows = rowsToSubmit.filter(row => row.entitlementResetPer && row.entitlementQuota === 0);
+        if (invalidRows.length > 0) {
+            toast.error('Quota must be greater than 0 when a reset period is set');
+            return;
+        }
+
         try {
             for (const row of rowsToSubmit) {
                 await addSubscriptionFeature.mutateAsync({
@@ -156,7 +166,7 @@ export default function SubscriptionsManager() {
                     payload: {
                         featureCode: row.featureCode.trim(),
                         entitlementQuota: row.entitlementQuota,
-                        entitlementResetPer: row.entitlementResetPer,
+                        ...(row.entitlementResetPer && { entitlementResetPer: row.entitlementResetPer }),
                     },
                 });
             }
@@ -269,71 +279,108 @@ export default function SubscriptionsManager() {
                     </div>
                 </div>
 
-                <Stepper
-                    initialStep={currentStep}
-                    stepCircleContainerClassName="w-full max-w-5xl"
-                    contentClassName="w-full max-w-5xl"
-                    footerClassName="w-full max-w-5xl"
-                    backButtonText="Previous"
-                    nextButtonText="Next step"
-                    onStepChange={(step) => setCurrentStep(step)}
-                >
-                    <Step>
-                        <CreateSubscriptionStep
-                            form={subscriptionForm}
-                            inputClass={inputClass}
-                            textareaClass={textareaClass}
-                            onChange={updateSubscriptionForm}
-                            onSubmit={handleSubscriptionSubmit}
-                            isSubmitting={createSubscription.isPending}
-                        />
-                    </Step>
+                {/* Tabs */}
+                <div className="mb-6 flex justify-start">
+                    <div className="segmented">
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="subscription-tab"
+                                checked={activeTab === 'create'}
+                                onChange={() => setActiveTab('create')}
+                            />
+                            Create Subscription
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="subscription-tab"
+                                checked={activeTab === 'list'}
+                                onChange={() => setActiveTab('list')}
+                            />
+                            Subscriptions List
+                        </label>
+                    </div>
+                </div>
 
-                    <Step>
-                        <AddPlansStep
-                            form={planForm}
-                            inputClass={inputClass}
-                            subscriptions={subscriptionsList}
-                            subscriptionsLoading={subscriptionsLoading}
-                            selectedSubscription={selectedPlanSubscription}
-                            resolveSubscriptionId={resolveSubscriptionId}
-                            onSelectSubscription={selectPlanSubscription}
-                            onAmountChange={handlePlanAmountChange}
-                            onAmountAdjust={adjustPlanAmount}
-                            onDurationChange={handlePlanDurationChange}
-                            onDurationAdjust={adjustPlanDuration}
-                            onSubmit={handlePlanSubmit}
-                            isSubmitting={addSubscriptionPlan.isPending}
-                        />
-                    </Step>
+                {/* Create Subscription Tab */}
+                {activeTab === 'create' && (
+                    <Stepper
+                        initialStep={currentStep}
+                        stepCircleContainerClassName="w-full"
+                        contentClassName="w-full"
+                        footerClassName="w-full"
+                        backButtonText="Previous"
+                        nextButtonText="Next step"
+                        onStepChange={(step) => setCurrentStep(step)}
+                    >
+                        <Step>
+                            <CreateSubscriptionStep
+                                form={subscriptionForm}
+                                inputClass={inputClass}
+                                textareaClass={textareaClass}
+                                onChange={updateSubscriptionForm}
+                                onSubmit={handleSubscriptionSubmit}
+                                isSubmitting={createSubscription.isPending}
+                            />
+                        </Step>
 
-                    <Step>
-                        <AddFeaturesStep
-                            form={featureForm}
-                            inputClass={inputClass}
-                            selectClass={selectClass}
+                        <Step>
+                            <AddPlansStep
+                                form={planForm}
+                                inputClass={inputClass}
+                                subscriptions={subscriptionsList}
+                                subscriptionsLoading={subscriptionsLoading}
+                                selectedSubscription={selectedPlanSubscription}
+                                resolveSubscriptionId={resolveSubscriptionId}
+                                onSelectSubscription={selectPlanSubscription}
+                                onAmountChange={handlePlanAmountChange}
+                                onAmountAdjust={adjustPlanAmount}
+                                onDurationChange={handlePlanDurationChange}
+                                onDurationAdjust={adjustPlanDuration}
+                                onSubmit={handlePlanSubmit}
+                                isSubmitting={addSubscriptionPlan.isPending}
+                            />
+                        </Step>
+
+                        <Step>
+                            <AddFeaturesStep
+                                form={featureForm}
+                                selectClass={selectClass}
+                                subscriptions={subscriptions.data || []}
+                                subscriptionsLoading={subscriptions.isLoading}
+                                selectedSubscription={selectedFeatureSubscription}
+                                resolveSubscriptionId={resolveSubscriptionId}
+                                onSelectSubscription={selectFeatureSubscription}
+                                featureRows={featureRows}
+                                activeFeatureRow={activeFeatureRow}
+                                onSetActiveRow={setActiveFeatureRow}
+                                onFeatureRowChange={updateFeatureRow}
+                                onRemoveFeatureRow={handleRemoveFeatureRow}
+                                onAddFeatureRow={handleAddFeatureRow}
+                                onSubmit={handleFeatureSubmit}
+                                isSubmitting={addSubscriptionFeature.isPending}
+                                featureSearchInput={featureSearchInput}
+                                onFeatureSearchInputChange={setFeatureSearchInput}
+                                onFeatureSearch={handleFeatureSearch}
+                                filteredFeatures={filteredFeatures}
+                                featuresAreLoading={featuresAreLoading}
+                                onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
+                            />
+                        </Step>
+                    </Stepper>
+                )}
+
+                {/* Subscriptions List Tab */}
+                {activeTab === 'list' && (
+                    <div className="space-y-6">
+                        <SubscriptionList
                             subscriptions={subscriptionsList}
-                            subscriptionsLoading={subscriptionsLoading}
-                            selectedSubscription={selectedFeatureSubscription}
-                            resolveSubscriptionId={resolveSubscriptionId}
-                            onSelectSubscription={selectFeatureSubscription}
-                            featureRows={featureRows}
-                            activeFeatureRow={activeFeatureRow}
-                            onSetActiveRow={setActiveFeatureRow}
-                            onFeatureRowChange={updateFeatureRow}
-                            onRemoveFeatureRow={handleRemoveFeatureRow}
-                            onAddFeatureRow={handleAddFeatureRow}
-                            onSubmit={handleFeatureSubmit}
-                            isSubmitting={addSubscriptionFeature.isPending}
-                            featureSearchInput={featureSearchInput}
-                            onFeatureSearchInputChange={setFeatureSearchInput}
-                            onFeatureSearch={handleFeatureSearch}
-                            filteredFeatures={filteredFeatures}
-                            featuresAreLoading={featuresAreLoading}
-                            onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
+                            loading={subscriptionsLoading}
+                            onDeleted={() => subscriptions.refetch()}
                         />
-                    </Step>
-                </Stepper>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     );

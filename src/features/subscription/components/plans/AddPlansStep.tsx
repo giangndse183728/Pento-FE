@@ -2,11 +2,11 @@ import React from 'react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import ElasticSlider from '@/components/decoration/ElasticSlider';
-import { subscriptionPlanSchema } from '../schema/subscriptionSchema';
-import SubscriptionSelector from './SubscriptionSelector';
+import { subscriptionPlanSchema } from '../../schema/subscriptionSchema';
+import SubscriptionSelector from '../SubscriptionSelector';
 import { CircleMinus, CirclePlus } from 'lucide-react';
 
-import { Subscription } from '../services/subscriptionService';
+import { Subscription } from '../../services/subscriptionService';
 
 type Props = {
     form: typeof subscriptionPlanSchema._type;
@@ -62,7 +62,7 @@ const AddPlansStep = ({
                 />
 
                 <div className="grid gap-4">
-                    <div className="grid grid-cols-1 md:grid-cols-7 gap-10 ">
+                    <div className="grid grid-cols-1 md:grid-cols-7 gap-10 mt-8 mb-4">
                         {/* Duration */}
                         <div className="md:col-span-3">
                             <label className="text-sm font-medium flex items-center justify-between" style={{ color: '#113F67', fontSize: '1.1rem' }}>
@@ -81,13 +81,12 @@ const AddPlansStep = ({
                                         <ElasticSlider
                                             defaultValue={form.durationInDays}
                                             startingValue={1}
-                                            maxValue={365}
+                                            maxValue={366}
                                             isStepped
                                             stepSize={1}
                                             leftIcon={<span />}
                                             rightIcon={<span />}
-                                            valueSuffix=" days"
-                                            valueFormatter={(val) => val.toLocaleString()}
+                                            valueFormatter={(val) => val === 366 ? "For Lifetime" : `${val.toLocaleString()} days`}
                                             onChange={(value) => onDurationChange(value)}
                                         />
                                     </div>

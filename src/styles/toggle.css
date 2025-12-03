@@ -45,5 +45,5 @@
 
 input:checked+.slider:before {
     transform: translateX(2em);
-    background: lightgreen;
+    background: #67C090;
 }

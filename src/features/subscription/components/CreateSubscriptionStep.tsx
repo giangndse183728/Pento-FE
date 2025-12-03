@@ -3,6 +3,7 @@ import '@/styles/toggle.css';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import { createSubscriptionSchema } from '../schema/subscriptionSchema';
+import { ColorTheme } from '@/constants/color';
 
 type Props = {
     form: typeof createSubscriptionSchema._type;
@@ -29,24 +30,27 @@ const CreateSubscriptionStep = ({
                         1
                     </div>
                     <div>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Create Subscription</h2>
-                        <p className="text-sm" style={{ color: '#113F67' }}>Define the base subscription shell.</p>
+                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Create a Subscription</h2>
+
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 text-sm">
-                    <label htmlFor="subscription-active" className="font-medium" style={{ color: '#113F67' }}>
-                        {form.isActive ? 'Active' : 'Inactive'}
-                    </label>
+                {/* Subscription Status Toggle */}
+                <div className="flex items-center justify-end gap-3">
+                    <span className="font-semibold text-lg" style={{ color: ColorTheme.darkBlue }}>
+                        Subscription Status:
+                    </span>
                     <label className="switch">
                         <input
-                            id="subscription-active"
                             type="checkbox"
                             checked={form.isActive}
                             onChange={(e) => onChange({ isActive: e.target.checked })}
                         />
                         <span className="slider"></span>
                     </label>
+                    <span className="font-semibold text-lg" style={{ color: form.isActive ? '#67C090 ' : '#FFA07A' }}>
+                        {form.isActive ? 'Active' : 'Inactive'}
+                    </span>
                 </div>
 
                 <div className="grid gap-8">

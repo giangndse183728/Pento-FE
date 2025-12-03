@@ -1,0 +1,155 @@
+"use client";
+
+import React, { useState } from "react";
+import { toast } from "sonner";
+import ConfirmModal from "@/components/decoration/ConfirmModal";
+import { CusButton } from "@/components/ui/cusButton";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Trash2 } from "lucide-react";
+import { Subscription, deleteSubscriptionAdmin } from "../services/subscriptionService";
+import "@/styles/visa-card.css";
+
+type Props = {
+    subscriptions: Subscription[];
+    loading?: boolean;
+    onDeleted?: () => void;
+};
+
+export default function SubscriptionList({ subscriptions, loading = false, onDeleted }: Props) {
+    const [deleteMode, setDeleteMode] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleDeleteClick = (id: string, e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        if (!id) {
+            toast.error("Missing subscription id");
+            return;
+        }
+        setSelectedId(id);
+        setModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!selectedId) {
+            console.warn("No selectedId when confirming delete");
+            return;
+        }
+        try {
+            setIsDeleting(true);
+            console.log("Calling deleteSubscriptionAdmin for", selectedId);
+            await deleteSubscriptionAdmin(selectedId);
+            setModalOpen(false);
+            setSelectedId(null);
+            setIsDeleting(false);
+            toast.success("Subscription deleted");
+            onDeleted?.();
+        } catch (err) {
+            setIsDeleting(false);
+            setModalOpen(false);
+            setSelectedId(null);
+            console.error("Failed to delete subscription", err);
+            toast.error("Failed to delete subscription");
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className="card-container">
+                        <div className="credit-card">
+                            <div className="inner">
+                                <div className="magnetic-strip"></div>
+                                <div className="number-label">SUBSCRIPTION NAME</div>
+                                <Skeleton className="h-6 w-2/3 rounded-md" />
+                                <div className="card-details mt-2">
+                                    <div>
+                                        <label>DESCRIPTION</label>
+                                        <Skeleton className="h-4 w-3/4 rounded-md" />
+                                    </div>
+                                    <div>
+                                        <label>STATUS</label>
+                                        <Skeleton className="h-4 w-24 rounded-md" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-full max-w-5xl space-y-6">
+            {/* Delete toggle */}
+            <div className="flex justify-end">
+                <CusButton
+                    variant={deleteMode ? "red" : "pastelRed"}
+                    size="sm"
+                    onClick={() => setDeleteMode(!deleteMode)}
+                    className="gap-2"
+                >
+                    <Trash2 className="w-4 h-4" />
+                    {deleteMode ? "Done" : "Delete Subscriptions"}
+                </CusButton>
+            </div>
+
+            {/* Confirm modal */}
+            <ConfirmModal
+                open={modalOpen}
+                title="Delete Subscription"
+                message="Are you sure you want to delete this subscription?"
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => {
+                    setModalOpen(false);
+                    setSelectedId(null);
+                }}
+                loading={isDeleting}
+            />
+
+            {/* Grid of subscription cards using visa-card.css with overlay delete */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {subscriptions.map((sub) => (
+                    <div key={sub.id} className="card-container relative">
+                        {deleteMode && (
+                            <button
+                                onClick={(e) => handleDeleteClick(sub.id ?? sub.subscriptionId ?? "", e)}
+                                className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+                                aria-label="Delete subscription"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        )}
+                        <div
+                            className={`credit-card transition-all duration-300 ${deleteMode
+                                    ? "ring-1 ring-red-300 hover:ring-2 hover:ring-red-400 hover:shadow-red-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                                    : "hover:shadow-xl hover:shadow-blue-200/50 hover:scale-[1.03] hover:-translate-y-1 active:scale-[0.99] cursor-pointer"
+                                }`}
+                        >
+                            <div className="inner">
+                                <div className="magnetic-strip"></div>
+                                <div className="number-label">SUBSCRIPTION NAME</div>
+                                <div className="card-number">{sub.name}</div>
+                                <div className="card-details">
+                                    <div>
+                                        <label>DESCRIPTION</label>
+                                        <span className="card-name">{sub.description || "No description"}</span>
+                                    </div>
+                                    <div>
+                                        <label>STATUS</label>
+                                        <span className="card-date">{sub.isActive ? "ACTIVE" : "INACTIVE"}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
