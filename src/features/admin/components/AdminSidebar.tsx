@@ -8,7 +8,8 @@ import {
     ChartColumnBig,
     BookMarked,
     UtensilsCrossed,
-    CalendarPlus
+    CalendarPlus,
+    Medal
 } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +17,7 @@ const navItems = [
     { href: ROUTES.RECIPES, label: 'Recipes', icon: BookMarked },
     { href: '#', label: 'Food References', icon: UtensilsCrossed },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: CalendarPlus },
+    { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: Medal },
 ];
 
 const AdminSidebar = () => {

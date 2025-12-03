@@ -7,6 +7,7 @@ export const ROUTES = {
   ADMIN: "/admin",
   ARTICLES: "/articles",
   SUBSCRIPTIONS: "/admin/subscriptions",
+  ACHIEVEMENTS: "/admin/achievements",
 };
 
 export const ROUTES_NO_LAYOUT = ["/login", "/admin"];
