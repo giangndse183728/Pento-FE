@@ -49,8 +49,7 @@ const AddPlansStep = ({
                         2
                     </div>
                     <div>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67', fontSize: '1.1rem' }}>Add Plans</h2>
-                        <p className="text-sm" style={{ color: '#113F67' }}>Attach pricing to a subscription.</p>
+                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Add Subscription Plans</h2>
                     </div>
                 </div>
 

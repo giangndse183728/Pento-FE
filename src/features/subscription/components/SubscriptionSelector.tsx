@@ -1,6 +1,7 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Subscription } from '../services/subscriptionService';
+import '@/styles/visa-card.css';
 
 export type SubscriptionSelectorProps = {
     subscriptions: Subscription[];
@@ -44,20 +45,31 @@ const SubscriptionSelector: React.FC<SubscriptionSelectorProps> = ({
                         if (!subId) return null;
                         const isSelected = selectedSubscription && resolveSubscriptionId(selectedSubscription) === subId;
                         return (
-                            <button
-                                type="button"
-                                key={subId}
-                                className={`text-left rounded-2xl border bg-white/80 p-4 shadow-sm transition-colors ${isSelected ? 'border-blue-400 ring-1 ring-blue-300' : 'border-white/60 hover:border-blue-200'}`}
-                                onClick={() => onSelectSubscription(subId)}
-                            >
-                                <div className="flex items-center justify-between mb-2">
-                                    <h4 className="text-base font-semibold text-gray-900">{sub.name}</h4>
-                                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${sub.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                                        {sub.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-600">{sub.description ?? 'No description provided.'}</p>
-                            </button>
+                            <div key={subId} className="card-container">
+                                <button
+                                    type="button"
+                                    className={`transition-all ${isSelected ? 'ring-2 ring-blue-400 ring-offset-2 rounded-2xl' : ''}`}
+                                    onClick={() => onSelectSubscription(subId)}
+                                >
+                                    <div className="credit-card">
+                                        <div className="inner">
+                                            <div className="magnetic-strip"></div>
+                                            <div className="number-label">SUBSCRIPTION NAME</div>
+                                            <div className="card-number">{sub.name}</div>
+                                            <div className="card-details">
+                                                <div>
+                                                    <label>DESCRIPTION</label>
+                                                    <span className="card-name">{sub.description || 'No description'}</span>
+                                                </div>
+                                                <div>
+                                                    <label>STATUS</label>
+                                                    <span className="card-date">{sub.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
                         );
                     })}
                 </div>
