@@ -15,7 +15,7 @@ import {
 const navItems = [
     { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: ChartColumnBig },
     { href: ROUTES.RECIPES, label: 'Recipes', icon: BookMarked },
-    { href: '#', label: 'Food References', icon: UtensilsCrossed },
+    // { href: '#', label: 'Food References', icon: UtensilsCrossed },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: CalendarPlus },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: Medal },
 ];
