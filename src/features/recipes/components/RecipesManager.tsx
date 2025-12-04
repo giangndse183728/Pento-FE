@@ -47,7 +47,7 @@ export default function RecipesManager() {
 
             {/* Create Recipe Tab */}
             {activeTab === 'create' && (
-                <RecipesCreateForm create={create} />
+                <RecipesCreateForm create={create} onSuccess={() => setActiveTab('list')} />
             )}
 
             {/* Recipes List Tab */}

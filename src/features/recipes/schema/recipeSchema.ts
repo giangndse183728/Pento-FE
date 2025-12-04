@@ -12,7 +12,7 @@ export const ingredientSchema = z.object({
 export const directionSchema = z.object({
     stepNumber: z.number().int().positive({ message: 'stepNumber must be a positive integer' }),
     description: z.string().min(1, { message: 'Step description is required' }),
-    imageUrl: z.string().url().optional().nullable(),
+    image: z.string().url().optional().nullable(),
 });
 
 // POST /recipes/detailed payload
@@ -27,8 +27,8 @@ export const recipeDetailedSchema = z.object({
         .enum(['Easy', 'Medium', 'Hard'])
         .optional()
         .nullable(),
-    imageUrl: z.string().url().optional().nullable(),
-    createdBy: z.string().uuid().optional().nullable(), 
+    image: z.string().url().optional().nullable(),
+    createdBy: z.string().uuid().optional().nullable(),
     isPublic: z.boolean().optional().default(true),
     ingredients: z.array(ingredientSchema).min(1, { message: 'At least one ingredient is required' }),
     directions: z.array(directionSchema).optional().nullable(),

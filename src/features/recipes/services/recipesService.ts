@@ -10,7 +10,7 @@ export type IngredientInput = {
 export type DirectionInput = {
     stepNumber: number;
     description: string;
-    imageUrl?: string;
+    image?: string | null;
 };
 
 export type RecipeDetailedInput = {
@@ -21,7 +21,7 @@ export type RecipeDetailedInput = {
     notes?: string;
     servings?: number;
     difficultyLevel?: string;
-    imageUrl?: string | null;
+    image?: string | null;
     createdBy?: string;
     isPublic?: boolean;
     ingredients?: IngredientInput[];
@@ -38,7 +38,7 @@ export type RecipeSummary = {
     notes?: string;
     servings?: number;
     difficultyLevel?: string;
-    imageUrl?: string | null;
+    image?: string | null;
     createdBy?: string;
     isPublic?: boolean;
     createdOnUtc?: string;
@@ -68,11 +68,9 @@ export const getRecipes = async (params: RecipesQuery): Promise<PaginatedRespons
             })
             .join('&');
         const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/recipes${qs}`);
-        console.log('✅ getRecipes response:', response);
         // Return full paginated response
         return response;
     } catch (err) {
-        console.error('❌ getRecipes failed:', err);
         // Return empty paginated response on error
         return {
             items: [],
@@ -84,29 +82,24 @@ export const getRecipes = async (params: RecipesQuery): Promise<PaginatedRespons
 };
 
 export const postRecipeDetailed = async (payload: RecipeDetailedInput) => {
-    console.log('📡 postRecipeDetailed called with payload:', JSON.stringify(payload, null, 2));
     try {
         const result = await apiRequest<unknown>('post', '/recipes/detailed', payload);
-        console.log('✅ postRecipeDetailed response:', result);
         return result;
     } catch (error) {
-        console.error('❌ postRecipeDetailed error:', error);
         throw error;
     }
 };
 
 export const deleteRecipe = async (id: string): Promise<void> => {
-    console.log('📡 deleteRecipe called with id:', id);
     try {
         await apiRequest<void>('delete', `/recipes/${id}`);
-        console.log('✅ deleteRecipe response: success');
     } catch (error) {
-        console.error('❌ deleteRecipe error:', error);
         throw error;
     }
 };
 
 export type RecipeDetailsResponse = {
+    id?: string;
     recipeTitle: string;
     description?: string | null;
     prepTimeMinutes?: number | null;
@@ -141,7 +134,6 @@ export const getRecipeDetails = async (recipeId: string): Promise<RecipeDetailsR
         const res = await apiRequest<RecipeDetailsResponse>('get', `/recipes/${encodeURIComponent(recipeId)}${qs}`);
         return res;
     } catch (error) {
-        console.error('❌ getRecipeDetails error:', error);
         throw error;
     }
 };
@@ -166,7 +158,6 @@ export const getUnits = async (): Promise<Unit[]> => {
     try {
         return await apiRequest<Unit[]>('get', '/units');
     } catch (err) {
-        console.error('getUnits failed:', err);
         return [];
     }
 };
@@ -224,7 +215,6 @@ export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<F
 
         return { items: [], totalCount: 0, pageNumber: 1, pageSize: 24 };
     } catch (err) {
-        console.error('getFoodReferences failed:', err);
         return { items: [], totalCount: 0, pageNumber: 1, pageSize: 24 };
     }
 };
