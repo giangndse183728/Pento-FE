@@ -2,9 +2,9 @@
 
 import React from 'react';
 import AdminLayout from './AdminLayout';
-import StackedAreaChart from './StackedAreaChart';
-import PieChart from './PieChart';
-import DataCards from './DataCards';
+import GradientLineChart from './GradientLineChart';
+import SideDataCards from './SideDataCards';
+import DataCards from './TopDataCards';
 import { usePayments } from '../hooks/usePayments';
 
 
@@ -28,20 +28,19 @@ const Dashboard = () => {
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 gap-6 w-full">
-                <div className="flex gap-10 justify-start items-start w-full">
+                <div className="flex gap-6 justify-start items-start w-full">
 
-                    {/* Stacked Area Chart - 70% */}
-                    <div className="w-[600px] flex flex-col items-start justify-start">
+                    {/* Gradient Line Chart - 70% */}
+                    <div className="flex-[0.7] flex flex-col items-start justify-start">
                         <div className="h-[500px] w-full">
-                            <StackedAreaChart />
+                            <GradientLineChart />
                         </div>
                     </div>
 
-                    {/* Pie Chart - 30% */}
-                    <div className="flex-[0.3] flex flex-col items-start justify-start text-left">
-                        <h2 className="text-lg font-semibold mb-4">Coverage</h2>
-                        <div className="h-[200px] w-full">
-                            <PieChart />
+                    {/* Side Data Cards - 30% */}
+                    <div className="flex-[0.3] flex flex-col items-start justify-start text-left w-[300px]">
+                        <div className="h-full w-full">
+                            <SideDataCards summary={summary} />
                         </div>
                     </div>
                 </div>
