@@ -1,11 +1,5 @@
-'use client';
-
-import Dashboard from '@/features/admin/components/AdminDashboard';
+import { redirect } from 'next/navigation';
 
 export default function AdminPage() {
-    return (
-        <main>
-            <Dashboard />
-        </main>
-    );
+    redirect('/admin/dashboard');
 }
