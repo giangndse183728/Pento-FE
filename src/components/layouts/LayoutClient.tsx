@@ -41,19 +41,24 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
         {/* Web Background - show on all routes except home and admin */}
         {showWebBg && (
-          <div className="fixed inset-0 z-0">
+          <div className="fixed inset-0 z-0 opacity-80">
             <Image
-              src="/assets/img/web-bg.png"
+              src="/assets/img/web-bg5.png"
               alt="background"
               fill
               className="object-cover"
               priority={false}
             />
           </div>
+          // <div className="fixed inset-0 z-0 bg-[#D6E6F2]" />
+
         )}
 
         {/* Content */}
-        <div className="relative z-10">
+        <div
+          className={`relative z-10 ${!isHomePage ? 'font-primary' : ''}`}
+          style={!isHomePage ? { color: '#113F67' } : undefined}
+        >
           {!hideNavbar && <Navbar />}
           <div className="max-w-[1600px] mx-auto">{children}</div>
         </div>

@@ -38,7 +38,7 @@ export type RecipeSummary = {
     notes?: string;
     servings?: number;
     difficultyLevel?: string;
-    image?: string | null;
+    imageUrl?: string | null;
     createdBy?: string;
     isPublic?: boolean;
     createdOnUtc?: string;
