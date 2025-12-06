@@ -44,13 +44,8 @@ const AddPlansStep = ({
     return (
         <WhiteCard className="w-full h-full" width="100%" height="auto">
             <form className="space-y-8 text-[#113F67]" onSubmit={onSubmit}>
-                <div className="flex items-center gap-3">
-                    <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: '#769FCD' }}>
-                        2
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Add Subscription Plans</h2>
-                    </div>
+                <div>
+                    <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Add Subscription Plans</h2>
                 </div>
 
                 <SubscriptionSelector

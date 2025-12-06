@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import AdminLayout from '@/features/admin/components/AdminLayout';
-import Stepper, { Step } from '@/components/decoration/Stepper';
 import { useSubscription } from '../hooks/useSubscription';
 import { useFeatures } from '../hooks/useFeatures';
 import { toast } from 'sonner';
@@ -38,7 +38,7 @@ const createFeatureRow = (): Omit<typeof subscriptionFeatureSchema._type, 'subsc
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     featureCode: '',
     entitlementQuota: 4,
-    entitlementResetPer: 'Day',
+    entitlementResetPer: undefined,
     // id, featureCode, entitlementQuota, entitlementResetPer
     // createdOnUtc, updatedOnUtc are omitted for new rows
 });
@@ -50,12 +50,13 @@ const textareaClass = 'neomorphic-textarea w-full min-h-[96px]';
 const selectClass = 'neomorphic-select w-full';
 
 export default function SubscriptionsManager() {
-    const [activeTab, setActiveTab] = useState<'create' | 'list'>('create');
-    const [currentStep, setCurrentStep] = useState(1);
+    const pathname = usePathname();
+    const [mountKey, setMountKey] = useState(0);
+    const [currentStep, setCurrentStep] = useState<'create-subscription' | 'add-plans' | 'add-features' | 'list'>('create-subscription');
 
     const { createSubscription, addSubscriptionPlan, addSubscriptionFeature, subscriptions } = useSubscription();
     const { data: features, isLoading: featuresLoading, isFetching: featuresFetching } = useFeatures({
-        enabled: currentStep >= 3,
+        enabled: currentStep === 'add-features',
     });
     const featuresAreLoading = featuresLoading || featuresFetching;
 
@@ -72,6 +73,50 @@ export default function SubscriptionsManager() {
     const resolveSubscriptionId = (sub: (typeof subscriptionsList)[number]) => sub.id ?? sub.subscriptionId ?? '';
     const selectedPlanSubscription = subscriptionsList.find((sub) => resolveSubscriptionId(sub) === planForm.subscriptionId);
     const selectedFeatureSubscription = subscriptionsList.find((sub) => resolveSubscriptionId(sub) === featureForm.subscriptionId);
+
+    // Refetch subscriptions when component mounts or when switching to list tab
+    useEffect(() => {
+        subscriptions.refetch();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Reset component state when navigating back to this page
+    useEffect(() => {
+        // Increment mount key to force remount of child components
+        setMountKey((prev) => prev + 1);
+
+        // Reset all state when pathname changes (user navigated away and back)
+        setSubscriptionForm(createInitialSubscriptionForm());
+        setPlanForm(createInitialPlanForm());
+        setFeatureForm(createInitialFeatureForm());
+        setFeatureRows([createFeatureRow()]);
+        setActiveFeatureRow(0);
+        setFeatureSearchInput('');
+        setFeatureSearch('');
+        subscriptions.refetch();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname]);
+
+    // Also reset on visibility change (when user comes back to tab/window)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && pathname === '/admin/subscriptions') {
+                setMountKey((prev) => prev + 1);
+                subscriptions.refetch();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pathname]);
+
+    useEffect(() => {
+        if (currentStep === 'list') {
+            subscriptions.refetch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentStep]);
 
     const updateSubscriptionForm = (patch: Partial<typeof createSubscriptionSchema._type>) => {
         setSubscriptionForm((prev) => ({ ...prev, ...patch }));
@@ -152,23 +197,38 @@ export default function SubscriptionsManager() {
             return;
         }
 
-        // Validate that quota is set when reset period is chosen
-        const invalidRows = rowsToSubmit.filter(row => row.entitlementResetPer && row.entitlementQuota === 0);
+        // Validate: if reset period is chosen (not "No Reset"), quota must be >0 and <101 (not Unlimited)
+        const invalidRows = rowsToSubmit.filter(row =>
+            row.entitlementResetPer && (row.entitlementQuota === 0 || row.entitlementQuota === 101)
+        );
         if (invalidRows.length > 0) {
-            toast.error('Quota must be greater than 0 when a reset period is set');
+            toast.error('When a reset period is set, quota must be between 1-100 (not 0 or Unlimited)');
             return;
         }
 
         try {
             for (const row of rowsToSubmit) {
-                await addSubscriptionFeature.mutateAsync({
-                    subscriptionId: featureForm.subscriptionId.trim(),
-                    payload: {
-                        featureCode: row.featureCode.trim(),
-                        entitlementQuota: row.entitlementQuota,
-                        ...(row.entitlementResetPer && { entitlementResetPer: row.entitlementResetPer }),
-                    },
-                });
+                // If quota is 101 (Unlimited in UI), send 0 to backend (which means unlocked/unlimited)
+                // Don't send reset period for unlimited features
+                if (row.entitlementQuota === 101) {
+                    await addSubscriptionFeature.mutateAsync({
+                        subscriptionId: featureForm.subscriptionId.trim(),
+                        payload: {
+                            featureCode: row.featureCode.trim(),
+                            quota: 0,
+                        },
+                    });
+                } else {
+                    // For quota 1-100, send the actual quota and optional reset period
+                    await addSubscriptionFeature.mutateAsync({
+                        subscriptionId: featureForm.subscriptionId.trim(),
+                        payload: {
+                            featureCode: row.featureCode.trim(),
+                            quota: row.entitlementQuota,
+                            ...(row.entitlementResetPer && { resetPeriod: row.entitlementResetPer }),
+                        },
+                    });
+                }
             }
             toast.success(rowsToSubmit.length > 1 ? 'Features added' : 'Feature added');
             setFeatureRows([createFeatureRow()]);
@@ -179,6 +239,13 @@ export default function SubscriptionsManager() {
             setActiveFeatureRow(0);
         } catch (error) {
             console.error('Failed to add features', error);
+            // Handle API error response
+            const err = error as { response?: { data?: { detail?: string; title?: string } }; message?: string };
+            const errorMessage = err?.response?.data?.detail ||
+                err?.response?.data?.title ||
+                err?.message ||
+                'Failed to add features';
+            toast.error(errorMessage);
         }
     };
 
@@ -264,7 +331,7 @@ export default function SubscriptionsManager() {
                         setPlanForm((prev) => ({ ...prev, subscriptionId: newId }));
                         setFeatureForm((prev) => ({ ...prev, subscriptionId: newId }));
                     }
-                    setCurrentStep(2);
+                    setCurrentStep('add-plans');
                 },
             }
         );
@@ -286,8 +353,8 @@ export default function SubscriptionsManager() {
                             <input
                                 type="radio"
                                 name="subscription-tab"
-                                checked={activeTab === 'create'}
-                                onChange={() => setActiveTab('create')}
+                                checked={currentStep === 'create-subscription'}
+                                onChange={() => setCurrentStep('create-subscription')}
                             />
                             Create Subscription
                         </label>
@@ -295,8 +362,26 @@ export default function SubscriptionsManager() {
                             <input
                                 type="radio"
                                 name="subscription-tab"
-                                checked={activeTab === 'list'}
-                                onChange={() => setActiveTab('list')}
+                                checked={currentStep === 'add-plans'}
+                                onChange={() => setCurrentStep('add-plans')}
+                            />
+                            Add Plans
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="subscription-tab"
+                                checked={currentStep === 'add-features'}
+                                onChange={() => setCurrentStep('add-features')}
+                            />
+                            Add Features
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="subscription-tab"
+                                checked={currentStep === 'list'}
+                                onChange={() => setCurrentStep('list')}
                             />
                             Subscriptions List
                         </label>
@@ -304,75 +389,68 @@ export default function SubscriptionsManager() {
                 </div>
 
                 {/* Create Subscription Tab */}
-                {activeTab === 'create' && (
-                    <Stepper
-                        initialStep={currentStep}
-                        stepCircleContainerClassName="w-full"
-                        contentClassName="w-full"
-                        footerClassName="w-full"
-                        backButtonText="Previous"
-                        nextButtonText="Next step"
-                        onStepChange={(step) => setCurrentStep(step)}
-                    >
-                        <Step>
-                            <CreateSubscriptionStep
-                                form={subscriptionForm}
-                                inputClass={inputClass}
-                                textareaClass={textareaClass}
-                                onChange={updateSubscriptionForm}
-                                onSubmit={handleSubscriptionSubmit}
-                                isSubmitting={createSubscription.isPending}
-                            />
-                        </Step>
+                {currentStep === 'create-subscription' && (
+                    <CreateSubscriptionStep
+                        key={`create-${mountKey}`}
+                        form={subscriptionForm}
+                        inputClass={inputClass}
+                        textareaClass={textareaClass}
+                        onChange={updateSubscriptionForm}
+                        onSubmit={handleSubscriptionSubmit}
+                        isSubmitting={createSubscription.isPending}
+                    />
+                )}
 
-                        <Step>
-                            <AddPlansStep
-                                form={planForm}
-                                inputClass={inputClass}
-                                subscriptions={subscriptionsList}
-                                subscriptionsLoading={subscriptionsLoading}
-                                selectedSubscription={selectedPlanSubscription}
-                                resolveSubscriptionId={resolveSubscriptionId}
-                                onSelectSubscription={selectPlanSubscription}
-                                onAmountChange={handlePlanAmountChange}
-                                onAmountAdjust={adjustPlanAmount}
-                                onDurationChange={handlePlanDurationChange}
-                                onDurationAdjust={adjustPlanDuration}
-                                onSubmit={handlePlanSubmit}
-                                isSubmitting={addSubscriptionPlan.isPending}
-                            />
-                        </Step>
+                {/* Add Plans Tab */}
+                {currentStep === 'add-plans' && (
+                    <AddPlansStep
+                        key={`plans-${mountKey}`}
+                        form={planForm}
+                        inputClass={inputClass}
+                        subscriptions={subscriptionsList}
+                        subscriptionsLoading={subscriptionsLoading}
+                        selectedSubscription={selectedPlanSubscription}
+                        resolveSubscriptionId={resolveSubscriptionId}
+                        onSelectSubscription={selectPlanSubscription}
+                        onAmountChange={handlePlanAmountChange}
+                        onAmountAdjust={adjustPlanAmount}
+                        onDurationChange={handlePlanDurationChange}
+                        onDurationAdjust={adjustPlanDuration}
+                        onSubmit={handlePlanSubmit}
+                        isSubmitting={addSubscriptionPlan.isPending}
+                    />
+                )}
 
-                        <Step>
-                            <AddFeaturesStep
-                                form={featureForm}
-                                selectClass={selectClass}
-                                subscriptions={subscriptions.data || []}
-                                subscriptionsLoading={subscriptions.isLoading}
-                                selectedSubscription={selectedFeatureSubscription}
-                                resolveSubscriptionId={resolveSubscriptionId}
-                                onSelectSubscription={selectFeatureSubscription}
-                                featureRows={featureRows}
-                                activeFeatureRow={activeFeatureRow}
-                                onSetActiveRow={setActiveFeatureRow}
-                                onFeatureRowChange={updateFeatureRow}
-                                onRemoveFeatureRow={handleRemoveFeatureRow}
-                                onAddFeatureRow={handleAddFeatureRow}
-                                onSubmit={handleFeatureSubmit}
-                                isSubmitting={addSubscriptionFeature.isPending}
-                                featureSearchInput={featureSearchInput}
-                                onFeatureSearchInputChange={setFeatureSearchInput}
-                                onFeatureSearch={handleFeatureSearch}
-                                filteredFeatures={filteredFeatures}
-                                featuresAreLoading={featuresAreLoading}
-                                onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
-                            />
-                        </Step>
-                    </Stepper>
+                {/* Add Features Tab */}
+                {currentStep === 'add-features' && (
+                    <AddFeaturesStep
+                        key={`features-${mountKey}`}
+                        form={featureForm}
+                        selectClass={selectClass}
+                        subscriptions={subscriptions.data || []}
+                        subscriptionsLoading={subscriptions.isLoading}
+                        selectedSubscription={selectedFeatureSubscription}
+                        resolveSubscriptionId={resolveSubscriptionId}
+                        onSelectSubscription={selectFeatureSubscription}
+                        featureRows={featureRows}
+                        activeFeatureRow={activeFeatureRow}
+                        onSetActiveRow={setActiveFeatureRow}
+                        onFeatureRowChange={updateFeatureRow}
+                        onRemoveFeatureRow={handleRemoveFeatureRow}
+                        onAddFeatureRow={handleAddFeatureRow}
+                        onSubmit={handleFeatureSubmit}
+                        isSubmitting={addSubscriptionFeature.isPending}
+                        featureSearchInput={featureSearchInput}
+                        onFeatureSearchInputChange={setFeatureSearchInput}
+                        onFeatureSearch={handleFeatureSearch}
+                        filteredFeatures={filteredFeatures}
+                        featuresAreLoading={featuresAreLoading}
+                        onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
+                    />
                 )}
 
                 {/* Subscriptions List Tab */}
-                {activeTab === 'list' && (
+                {currentStep === 'list' && (
                     <div className="space-y-6">
                         <SubscriptionList
                             subscriptions={subscriptionsList}

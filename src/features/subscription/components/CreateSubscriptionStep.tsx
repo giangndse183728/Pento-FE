@@ -25,14 +25,8 @@ const CreateSubscriptionStep = ({
     return (
         <WhiteCard className="w-full" width="100%" height="auto">
             <form className="space-y-5 text-[#113F67]" onSubmit={onSubmit}>
-                <div className="flex items-center gap-3">
-                    <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: '#769FCD' }}>
-                        1
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Create a Subscription</h2>
-
-                    </div>
+                <div>
+                    <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Create a Subscription</h2>
                 </div>
 
                 {/* Subscription Status Toggle */}
