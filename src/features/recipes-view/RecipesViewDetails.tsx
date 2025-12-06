@@ -9,6 +9,7 @@ import { ArrowLeft, Clock, CookingPot, Users, ChefHat } from "lucide-react";
 import { useRouter } from "next/navigation";
 import IngredientsCards from "./IngredientsCards";
 import DirectionsCards from "./DirectionsCards";
+import RollToTopButton from "./RollToTopButton";
 
 const difficultyColors: Record<string, { bg: string; text: string; badgeBg: string }> = {
     Easy: { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981', badgeBg: '#B0C5A4' },
@@ -178,6 +179,7 @@ export default function RecipesViewDetails({ data }: Props) {
                             <DirectionsCards directions={data.directions} />
                         </div>
                     </WhiteCard>
+                    <RollToTopButton />
                 </div>
             </div>
         </div>

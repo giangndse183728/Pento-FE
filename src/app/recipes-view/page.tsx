@@ -8,6 +8,7 @@ import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChefHat, Loader2, Search } from 'lucide-react';
 import { ColorTheme } from '@/constants/color';
+import RollToTopButton from '@/features/recipes-view/RollToTopButton';
 
 export default function RecipesViewPage() {
     const [pageNumber, setPageNumber] = useState(1);
@@ -167,6 +168,7 @@ export default function RecipesViewPage() {
                     )}
                 </div>
             </div>
+            <RollToTopButton />
         </div>
     );
 }
