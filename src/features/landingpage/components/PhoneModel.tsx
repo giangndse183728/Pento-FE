@@ -11,6 +11,18 @@ import LoadingScreen from '@/components/decoration/LoadingScreen';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const WALLPAPER_IMAGES = [
+  '/assets/img/summary-screen.jpg', 
+  '/assets/img/compartment-screen.jpg',
+  '/assets/img/scan-screen.jpg',
+];
+
+const FEATURE_WALLPAPER_IMAGES = [
+  '/assets/img/recipe-screen.jpg',
+  '/assets/img/recipe-screen.jpg',
+  '/assets/img/recipe-screen-screen.jpg',
+];
+
 function CameraController({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
   const cameraKeyframes = [
     { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },   
@@ -68,8 +80,8 @@ function CameraController({ scrollProgress, featureProgress }: { scrollProgress:
 }
 
 
-function Phone({ scrollProgress }: { scrollProgress: number }) {
-  const { scene } = useGLTF('/assets/3d/phone.glb');
+function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
+  const { scene } = useGLTF('/assets/3d/pento_phone.glb');
   const modelRef = useRef<THREE.Group>(null);
   const fridgeRef = useRef<THREE.Group>(null);
   
@@ -78,30 +90,270 @@ function Phone({ scrollProgress }: { scrollProgress: number }) {
   const rotationY = useRef(0);
   const returnTimer = useRef<NodeJS.Timeout>(null);
   const isReturning = useRef(false);
+  const wallpaperMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const texturesRef = useRef<(THREE.Texture | null)[]>(new Array(WALLPAPER_IMAGES.length).fill(null));
+  const featureTexturesRef = useRef<(THREE.Texture | null)[]>(new Array(FEATURE_WALLPAPER_IMAGES.length).fill(null));
+  const currentSectionRef = useRef<number>(-1);
+  const currentFeatureSectionRef = useRef<number>(-1);
+  const textureLoader = useRef(new THREE.TextureLoader());
+  const transitionTweenRef = useRef<gsap.core.Timeline | gsap.core.Tween | null>(null);
+  const isInFeatureModeRef = useRef(false);
+
+  useEffect(() => {
+    const loader = textureLoader.current;
+
+    WALLPAPER_IMAGES.forEach((imagePath, index) => {
+      loader.load(
+        imagePath,
+        (texture) => {
+          texture.flipY = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texturesRef.current[index] = texture;
+          
+          if (wallpaperMaterialRef.current && !isInFeatureModeRef.current) {
+            if (currentSectionRef.current === index || 
+                (index === 0 && !wallpaperMaterialRef.current.map)) {
+              wallpaperMaterialRef.current.map = texture;
+              if (currentSectionRef.current === -1) {
+                currentSectionRef.current = 0;
+                wallpaperMaterialRef.current.opacity = 1;
+              }
+              wallpaperMaterialRef.current.needsUpdate = true;
+            }
+          }
+        },
+        undefined,
+        (error) => {
+          console.warn(`Failed to load wallpaper texture: ${imagePath}`, error);
+        }
+      );
+    });
+
+    FEATURE_WALLPAPER_IMAGES.forEach((imagePath, index) => {
+      loader.load(
+        imagePath,
+        (texture) => {
+          texture.flipY = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          featureTexturesRef.current[index] = texture;
+          
+          if (wallpaperMaterialRef.current && isInFeatureModeRef.current) {
+            if (currentFeatureSectionRef.current === index || 
+                (index === 0 && !wallpaperMaterialRef.current.map)) {
+              wallpaperMaterialRef.current.map = texture;
+              if (currentFeatureSectionRef.current === -1) {
+                currentFeatureSectionRef.current = 0;
+                wallpaperMaterialRef.current.opacity = 1;
+              }
+              wallpaperMaterialRef.current.needsUpdate = true;
+            }
+          }
+        },
+        undefined,
+        (error) => {
+          console.warn(`Failed to load feature wallpaper texture: ${imagePath}`, error);
+        }
+      );
+    });
+
+    return () => {
+      texturesRef.current.forEach((texture) => {
+        if (texture) texture.dispose();
+      });
+      featureTexturesRef.current.forEach((texture) => {
+        if (texture) texture.dispose();
+      });
+      if (transitionTweenRef.current) {
+        transitionTweenRef.current.kill();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!scene) return;
+    let found = false;
+    const allMaterials: string[] = [];
+    
     scene.traverse((object) => {
       if ((object as THREE.Mesh).isMesh) {
         const mesh = object as THREE.Mesh;
+        const meshName = mesh.name || '';
         const materials: THREE.Material[] = Array.isArray(mesh.material)
           ? mesh.material
           : [mesh.material];
         materials.forEach((mat) => {
           const standard = mat as THREE.MeshStandardMaterial;
-          if (standard && standard.name === 'Body_Wallpaper_0') {
+          if (standard) {
+            allMaterials.push(`Mesh: ${meshName}, Material: ${standard.name || 'unnamed'}`);
+          }
+          
+          const isWallpaperMaterial = 
+            (meshName.includes('Body_Wallpaper_0') || meshName.includes('Wallpaper')) ||
+            (standard && (standard.name === 'Body_Wallpaper_0' || standard.name?.includes('Wallpaper')));
+          
+          if (standard && isWallpaperMaterial && !found) {
+            found = true;
+            wallpaperMaterialRef.current = standard;
+            console.log('Found wallpaper material:', { meshName, materialName: standard.name });
             if (!standard.emissive) standard.emissive = new THREE.Color(0x000000);
-            standard.emissive.set('#ffffff');
-            standard.emissiveIntensity = 10;
-            if (typeof standard.envMapIntensity === 'number') standard.envMapIntensity = 4;
-            if (typeof standard.roughness === 'number') standard.roughness = Math.max(0, Math.min(standard.roughness * 1, 1));
-            if (typeof standard.metalness === 'number') standard.metalness = Math.max(standard.metalness, 0.5);
+            standard.emissive.set('#000000');
+            standard.emissiveIntensity = 0;
+            if (typeof standard.envMapIntensity === 'number') standard.envMapIntensity = 1;
+            if (typeof standard.roughness === 'number') standard.roughness = 0.5;
+            if (typeof standard.metalness === 'number') standard.metalness = 0;
+            standard.transparent = false;
+            standard.opacity = 1;
+            const initialTexture = texturesRef.current[0];
+            if (initialTexture) {
+              standard.map = initialTexture;
+              currentSectionRef.current = 0;
+            }
             standard.needsUpdate = true;
           }
         });
       }
     });
+    
+    if (!found) {
+      console.warn('Body_Wallpaper_0 material not found. Available materials:', allMaterials);
+    }
   }, [scene]);
+
+  const applyTextureWithAnimation = (texture: THREE.Texture, isFeatureMode: boolean) => {
+    if (!wallpaperMaterialRef.current || !texture || !modelRef.current) return;
+
+    if (transitionTweenRef.current) {
+      transitionTweenRef.current.kill();
+    }
+
+    const material = wallpaperMaterialRef.current;
+    const model = modelRef.current;
+    
+    const initialScale = { x: 1, y: 1, z: 1 };
+    const initialRotation = { y: model.rotation.y };
+    const initialPosition = { y: model.position.y };
+    
+    const animProps = { 
+      scale: 1,
+      rotationY: initialRotation.y,
+      positionY: initialPosition.y
+    };
+    
+    const timeline = gsap.timeline();
+    
+    timeline.to(animProps, {
+      scale: 0.95,
+      rotationY: initialRotation.y + 0.1,
+      positionY: initialPosition.y + 0.3,
+      duration: 0.4,
+      ease: "power2.in",
+      onUpdate: () => {
+        if (model) {
+          model.scale.set(animProps.scale, animProps.scale, animProps.scale);
+          model.rotation.y = animProps.rotationY;
+          model.position.y = animProps.positionY;
+        }
+      },
+      onComplete: () => {
+        material.map = texture;
+        texture.flipY = true;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        material.needsUpdate = true;
+      }
+    })
+    .to(animProps, {
+      scale: 1,
+      rotationY: initialRotation.y,
+      positionY: initialPosition.y,
+      duration: 0.5,
+      ease: "power2.out",
+      onUpdate: () => {
+        if (model) {
+          model.scale.set(animProps.scale, animProps.scale, animProps.scale);
+          model.rotation.y = animProps.rotationY;
+          model.position.y = animProps.positionY;
+        }
+      },
+      onComplete: () => {
+        if (model) {
+          model.scale.set(1, 1, 1);
+          model.position.y = initialPosition.y;
+        }
+        transitionTweenRef.current = null;
+      }
+    });
+      
+    transitionTweenRef.current = timeline;
+  };
+
+  useEffect(() => {
+    if (!wallpaperMaterialRef.current) return;
+
+    const isFeatureMode = featureProgress > 0;
+    isInFeatureModeRef.current = isFeatureMode;
+
+    if (isFeatureMode) {
+      const featureCameraKeyframes = [
+        { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },   
+        { pos: new THREE.Vector3(0, -12, -12), zoom: 4 }, 
+        { pos: new THREE.Vector3(0, 0, -14), zoom: 5 },  
+      ];
+      const totalFeatureSections = featureCameraKeyframes.length - 1;
+      const featureProgressPerSection = 1 / totalFeatureSections;
+      const featureSectionIndex = Math.floor(featureProgress / featureProgressPerSection);
+      const clampedFeatureSectionIndex = Math.min(featureSectionIndex, FEATURE_WALLPAPER_IMAGES.length - 1);
+
+      if (currentFeatureSectionRef.current !== clampedFeatureSectionIndex) {
+        const newFeatureSectionIndex = clampedFeatureSectionIndex;
+        const texture = featureTexturesRef.current[newFeatureSectionIndex];
+        
+        if (texture) {
+          applyTextureWithAnimation(texture, true);
+          currentFeatureSectionRef.current = newFeatureSectionIndex;
+        }
+      }
+    } else {
+      const cameraKeyframes = [
+        { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },
+        { pos: new THREE.Vector3(0, 0, -12), zoom: 5 },
+        { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },
+      ];
+      const totalSections = cameraKeyframes.length - 1;
+      const progressPerSection = 1 / totalSections;
+      const sectionIndex = Math.floor(scrollProgress / progressPerSection);
+      const clampedSectionIndex = Math.min(sectionIndex, WALLPAPER_IMAGES.length - 1);
+
+      if (currentSectionRef.current !== clampedSectionIndex) {
+        const newSectionIndex = clampedSectionIndex;
+        const texture = texturesRef.current[newSectionIndex];
+        
+        if (texture) {
+          applyTextureWithAnimation(texture, false);
+          currentSectionRef.current = newSectionIndex;
+        }
+      }
+    }
+    
+    if (wallpaperMaterialRef.current) {
+      if (isFeatureMode && currentFeatureSectionRef.current >= 0) {
+        const texture = featureTexturesRef.current[currentFeatureSectionRef.current];
+        if (texture && !wallpaperMaterialRef.current.map) {
+          wallpaperMaterialRef.current.map = texture;
+          texture.flipY = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          wallpaperMaterialRef.current.needsUpdate = true;
+        }
+      } else if (!isFeatureMode && currentSectionRef.current >= 0) {
+        const texture = texturesRef.current[currentSectionRef.current];
+        if (texture && !wallpaperMaterialRef.current.map) {
+          wallpaperMaterialRef.current.map = texture;
+          texture.flipY = true;
+          texture.colorSpace = THREE.SRGBColorSpace;
+          wallpaperMaterialRef.current.needsUpdate = true;
+        }
+      }
+    }
+  }, [scrollProgress, featureProgress]);
 
   useFrame(() => {
     if (modelRef.current) {
@@ -131,7 +383,7 @@ function Phone({ scrollProgress }: { scrollProgress: number }) {
     if (!isDragging.current) return;
     
     const deltaX = event.clientX - previousMousePosition.current.x;
-    rotationY.current += deltaX * 0.01; // Adjust sensitivity
+    rotationY.current += deltaX * 0.01;
     
     previousMousePosition.current = { x: event.clientX, y: event.clientY };
     event.stopPropagation();
@@ -309,10 +561,9 @@ export default function PhoneModel() {
         >
        
           <Environment files="/assets/3d/snow_field_puresky_4k.hdr"  />
-          {/* <Environment preset="sunset"  /> */}
           
           <Suspense fallback={<Loader />}>
-            <Phone scrollProgress={scrollProgress}/>
+            <Phone scrollProgress={scrollProgress} featureProgress={featureProgress}/>
           </Suspense>
           
           <CameraController scrollProgress={scrollProgress} featureProgress={featureProgress} />
@@ -323,4 +574,4 @@ export default function PhoneModel() {
   );
 }
 
-useGLTF.preload('/assets/3d/phone.glb');
+useGLTF.preload('/assets/3d/pento_phone.glb');
