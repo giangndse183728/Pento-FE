@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import GlassSurface from '../decoration/Liquidglass';
-import './navbar.css';
+import './Navbar.css';
 import Magnet from '../animation/Magnet';
 import { ROUTES } from '@/constants/routes';
 
