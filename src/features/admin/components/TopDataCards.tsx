@@ -16,8 +16,8 @@ interface DataCardsProps {
 
 export default function DataCards({ summary }: DataCardsProps) {
     const cards = [
-        { title: "Subscriptions Revenue Due", value: summary?.totalDue ?? "0", icon: Wallet, color: ColorTheme.blueGray },
-        { title: "Subscriptions Revenue Paid", value: summary?.totalPaid ?? "0", icon: CheckCircle2, color: ColorTheme.blueGray },
+        { title: "Total Revenue Due", value: summary?.totalDue ?? "0 VND", icon: Wallet, color: ColorTheme.blueGray },
+        { title: "Total Revenue Paid", value: summary?.totalPaid ?? "0 VND", icon: CheckCircle2, color: ColorTheme.blueGray },
         { title: "Payments Made", value: summary?.paid ?? 0, icon: Calendar, color: ColorTheme.blueGray },
     ];
 

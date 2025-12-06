@@ -16,9 +16,10 @@ import DirectionsEditor from './directions/DirectionsEditor';
 
 type Props = {
     create: UseMutationResult<unknown, unknown, RecipeDetailedInput, unknown>;
+    onSuccess?: () => void;
 };
 
-export default function RecipesCreateForm({ create }: Props) {
+export default function RecipesCreateForm({ create, onSuccess }: Props) {
     const stepperRef = useRef<StepperRef>(null);
     //fetching food references
     const [foodGroup, setFoodGroup] = React.useState<string | undefined>(undefined);
@@ -35,8 +36,8 @@ export default function RecipesCreateForm({ create }: Props) {
     const [servings, setServings] = useState<number | undefined>(1);
     const [difficultyLevel, setDifficultyLevel] = useState<string>('Medium');
     const [imageUrl, setImageUrl] = useState('');
-    const [directions, setDirections] = useState<Array<{ stepNumber: number; description: string; imageUrl?: string }>>([
-        { stepNumber: 1, description: '', imageUrl: '' },
+    const [directions, setDirections] = useState<Array<{ stepNumber: number; description: string; image?: string | null }>>([
+        { stepNumber: 1, description: '', image: '' },
     ]);
     const [ingredients, setIngredients] = useState<IngredientInput[]>([{ foodRefId: '', quantity: 1, unitId: '' }]);
     const [isPublic, setIsPublic] = useState<boolean>(false);
@@ -62,10 +63,10 @@ export default function RecipesCreateForm({ create }: Props) {
             notes,
             servings,
             difficultyLevel,
-            imageUrl: imageUrl || undefined,
+            image: imageUrl || undefined,
             isPublic,
             ingredients: validIngredients.map((i) => ({ foodRefId: i.foodRefId, quantity: i.quantity, unitId: i.unitId, notes: i.notes })),
-            directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, imageUrl: d.imageUrl || undefined })),
+            directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, image: d.image || undefined })),
         };
 
         try {
@@ -97,6 +98,8 @@ export default function RecipesCreateForm({ create }: Props) {
             }
             await create.mutateAsync(result.data as RecipeDetailedInput);
             toast.success('Recipe created successfully!');
+
+            // Reset form
             setTitle('');
             setDescription('');
             setPrepTimeMinutes(1);
@@ -106,8 +109,11 @@ export default function RecipesCreateForm({ create }: Props) {
             setDifficultyLevel('Medium');
             setImageUrl('');
             setIngredients([{ foodRefId: '', quantity: 1, unitId: '' }]);
-            setDirections([{ stepNumber: 1, description: '', imageUrl: '' }]);
+            setDirections([{ stepNumber: 1, description: '', image: '' }]);
             setIsPublic(false);
+
+            // Navigate to list tab
+            onSuccess?.();
         } catch (err) {
             // Extract detailed error message from API response
             const axiosError = err as {

@@ -9,6 +9,7 @@ import {
     CreateSubscriptionFeaturePayload,
     CreateSubscriptionPayload,
     CreateSubscriptionPlanPayload,
+    getSubscriptionById,
     getSubscriptions,
     Subscription,
     SubscriptionFeature,
@@ -83,3 +84,11 @@ export const useSubscription = () => {
 
 export default useSubscription;
 
+export const useSubscriptionById = (subscriptionId: string | null | undefined) => {
+    return useQuery({
+        queryKey: ['subscription', subscriptionId],
+        queryFn: () => getSubscriptionById(subscriptionId!),
+        enabled: !!subscriptionId,
+        staleTime: 1000 * 60 * 5,
+    });
+};

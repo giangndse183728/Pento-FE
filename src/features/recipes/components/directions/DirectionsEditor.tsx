@@ -18,7 +18,7 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
     const handleRemoveRow = (idx: number) => {
         setDirections((prev) => {
             if (prev.length <= 1) {
-                return [{ stepNumber: 1, description: '', imageUrl: '' }];
+                return [{ stepNumber: 1, description: '', image: '' }];
             }
             return prev.filter((_, i) => i !== idx).map((d, i) => ({ ...d, stepNumber: i + 1 }));
         });
@@ -98,11 +98,11 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
                                                 type="text"
                                                 className="address-bar"
                                                 placeholder="Image URL"
-                                                value={d.imageUrl ?? ''}
+                                                value={d.image ?? ''}
                                                 autoComplete="off"
                                                 onChange={(e) => {
                                                     const v = e.target.value;
-                                                    setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, imageUrl: v } : p));
+                                                    setDirections((prev) => prev.map((p, i) => i === idx ? { ...p, image: v } : p));
                                                 }}
                                             />
                                         </div>
@@ -117,10 +117,10 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
                                                 justifyContent: "center",
                                             }}
                                         >
-                                            {d.imageUrl && d.imageUrl.trim() !== "" ? (
+                                            {d.image && d.image.trim() !== "" ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img
-                                                    src={d.imageUrl}
+                                                    src={d.image}
                                                     alt={`Step ${d.stepNumber} preview`}
                                                     style={{
                                                         maxWidth: "100%",
@@ -160,7 +160,7 @@ export default function DirectionsEditor({ directions, setDirections }: Props) {
                         variant="blueGray"
                         size="lg"
                         onClick={() => {
-                            setDirections((p) => [...p, { stepNumber: p.length + 1, description: '', imageUrl: '' }]);
+                            setDirections((p) => [...p, { stepNumber: p.length + 1, description: '', image: '' }]);
                         }}
                     >
                         Add step

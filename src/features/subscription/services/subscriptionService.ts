@@ -1,13 +1,23 @@
 import { apiRequest } from '@/lib/apiRequest';
 
 export type Subscription = {
-    id: string;
+    id?: string;
     subscriptionId?: string;
     name: string;
     description?: string | null;
     isActive: boolean;
     createdOnUtc?: string;
     updatedOnUtc?: string;
+    plans?: Array<{
+        subscriptionPlanId: string;
+        price: string;
+        duration: string;
+    }>;
+    features?: Array<{
+        subscriptionFeatureId: string;
+        featureName: string;
+        entitlement: string;
+    }>;
 };
 
 export type SubscriptionPlan = {
@@ -44,8 +54,8 @@ export type CreateSubscriptionPlanPayload = {
 
 export type CreateSubscriptionFeaturePayload = {
     featureCode: string;
-    entitlementQuota: number;
-    entitlementResetPer?: 'Day' | 'Week' | 'Month' | 'Year';
+    quota: number;
+    resetPeriod?: 'Day' | 'Week' | 'Month' | 'Year';
 };
 
 export type FeatureDefinition = {
@@ -138,7 +148,7 @@ export const deleteSubscriptionAdmin = async (subscriptionId: string): Promise<v
 
 export const getSubscriptionById = async (subscriptionId: string): Promise<Subscription | null> => {
     try {
-        const res = await apiRequest<Subscription>('get', `/subscription/${encodeURIComponent(subscriptionId)}`);
+        const res = await apiRequest<Subscription>('get', `/subscriptions/${encodeURIComponent(subscriptionId)}`);
         return res ?? null;
     } catch (error) {
         console.error('getSubscriptionById failed:', error);

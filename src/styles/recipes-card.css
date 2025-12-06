@@ -1,0 +1,59 @@
+.card {
+    width: 100%;
+    max-width: 300px;
+    min-height: 350px;
+    background: #ffff;
+    color: #073b4c;
+    font-weight: 600;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    position: relative;
+    transition: all .5s ease;
+    border-radius: 10px;
+}
+
+.card__image {
+    width: 100%;
+    height: 250px;
+    background: #769FCD;
+    transition: all .5s ease;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 10px;
+}
+
+.card__image img {
+    transition: all .5s ease;
+}
+
+.title {
+    font-weight: 800;
+    font-size: 1.5em;
+}
+
+/* .card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 10px;
+} */
+
+.card:hover {
+    border-top-left-radius: 35px;
+    box-shadow: 5px 5px 0px 0px #B9D7EA, 10px 10px 0px 0px #769FCD, 15px 15px 0px 0px #B9D7EA, 5px 5px 15px 5px rgba(0, 0, 0, 0);
+}
+
+.card:hover .card__image {
+    border-top-left-radius: 25px;
+}
+
+.card:hover .card__image img {
+    border-top-left-radius: 25px;
+}
+
+.card:hover .difficulty-badge {
+    transform: scale(1.3) rotate(-30deg);
+}

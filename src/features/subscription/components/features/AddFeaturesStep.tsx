@@ -62,13 +62,8 @@ const AddFeaturesStep = ({
     return (
         <WhiteCard className="w-full h-full" width="100%" height="auto">
             <form className="space-y-5 text-[#113F67]" onSubmit={onSubmit}>
-                <div className="flex items-center gap-3">
-                    <div className="h-7 w-7 rounded-full text-white grid place-items-center text-sm font-semibold" style={{ backgroundColor: '#769FCD' }}>
-                        3
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Add Subscription Features</h2>
-                    </div>
+                <div>
+                    <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>Add Subscription Features</h2>
                 </div>
 
                 <SubscriptionSelector
@@ -141,10 +136,10 @@ const AddFeaturesStep = ({
                                             <button
                                                 type="button"
                                                 className="p-2 hover:scale-110 transition-transform flex-shrink-0 rounded-full border border-white/60 bg-white/80 disabled:opacity-40"
-                                                disabled={!hasSubscriptionSelected}
+                                                disabled={!hasSubscriptionSelected || row.entitlementQuota <= 1}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    onFeatureRowChange(idx, { entitlementQuota: Math.max(0, row.entitlementQuota - 1) });
+                                                    onFeatureRowChange(idx, { entitlementQuota: Math.max(1, row.entitlementQuota - 1) });
                                                 }}
                                             >
                                                 <CircleMinus className="w-5 h-5" />
@@ -152,14 +147,14 @@ const AddFeaturesStep = ({
                                             <div className="flex-1 flex items-center">
                                                 <ElasticSlider
                                                     defaultValue={row.entitlementQuota}
-                                                    startingValue={0}
+                                                    startingValue={1}
                                                     maxValue={101}
                                                     isStepped
                                                     stepSize={1}
                                                     leftIcon={<span className="text-xs text-gray-500"></span>}
                                                     rightIcon={<span className="text-xs text-gray-500"></span>}
                                                     valueFormatter={(val) => val === 101 ? "Unlimited" : val.toString()}
-                                                    onChange={(value) => onFeatureRowChange(idx, { entitlementQuota: Math.max(0, Math.round(value)) })}
+                                                    onChange={(value) => onFeatureRowChange(idx, { entitlementQuota: Math.max(1, Math.round(value)) })}
                                                 />
                                             </div>
                                             <button
@@ -180,8 +175,8 @@ const AddFeaturesStep = ({
                                     <label className="text-sm font-medium" style={{ color: '#113F67', fontSize: '1.1rem' }}>Reset Period</label>
                                     <select
                                         className={selectClass}
-                                        value={row.entitlementResetPer || ''}
-                                        disabled={!hasSubscriptionSelected}
+                                        value={row.entitlementQuota === 101 ? '' : (row.entitlementResetPer || '')}
+                                        disabled={!hasSubscriptionSelected || row.entitlementQuota === 101}
                                         onChange={(e) =>
                                             onFeatureRowChange(idx, { entitlementResetPer: e.target.value ? e.target.value as typeof subscriptionFeatureSchema._type['entitlementResetPer'] : undefined })
                                         }

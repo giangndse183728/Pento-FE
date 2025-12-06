@@ -1,42 +1,57 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { getAdminPayments, type PaymentItem, type GetPaymentsParams, type PaymentSummary } from '../services/paymentService';
+import { useQuery } from '@tanstack/react-query';
+import {
+    getAdminPayments,
+    type PaymentItem,
+    type GetPaymentsParams,
+    type PaymentSummary
+} from '../services/paymentService';
 
 export function usePayments(params?: GetPaymentsParams) {
-    const [payments, setPayments] = useState<PaymentItem[]>([]);
-    const [summary, setSummary] = useState<PaymentSummary | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<unknown>(null);
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['admin-payments', params],
+        queryFn: async () => {
+            let allItems: PaymentItem[] = [];
+            let summary: PaymentSummary | null = null;
+            let currentPage = 1;
+            const pageSize = 10000; // fetch everything at once
 
-    useEffect(() => {
-        let active = true;
-        setLoading(true);
+            while (true) {
+                const response = await getAdminPayments({
+                    ...params,
+                    pageNumber: currentPage,
+                    pageSize,
+                });
 
-        getAdminPayments(params ?? {})
-            .then((res) => {
-                if (!active) return;
-                const items = res.payments.items ?? [];
-                // Sort by newest first
-                const sorted = [...items].sort(
-                    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                );
-                setPayments(sorted);
-                setSummary(res.summary);
-            })
-            .catch((err) => {
-                if (!active) return;
-                setError(err);
-            })
-            .finally(() => {
-                if (!active) return;
-                setLoading(false);
-            });
+                const items = response.payments.items || [];
+                allItems = [...allItems, ...items];
 
-        return () => {
-            active = false;
-        };
-    }, [params]);
+                // Capture summary on first page
+                if (currentPage === 1) {
+                    summary = response.summary;
+                }
+                if (!response.payments.hasNext) break;
 
-    return { payments, summary, loading, error };
+                currentPage += 1;
+            }
+
+            // Sort newest → oldest
+            const sorted = [...allItems].sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+            );
+
+            return { payments: sorted, summary };
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+
+    return {
+        payments: data?.payments || [],
+        summary: data?.summary || null,
+        loading: isLoading,
+        error,
+    };
 }

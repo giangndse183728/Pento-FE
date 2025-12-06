@@ -1,63 +1,111 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { PaymentItem } from '../services/paymentService';
 import { ColorTheme } from '@/constants/color';
 
-// prettier-ignore
-const data = [["2000-06-05", 116], ["2000-06-06", 129], ["2000-06-07", 135], ["2000-06-08", 86], ["2000-06-09", 73], ["2000-06-10", 85], ["2000-06-11", 73], ["2000-06-12", 68], ["2000-06-13", 92], ["2000-06-14", 130], ["2000-06-15", 245], ["2000-06-16", 139], ["2000-06-17", 115], ["2000-06-18", 111], ["2000-06-19", 309], ["2000-06-20", 206], ["2000-06-21", 137], ["2000-06-22", 128], ["2000-06-23", 85], ["2000-06-24", 94], ["2000-06-25", 71], ["2000-06-26", 106], ["2000-06-27", 84], ["2000-06-28", 93], ["2000-06-29", 85], ["2000-06-30", 73], ["2000-07-01", 83], ["2000-07-02", 125], ["2000-07-03", 107], ["2000-07-04", 82], ["2000-07-05", 44], ["2000-07-06", 72], ["2000-07-07", 106], ["2000-07-08", 107], ["2000-07-09", 66], ["2000-07-10", 91], ["2000-07-11", 92], ["2000-07-12", 113], ["2000-07-13", 107], ["2000-07-14", 131], ["2000-07-15", 111], ["2000-07-16", 64], ["2000-07-17", 69], ["2000-07-18", 88], ["2000-07-19", 77], ["2000-07-20", 83], ["2000-07-21", 111], ["2000-07-22", 57], ["2000-07-23", 55], ["2000-07-24", 60]];
+interface Props {
+    payments: PaymentItem[];
+}
 
-const dateList = data.map(function (item) {
-    return item[0];
-});
-const valueList = data.map(function (item) {
-    return item[1];
-});
+const GradientLineChart = ({ payments }: Props) => {
+    // Convert API data → chart data (only "Paid" status)
+    const chartData = useMemo(() => {
+        if (!payments.length) return { dates: [], values: [] };
 
-const option = {
-    visualMap: {
-        show: false,
-        type: 'continuous',
-        seriesIndex: 0,
-        min: 0,
-        max: 400
-    },
-    title: {
-        left: 'center',
-        text: 'Gradient along the y axis'
-    },
-    tooltip: {
-        trigger: 'axis'
-    },
-    xAxis: {
-        data: dateList
-    },
-    yAxis: {},
-    series: {
-        type: 'line',
-        showSymbol: false,
-        data: valueList
-    }
-};
+        const dailyTotals: Record<string, number> = {};
 
-const GradientLineChart = () => {
+        payments.forEach((p) => {
+            // Only count payments with "Paid" status
+            if (p.status !== 'Paid') return;
+
+            const date = p.createdAt.split("T")[0];
+
+            // convert "10000 VND" → 10000
+            const amountStr = p.amount.replace(/[^\d]/g, '');
+            const amount = parseInt(amountStr, 10) || 0;
+
+            dailyTotals[date] = (dailyTotals[date] || 0) + amount;
+        });
+
+        const sortedDates = Object.keys(dailyTotals).sort();
+
+        return {
+            dates: sortedDates,
+            values: sortedDates.map((d) => dailyTotals[d])
+        };
+    }, [payments]);
+
+    const option = {
+        visualMap: {
+            show: false,
+            type: 'continuous',
+            min: 0,
+            max: Math.max(...chartData.values, 1000),
+            seriesIndex: 0
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: (params: unknown) => {
+                if (!Array.isArray(params) || params.length === 0) return '';
+                const param = params[0] as {
+                    axisValue: string;
+                    marker: string;
+                    data: number;
+                    name: string;
+                };
+                const amount = typeof param.data === 'number' ? param.data : 0;
+                return `<strong>${param.axisValue}</strong><br/>${param.marker}Revenue: <strong>${amount.toLocaleString()} VND</strong>`;
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: chartData.dates,
+            name: 'Date',
+            nameLocation: 'middle',
+            nameGap: 30
+        },
+        yAxis: {
+            type: 'value',
+            name: 'Amount (VND)',
+            nameLocation: 'middle',
+            nameGap: 50,
+            min: 0,
+            max: 40000,
+            interval: 5000,
+            axisLabel: {
+                formatter: (value: number) => value.toLocaleString()
+            }
+        },
+        series: [
+            {
+                type: 'line',
+                name: 'Revenue',
+                showSymbol: false,
+                smooth: true,
+                data: chartData.values,
+                lineStyle: {
+                    width: 3
+                },
+                areaStyle: {
+                    opacity: 0.2
+                }
+            }
+        ]
+    };
+
     return (
         <WhiteCard
             className={`
-                inline-block
-                rounded-2xl 
-                bg-white/80
-                border border-white/30 backdrop-blur-lg
-                [&>div]:!p-1
+                inline-block rounded-2xl 
+                bg-white/80 border border-white/30 backdrop-blur-lg
             `}
         >
-            <div>
-                <ReactECharts option={option} style={{ height: '450px', width: '680px' }} />
-            </div>
+            <ReactECharts option={option} style={{ height: '400px', width: '650px' }} />
         </WhiteCard>
     );
 };
 
 export default GradientLineChart;
-
