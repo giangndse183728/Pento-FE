@@ -1,18 +1,31 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Check, ChevronsUpDown, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import { WhiteCard } from './WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 import '@/styles/radio-button.css';
 
+export interface ComboboxOption {
+    value: string;
+    label: string;
+}
+
 export interface FilterField {
-    type: 'text' | 'select' | 'radio';
+    type: 'text' | 'select' | 'radio' | 'date' | 'combobox';
     name: string;
     label: string;
     placeholder?: string;
     value: string | boolean | undefined;
     options?: Array<{ value: string; label: string }>;
     onChange: (value: string | boolean | undefined) => void;
+    // For combobox: async function to load options
+    loadOptions?: () => Promise<ComboboxOption[]>;
 }
 
 export interface RadioOption {
@@ -34,14 +47,143 @@ interface FilterSectionProps {
     resetButtonText?: string;
 }
 
+function DatePickerField({
+    value,
+    onChange,
+    placeholder
+}: {
+    value: string | undefined;
+    onChange: (value: string | undefined) => void;
+    placeholder?: string;
+}) {
+    const [open, setOpen] = useState(false);
+
+    const selectedDate = value ? new Date(value) : undefined;
+
+    const handleSelect = (date: Date | undefined) => {
+        if (date) {
+            const formattedDate = format(date, 'yyyy-MM-dd');
+            onChange(formattedDate);
+        } else {
+            onChange(undefined);
+        }
+        setOpen(false);
+    };
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <button
+                    type="button"
+                    className="neomorphic-input w-full h-10 text-sm flex items-center justify-between px-3 text-left"
+                >
+                    <span className={selectedDate ? 'text-gray-900' : 'text-gray-400'}>
+                        {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : (placeholder || 'Select date')}
+                    </span>
+                    <CalendarIcon className="h-4 w-4 text-gray-500" />
+                </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleSelect}
+                    initialFocus
+                />
+            </PopoverContent>
+        </Popover>
+    );
+}
+
+function ComboboxField({
+    value,
+    onChange,
+    placeholder,
+    loadOptions,
+}: {
+    value: string | undefined;
+    onChange: (value: string | undefined) => void;
+    placeholder?: string;
+    loadOptions?: () => Promise<ComboboxOption[]>;
+}) {
+    const [open, setOpen] = useState(false);
+    const [options, setOptions] = useState<ComboboxOption[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (loadOptions) {
+            setLoading(true);
+            loadOptions()
+                .then((opts) => {
+                    setOptions(opts);
+                })
+                .catch((err) => {
+                    console.error('Failed to load combobox options:', err);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [loadOptions]);
+
+    const selectedOption = options.find((opt) => opt.value === value);
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <button
+                    type="button"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="neomorphic-input w-full h-10 text-sm flex items-center justify-between px-3 text-left"
+                >
+                    <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+                        {loading ? 'Loading...' : (selectedOption?.label || placeholder || 'Select...')}
+                    </span>
+                    <ChevronsUpDown className="h-4 w-4 text-gray-500" />
+                </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[280px] p-0" align="start">
+                <Command>
+                    <CommandInput placeholder={`Search...`} className="h-9" />
+                    <CommandList>
+                        <CommandEmpty>No results found.</CommandEmpty>
+                        <CommandGroup>
+                            {options.map((option) => (
+                                <CommandItem
+                                    key={option.value}
+                                    value={option.label}
+                                    onSelect={() => {
+                                        onChange(option.value === value ? undefined : option.value);
+                                        setOpen(false);
+                                    }}
+                                >
+                                    {option.label}
+                                    <Check
+                                        className={cn(
+                                            "ml-auto h-4 w-4",
+                                            value === option.value ? "opacity-100" : "opacity-0"
+                                        )}
+                                    />
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
 export default function FilterSection(props: FilterSectionProps) {
     const {
-        title = 'Filters',
+        title,
         fields,
         radioGroup,
         onReset,
         resetButtonText = 'Reset Filters',
     } = props;
+
     return (
         <WhiteCard className="w-full" width="100%" height="auto">
             <div className="space-y-4">
@@ -49,10 +191,10 @@ export default function FilterSection(props: FilterSectionProps) {
                     {title}
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {fields.map((field, index) => (
                         <div key={index}>
-                            <label className="text-md font-semibold" style={{ color: '#113F67' }}>
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
                                 {field.label}
                             </label>
                             {field.type === 'text' && (
@@ -61,7 +203,22 @@ export default function FilterSection(props: FilterSectionProps) {
                                     placeholder={field.placeholder}
                                     value={String(field.value || '')}
                                     onChange={(e) => field.onChange(e.target.value)}
-                                    className="neomorphic-input w-full h-15"
+                                    className="neomorphic-input w-full h-10 text-sm"
+                                />
+                            )}
+                            {field.type === 'date' && (
+                                <DatePickerField
+                                    value={field.value as string | undefined}
+                                    onChange={(val) => field.onChange(val)}
+                                    placeholder={field.placeholder}
+                                />
+                            )}
+                            {field.type === 'combobox' && (
+                                <ComboboxField
+                                    value={field.value as string | undefined}
+                                    onChange={(val) => field.onChange(val)}
+                                    placeholder={field.placeholder}
+                                    loadOptions={field.loadOptions}
                                 />
                             )}
                             {field.type === 'select' && (
@@ -70,13 +227,11 @@ export default function FilterSection(props: FilterSectionProps) {
                                     onChange={(e) => {
                                         if (e.target.value === '') {
                                             field.onChange(undefined);
-                                        } else if (e.target.value === 'true' || e.target.value === 'false') {
-                                            field.onChange(e.target.value === 'true');
                                         } else {
                                             field.onChange(e.target.value);
                                         }
                                     }}
-                                    className="neomorphic-select w-full"
+                                    className="neomorphic-select w-full h-10 text-sm"
                                 >
                                     {field.options?.map((option) => (
                                         <option key={option.value} value={option.value}>
@@ -91,7 +246,7 @@ export default function FilterSection(props: FilterSectionProps) {
 
                 {/* Radio Group and Reset */}
                 {(radioGroup || onReset) && (
-                    <div className="flex items-end gap-3">
+                    <div className="flex items-end justify-end gap-3">
                         {radioGroup && (
                             <div className="flex-1">
                                 <label className="text-md font-semibold" style={{ color: '#113F67' }}>
@@ -126,7 +281,7 @@ export default function FilterSection(props: FilterSectionProps) {
                                 type="button"
                                 onClick={onReset}
                                 variant="blueGray"
-                                className="mb-0"
+                                className="ml-auto"
                             >
                                 {resetButtonText}
                             </CusButton>
