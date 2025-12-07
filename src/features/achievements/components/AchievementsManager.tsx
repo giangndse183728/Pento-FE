@@ -16,7 +16,7 @@ export default function AchievementsManager() {
             <div className="w-full space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
-                        <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Achievement Manager</h1>
+                        <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Achievements Manager</h1>
                     </div>
                 </div>
 
@@ -41,15 +41,7 @@ export default function AchievementsManager() {
                             />
                             Achievements List
                         </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="achievement-tab"
-                                checked={currentStep === 'activities'}
-                                onChange={() => setCurrentStep('activities')}
-                            />
-                            Activities List
-                        </label>
+
                         <label className="segmented-button">
                             <input
                                 type="radio"
@@ -58,6 +50,15 @@ export default function AchievementsManager() {
                                 onChange={() => setCurrentStep('requirements')}
                             />
                             Create Requirements
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="achievement-tab"
+                                checked={currentStep === 'activities'}
+                                onChange={() => setCurrentStep('activities')}
+                            />
+                            Activities List
                         </label>
                     </div>
                 </div>

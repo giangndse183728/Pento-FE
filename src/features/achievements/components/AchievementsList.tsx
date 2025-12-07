@@ -12,7 +12,7 @@ import ConfirmModal from '@/components/decoration/ConfirmModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { Trash } from 'lucide-react';
+import { Trash, ImagePlus, SquarePen } from 'lucide-react';
 import type { Milestone } from '../services/milestoneServices';
 
 export default function AchievementsList() {
@@ -23,7 +23,7 @@ export default function AchievementsList() {
         sortBy: 'Name',
         order: 'ASC',
         pageNumber: 1,
-        pageSize: 10,
+        pageSize: 50,
     });
     const [selectedAchievement, setSelectedAchievement] = useState<Milestone | null>(null);
     const [selectedAchievementForIcon, setSelectedAchievementForIcon] = useState<Milestone | null>(null);
@@ -63,7 +63,7 @@ export default function AchievementsList() {
             sortBy: 'Name',
             order: 'ASC',
             pageNumber: 1,
-            pageSize: 10,
+            pageSize: 50,
         });
     };
 
@@ -224,12 +224,12 @@ export default function AchievementsList() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead style={{ color: '#113F67' }}>Icon</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Name</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Description</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Earned</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Status</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Actions</TableHead>
+                                        <TableHead className='text-lg font-semibold' style={{ color: '#113F67' }}>Icon</TableHead>
+                                        <TableHead className='text-lg font-semibold' style={{ color: '#113F67' }}>Name</TableHead>
+                                        <TableHead className='text-lg font-semibold' style={{ color: '#113F67' }}>Description</TableHead>
+                                        <TableHead className='text-lg font-semibold' style={{ color: '#113F67' }}>Users Earned</TableHead>
+                                        <TableHead className='text-lg font-semibold' style={{ color: '#113F67' }}>Status</TableHead>
+                                        <TableHead className='text-lg font-semibold text-center' style={{ color: '#113F67' }}>Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -259,17 +259,17 @@ export default function AchievementsList() {
                                                 </TableCell>
 
                                                 {/* Name */}
-                                                <TableCell className="font-semibold" style={{ color: '#113F67' }}>
+                                                <TableCell className="font-semibold text-base whitespace-normal break-words" style={{ color: '#113F67' }}>
                                                     {achievement.name}
                                                 </TableCell>
 
                                                 {/* Description */}
-                                                <TableCell className="text-sm text-gray-600 max-w-xs truncate">
+                                                <TableCell className="text-base text-gray-600 whitespace-normal break-words">
                                                     {achievement.description || '-'}
                                                 </TableCell>
 
                                                 {/* Earned Count */}
-                                                <TableCell className="text-sm font-semibold text-gray-700">
+                                                <TableCell className="text-sm font-semibold text-gray-700 text-center">
                                                     {achievement.earnedCount}
                                                 </TableCell>
 
@@ -291,31 +291,31 @@ export default function AchievementsList() {
                                                 </TableCell>
 
                                                 {/* Actions */}
-                                                <TableCell onClick={(e) => e.stopPropagation()}>
-                                                    <div className="flex gap-2">
-                                                        <CusButton
+                                                <TableCell onClick={(e) => e.stopPropagation()} className="text-center">
+                                                    <div className="flex gap-2 justify-center">
+                                                        <button
                                                             type="button"
                                                             onClick={() => setSelectedAchievement(achievement)}
-                                                            variant="blueGray"
-                                                            className="text-sm"
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors inline-flex items-center justify-center"
+                                                            title="Edit achievement info"
                                                         >
-                                                            Edit
-                                                        </CusButton>
-                                                        <CusButton
+                                                            <SquarePen className="w-5 h-5" />
+                                                        </button>
+                                                        <button
                                                             type="button"
                                                             onClick={() => setSelectedAchievementForIcon(achievement)}
-                                                            variant="blueGray"
-                                                            className="text-sm"
+                                                            className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors inline-flex items-center justify-center"
+                                                            title="Edit achievement icon"
                                                         >
-                                                            Icon
-                                                        </CusButton>
+                                                            <ImagePlus className="w-5 h-5" />
+                                                        </button>
                                                         <button
                                                             type="button"
                                                             onClick={() => setAchievementToDelete(achievement)}
-                                                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors inline-flex items-center justify-center"
                                                             title="Delete achievement"
                                                         >
-                                                            <Trash className="w-4 h-4" />
+                                                            <Trash className="w-5 h-5" />
                                                         </button>
                                                     </div>
                                                 </TableCell>
