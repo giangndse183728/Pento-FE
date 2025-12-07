@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useMilestones, useUpdateMilestoneIcon, useDeleteMilestone } from '../hooks/useMilestones';
 import { GetMilestonesParams } from '../services/milestoneServices';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import FilterSection, { type FilterField, type RadioOption } from '@/components/decoration/FilterSection';
 import { CusButton } from '@/components/ui/cusButton';
 import AchievementsEditModal from './AchievementsEditModal';
 import AchievementsDetailsModal from './AchievementsDetailsModal';
@@ -71,131 +72,82 @@ export default function AchievementsList() {
         toast.error('Failed to load achievements');
     }
 
+    const filterFields: FilterField[] = [
+        {
+            type: 'text',
+            name: 'searchText',
+            label: 'Search',
+            placeholder: 'Search achievements...',
+            value: filters.searchText || '',
+            onChange: (value) => handleFilterChange('searchText', value as string),
+        },
+        {
+            type: 'select',
+            name: 'isActive',
+            label: 'Status',
+            value: filters.isActive,
+            options: [
+                { value: '', label: 'All' },
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Inactive' },
+            ],
+            onChange: (value) => handleFilterChange('isActive', value),
+        },
+        {
+            type: 'select',
+            name: 'isDeleted',
+            label: 'Show Deleted',
+            value: filters.isDeleted,
+            options: [
+                { value: '', label: 'Active Only' },
+                { value: 'true', label: 'Show Deleted' },
+                { value: 'false', label: 'Hide Deleted' },
+            ],
+            onChange: (value) => handleFilterChange('isDeleted', value),
+        },
+        {
+            type: 'select',
+            name: 'sortBy',
+            label: 'Sort By',
+            value: filters.sortBy || 'Name',
+            options: [
+                { value: 'Name', label: 'Name' },
+                { value: 'Id', label: 'ID' },
+                { value: 'EarnedCount', label: 'Earned Count' },
+            ],
+            onChange: (value) => handleFilterChange('sortBy', value as string),
+        },
+    ];
+
+    const radioOptions: RadioOption[] = [
+        {
+            label: 'Ascending',
+            value: 'ASC',
+            checked: filters.order === 'ASC',
+            onChange: () => handleFilterChange('order', 'ASC'),
+        },
+        {
+            label: 'Descending',
+            value: 'DESC',
+            checked: filters.order === 'DESC',
+            onChange: () => handleFilterChange('order', 'DESC'),
+        },
+    ];
+
     return (
         <div className="space-y-6">
             {/* Filters Section */}
-            <WhiteCard className="w-full" width="100%" height="auto">
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold" style={{ color: '#113F67' }}>
-                        Filters
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Search Input */}
-                        <div>
-                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
-                                Search
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Search achievements..."
-                                value={filters.searchText || ''}
-                                onChange={(e) => handleFilterChange('searchText', e.target.value)}
-                                className="neomorphic-input w-full"
-                            />
-                        </div>
-
-                        {/* Status Filter */}
-                        <div>
-                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
-                                Status
-                            </label>
-                            <select
-                                value={filters.isActive === undefined ? '' : String(filters.isActive)}
-                                onChange={(e) => {
-                                    if (e.target.value === '') {
-                                        handleFilterChange('isActive', undefined);
-                                    } else {
-                                        handleFilterChange('isActive', e.target.value === 'true');
-                                    }
-                                }}
-                                className="neomorphic-input w-full"
-                            >
-                                <option value="">All</option>
-                                <option value="true">Active</option>
-                                <option value="false">Inactive</option>
-                            </select>
-                        </div>
-
-                        {/* Deleted Filter */}
-                        <div>
-                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
-                                Show Deleted
-                            </label>
-                            <select
-                                value={filters.isDeleted === undefined ? '' : String(filters.isDeleted)}
-                                onChange={(e) => {
-                                    if (e.target.value === '') {
-                                        handleFilterChange('isDeleted', undefined);
-                                    } else {
-                                        handleFilterChange('isDeleted', e.target.value === 'true');
-                                    }
-                                }}
-                                className="neomorphic-input w-full"
-                            >
-                                <option value="">Active Only</option>
-                                <option value="true">Show Deleted</option>
-                                <option value="false">Hide Deleted</option>
-                            </select>
-                        </div>
-
-                        {/* Sort By */}
-                        <div>
-                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
-                                Sort By
-                            </label>
-                            <select
-                                value={filters.sortBy || 'Name'}
-                                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                                className="neomorphic-input w-full"
-                            >
-                                <option value="Name">Name</option>
-                                <option value="Id">ID</option>
-                                <option value="EarnedCount">Earned Count</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Order and Reset */}
-                    <div className="flex items-end gap-3">
-                        <div className="flex-1">
-                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
-                                Order
-                            </label>
-                            <div className="flex gap-4 mt-2">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="order"
-                                        value="ASC"
-                                        checked={filters.order === 'ASC'}
-                                        onChange={() => handleFilterChange('order', 'ASC')}
-                                    />
-                                    <span style={{ color: '#113F67' }}>Ascending</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="order"
-                                        value="DESC"
-                                        checked={filters.order === 'DESC'}
-                                        onChange={() => handleFilterChange('order', 'DESC')}
-                                    />
-                                    <span style={{ color: '#113F67' }}>Descending</span>
-                                </label>
-                            </div>
-                        </div>
-                        <CusButton
-                            type="button"
-                            onClick={handleResetFilters}
-                            variant="blueGray"
-                            className="mb-0"
-                        >
-                            Reset Filters
-                        </CusButton>
-                    </div>
-                </div>
-            </WhiteCard>
+            <FilterSection
+                title="Filters"
+                fields={filterFields}
+                radioGroup={{
+                    label: 'Order',
+                    name: 'order',
+                    options: radioOptions,
+                }}
+                onReset={handleResetFilters}
+                resetButtonText="Reset Filters"
+            />
 
             {/* Achievements List Section */}
             <WhiteCard className="w-full" width="100%" height="auto">
