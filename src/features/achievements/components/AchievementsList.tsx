@@ -1,0 +1,427 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useMilestones, useUpdateMilestoneIcon, useDeleteMilestone } from '../hooks/useMilestones';
+import { GetMilestonesParams } from '../services/milestoneServices';
+import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { CusButton } from '@/components/ui/cusButton';
+import AchievementsEditModal from './AchievementsEditModal';
+import AchievementsDetailsModal from './AchievementsDetailsModal';
+import IconsEditModal from './IconsEditModal';
+import ConfirmModal from '@/components/decoration/ConfirmModal';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import Image from 'next/image';
+import { toast } from 'sonner';
+import { Trash } from 'lucide-react';
+import type { Milestone } from '../services/milestoneServices';
+
+export default function AchievementsList() {
+    const [filters, setFilters] = useState<GetMilestonesParams>({
+        searchText: '',
+        isActive: undefined,
+        isDeleted: undefined,
+        sortBy: 'Name',
+        order: 'ASC',
+        pageNumber: 1,
+        pageSize: 10,
+    });
+    const [selectedAchievement, setSelectedAchievement] = useState<Milestone | null>(null);
+    const [selectedAchievementForIcon, setSelectedAchievementForIcon] = useState<Milestone | null>(null);
+    const [achievementToDelete, setAchievementToDelete] = useState<Milestone | null>(null);
+    const [achievementToView, setAchievementToView] = useState<string | null>(null);
+
+    const updateIconMutation = useUpdateMilestoneIcon();
+    const deleteMutation = useDeleteMilestone();
+
+    const { data, isLoading, error } = useMilestones(filters);
+    const achievements = data?.items || [];
+    const totalPages = data?.totalPages || 1;
+    const currentPage = data?.currentPage || 1;
+    const hasPrevious = data?.hasPrevious || false;
+    const hasNext = data?.hasNext || false;
+
+    const handleFilterChange = (key: keyof GetMilestonesParams, value: string | number | boolean | undefined) => {
+        setFilters((prev) => ({
+            ...prev,
+            [key]: value,
+            pageNumber: 1, // Reset to first page when filters change
+        }));
+    };
+
+    const handlePageChange = (newPage: number) => {
+        setFilters((prev) => ({
+            ...prev,
+            pageNumber: newPage,
+        }));
+    };
+
+    const handleResetFilters = () => {
+        setFilters({
+            searchText: '',
+            isActive: undefined,
+            isDeleted: undefined,
+            sortBy: 'Name',
+            order: 'ASC',
+            pageNumber: 1,
+            pageSize: 10,
+        });
+    };
+
+    if (error) {
+        toast.error('Failed to load achievements');
+    }
+
+    return (
+        <div className="space-y-6">
+            {/* Filters Section */}
+            <WhiteCard className="w-full" width="100%" height="auto">
+                <div className="space-y-4">
+                    <h3 className="text-lg font-semibold" style={{ color: '#113F67' }}>
+                        Filters
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Search Input */}
+                        <div>
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
+                                Search
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Search achievements..."
+                                value={filters.searchText || ''}
+                                onChange={(e) => handleFilterChange('searchText', e.target.value)}
+                                className="neomorphic-input w-full"
+                            />
+                        </div>
+
+                        {/* Status Filter */}
+                        <div>
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
+                                Status
+                            </label>
+                            <select
+                                value={filters.isActive === undefined ? '' : String(filters.isActive)}
+                                onChange={(e) => {
+                                    if (e.target.value === '') {
+                                        handleFilterChange('isActive', undefined);
+                                    } else {
+                                        handleFilterChange('isActive', e.target.value === 'true');
+                                    }
+                                }}
+                                className="neomorphic-input w-full"
+                            >
+                                <option value="">All</option>
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+
+                        {/* Deleted Filter */}
+                        <div>
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
+                                Show Deleted
+                            </label>
+                            <select
+                                value={filters.isDeleted === undefined ? '' : String(filters.isDeleted)}
+                                onChange={(e) => {
+                                    if (e.target.value === '') {
+                                        handleFilterChange('isDeleted', undefined);
+                                    } else {
+                                        handleFilterChange('isDeleted', e.target.value === 'true');
+                                    }
+                                }}
+                                className="neomorphic-input w-full"
+                            >
+                                <option value="">Active Only</option>
+                                <option value="true">Show Deleted</option>
+                                <option value="false">Hide Deleted</option>
+                            </select>
+                        </div>
+
+                        {/* Sort By */}
+                        <div>
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
+                                Sort By
+                            </label>
+                            <select
+                                value={filters.sortBy || 'Name'}
+                                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                                className="neomorphic-input w-full"
+                            >
+                                <option value="Name">Name</option>
+                                <option value="Id">ID</option>
+                                <option value="EarnedCount">Earned Count</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Order and Reset */}
+                    <div className="flex items-end gap-3">
+                        <div className="flex-1">
+                            <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
+                                Order
+                            </label>
+                            <div className="flex gap-4 mt-2">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="order"
+                                        value="ASC"
+                                        checked={filters.order === 'ASC'}
+                                        onChange={() => handleFilterChange('order', 'ASC')}
+                                    />
+                                    <span style={{ color: '#113F67' }}>Ascending</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="order"
+                                        value="DESC"
+                                        checked={filters.order === 'DESC'}
+                                        onChange={() => handleFilterChange('order', 'DESC')}
+                                    />
+                                    <span style={{ color: '#113F67' }}>Descending</span>
+                                </label>
+                            </div>
+                        </div>
+                        <CusButton
+                            type="button"
+                            onClick={handleResetFilters}
+                            variant="blueGray"
+                            className="mb-0"
+                        >
+                            Reset Filters
+                        </CusButton>
+                    </div>
+                </div>
+            </WhiteCard>
+
+            {/* Achievements List Section */}
+            <WhiteCard className="w-full" width="100%" height="auto">
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>
+                            Achievements
+                        </h2>
+                        {!isLoading && data && (
+                            <p className="text-sm text-gray-500">
+                                {data.totalCount} total achievements
+                            </p>
+                        )}
+                    </div>
+
+                    {isLoading ? (
+                        <div className="text-center py-12 text-gray-500">
+                            Loading achievements...
+                        </div>
+                    ) : achievements.length === 0 ? (
+                        <div className="text-center py-12 text-gray-500">
+                            No achievements found
+                        </div>
+                    ) : (
+                        <>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead style={{ color: '#113F67' }}>Icon</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Name</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Description</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Earned</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Status</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {achievements
+                                        .filter((achievement) => !achievement.isDeleted)
+                                        .map((achievement) => (
+                                            <TableRow
+                                                key={achievement.id}
+                                                className="cursor-pointer hover:bg-gray-50"
+                                                onClick={() => setAchievementToView(achievement.id)}
+                                            >
+                                                {/* Icon */}
+                                                <TableCell>
+                                                    {achievement.icon ? (
+                                                        <Image
+                                                            src={achievement.icon}
+                                                            alt={achievement.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-contain"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                                                            N/A
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+
+                                                {/* Name */}
+                                                <TableCell className="font-semibold" style={{ color: '#113F67' }}>
+                                                    {achievement.name}
+                                                </TableCell>
+
+                                                {/* Description */}
+                                                <TableCell className="text-sm text-gray-600 max-w-xs truncate">
+                                                    {achievement.description || '-'}
+                                                </TableCell>
+
+                                                {/* Earned Count */}
+                                                <TableCell className="text-sm font-semibold text-gray-700">
+                                                    {achievement.earnedCount}
+                                                </TableCell>
+
+                                                {/* Status */}
+                                                <TableCell>
+                                                    <span
+                                                        className="px-3 py-1 rounded-full text-xs font-semibold text-white inline-block"
+                                                        style={{
+                                                            backgroundColor: achievement.isActive ? '#10B981' : '#9CA3AF',
+                                                        }}
+                                                    >
+                                                        {achievement.isActive ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                    {achievement.isDeleted && (
+                                                        <div className="text-xs text-red-600 font-semibold mt-1">
+                                                            Deleted
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+
+                                                {/* Actions */}
+                                                <TableCell onClick={(e) => e.stopPropagation()}>
+                                                    <div className="flex gap-2">
+                                                        <CusButton
+                                                            type="button"
+                                                            onClick={() => setSelectedAchievement(achievement)}
+                                                            variant="blueGray"
+                                                            className="text-sm"
+                                                        >
+                                                            Edit
+                                                        </CusButton>
+                                                        <CusButton
+                                                            type="button"
+                                                            onClick={() => setSelectedAchievementForIcon(achievement)}
+                                                            variant="blueGray"
+                                                            className="text-sm"
+                                                        >
+                                                            Icon
+                                                        </CusButton>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setAchievementToDelete(achievement)}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                            title="Delete achievement"
+                                                        >
+                                                            <Trash className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                </TableBody>
+                            </Table>
+
+                            {/* Pagination */}
+                            <div className="flex items-center justify-between pt-6 border-t" style={{ borderColor: '#D6E6F2' }}>
+                                <p className="text-sm text-gray-500">
+                                    Page {currentPage} of {totalPages}
+                                </p>
+                                <div className="flex gap-2">
+                                    <CusButton
+                                        type="button"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={!hasPrevious || isLoading}
+                                        variant="blueGray"
+                                    >
+                                        Previous
+                                    </CusButton>
+                                    <CusButton
+                                        type="button"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={!hasNext || isLoading}
+                                        variant="blueGray"
+                                    >
+                                        Next
+                                    </CusButton>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </WhiteCard>
+
+            {/* Edit Modal */}
+            {selectedAchievement && (
+                <AchievementsEditModal
+                    milestone={selectedAchievement}
+                    onClose={() => setSelectedAchievement(null)}
+                    onSuccess={() => setSelectedAchievement(null)}
+                />
+            )}
+
+            {/* Icon Edit Modal */}
+            {selectedAchievementForIcon && (
+                <IconsEditModal
+                    currentIcon={selectedAchievementForIcon.icon}
+                    onIconSelect={async (file) => {
+                        try {
+                            await updateIconMutation.mutateAsync({
+                                milestoneId: selectedAchievementForIcon.id,
+                                iconFile: file,
+                            });
+                            toast.success('Icon updated successfully');
+                            setSelectedAchievementForIcon(null);
+                        } catch (err) {
+                            console.error('Failed to update icon', err);
+                            toast.error('Failed to update icon');
+                        }
+                    }}
+                    onClose={() => setSelectedAchievementForIcon(null)}
+                />
+            )}
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                open={!!achievementToDelete}
+                title="Delete Achievement"
+                message={`Are you sure you want to delete "${achievementToDelete?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                loading={deleteMutation.isPending}
+                onConfirm={async () => {
+                    if (!achievementToDelete) return;
+                    try {
+                        await deleteMutation.mutateAsync(achievementToDelete.id);
+                        toast.success('Achievement deleted successfully');
+                        setAchievementToDelete(null);
+                    } catch (err) {
+                        console.error('Failed to delete achievement', err);
+                        const error = err as Record<string, unknown>;
+                        const errorData = (error?.response as Record<string, unknown>)?.data as Record<string, unknown>;
+                        const errorDetail = errorData?.detail as string;
+                        const errorTitle = errorData?.title as string;
+
+                        // Check if milestone is in use
+                        if (errorTitle === 'Milestone.InUse' || errorData?.status === 409) {
+                            toast.error(errorDetail || 'Milestone cannot be deleted as it is associated with active users.');
+                        } else {
+                            toast.error(errorDetail || 'Failed to delete achievement');
+                        }
+                    }
+                }}
+                onCancel={() => setAchievementToDelete(null)}
+            />
+
+            {/* Achievement Details Modal */}
+            {achievementToView && (
+                <AchievementsDetailsModal
+                    milestoneId={achievementToView}
+                    onClose={() => setAchievementToView(null)}
+                />
+            )}
+        </div>
+    );
+}
