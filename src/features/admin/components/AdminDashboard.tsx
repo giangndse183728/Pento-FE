@@ -1,248 +1,236 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import AdminLayout from './AdminLayout';
-import GradientLineChart from './GradientLineChart';
-import SideDataCards from './SideDataCards';
-import DataCards from './TopDataCards';
-import { usePayments } from '../hooks/usePayments';
-import type { PaymentStatus } from '../services/paymentService';
-import { Calendar } from '@/components/ui/calendar';
+import ShareDataSetChart from './charts/ShareDataSetChart';
+import DoubleBarChart from './charts/DoubleBarChart';
+import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
+import type { TimeWindow } from '../services/paymentService';
+import type { GetFoodItemLogSummaryParams } from '../services/foodItemsLogServices';
+import { getSubscriptions } from '@/features/subscription/services/subscriptionService';
 
 const Dashboard = () => {
-    const [filters, setFilters] = useState({
-        searchText: "",
-        fromAmount: "",
-        toAmount: "",
+    // Subscription Payment Filters
+    const [paymentFilters, setPaymentFilters] = useState({
+        subscriptionIds: "",
         fromDate: "",
         toDate: "",
-        status: "",
+        isActive: "",
+        isDeleted: "",
+        timeWindow: "",
+    });
+
+    // Food Item Log Filters
+    const [foodFilters, setFoodFilters] = useState({
+        householdId: "",
+        fromDate: "",
+        toDate: "",
+        weightUnitId: "",
+        volumeUnitId: "",
         isDeleted: "",
     });
 
-    const [fromDateOpen, setFromDateOpen] = useState(false);
-    const [toDateOpen, setToDateOpen] = useState(false);
-
-    // Convert filter values to proper types for the API
-    const apiParams = {
-        searchText: filters.searchText || undefined,
-        fromAmount: filters.fromAmount ? Number(filters.fromAmount) : undefined,
-        toAmount: filters.toAmount ? Number(filters.toAmount) : undefined,
-        fromDate: filters.fromDate || undefined,
-        toDate: filters.toDate || undefined,
-        status: (filters.status as PaymentStatus) || undefined,
-        isDeleted: filters.isDeleted ? filters.isDeleted === "true" : undefined,
+    // Convert payment filter values to proper types for the API
+    const paymentApiParams = {
+        subscriptionIds: paymentFilters.subscriptionIds ? paymentFilters.subscriptionIds.split(',').filter(Boolean) : undefined,
+        fromDate: paymentFilters.fromDate || undefined,
+        toDate: paymentFilters.toDate || undefined,
+        isActive: paymentFilters.isActive ? paymentFilters.isActive === "true" : undefined,
+        isDeleted: paymentFilters.isDeleted ? paymentFilters.isDeleted === "true" : undefined,
+        timeWindow: (paymentFilters.timeWindow as TimeWindow) || undefined,
     };
 
-    const { summary, payments } = usePayments(apiParams);
-
-    const handleChange = (field: string, value: string) => {
-        setFilters((prev) => ({ ...prev, [field]: value }));
+    // Convert food filter values to proper types for the API
+    const foodApiParams: GetFoodItemLogSummaryParams = {
+        householdId: foodFilters.householdId || undefined,
+        fromDate: foodFilters.fromDate || undefined,
+        toDate: foodFilters.toDate || undefined,
+        weightUnitId: foodFilters.weightUnitId || undefined,
+        volumeUnitId: foodFilters.volumeUnitId || undefined,
+        isDeleted: foodFilters.isDeleted ? foodFilters.isDeleted === "true" : undefined,
     };
 
-    const clearAllFilters = () => {
-        setFilters({
-            searchText: "",
-            fromAmount: "",
-            toAmount: "",
+    const handlePaymentFilterChange = (field: string, value: string | boolean | undefined) => {
+        setPaymentFilters((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleFoodFilterChange = (field: string, value: string | boolean | undefined) => {
+        setFoodFilters((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleResetPaymentFilters = () => {
+        setPaymentFilters({
+            subscriptionIds: "",
             fromDate: "",
             toDate: "",
-            status: "",
+            isActive: "",
+            isDeleted: "",
+            timeWindow: "",
+        });
+    };
+
+    const handleResetFoodFilters = () => {
+        setFoodFilters({
+            householdId: "",
+            fromDate: "",
+            toDate: "",
+            weightUnitId: "",
+            volumeUnitId: "",
             isDeleted: "",
         });
-        setFromDateOpen(false);
-        setToDateOpen(false);
     };
+
+    // Load subscriptions for combobox
+    const loadSubscriptionOptions = useCallback(async () => {
+        const subscriptions = await getSubscriptions();
+        return subscriptions.map((sub) => ({
+            value: sub.id || sub.subscriptionId || '',
+            label: sub.name,
+        }));
+    }, []);
+
+    const paymentFilterFields: FilterField[] = [
+        {
+            type: 'combobox',
+            name: 'subscriptionIds',
+            label: 'Subscription',
+            placeholder: 'Select subscription',
+            value: paymentFilters.subscriptionIds || '',
+            onChange: (value) => handlePaymentFilterChange('subscriptionIds', value as string),
+            loadOptions: loadSubscriptionOptions,
+        },
+        {
+            type: 'date',
+            name: 'fromDate',
+            label: 'Start Date',
+            value: paymentFilters.fromDate || '',
+            onChange: (value) => handlePaymentFilterChange('fromDate', value as string),
+        },
+        {
+            type: 'date',
+            name: 'toDate',
+            label: 'End Date',
+            value: paymentFilters.toDate || '',
+            onChange: (value) => handlePaymentFilterChange('toDate', value as string),
+        },
+        {
+            type: 'select',
+            name: 'timeWindow',
+            label: 'Period',
+            value: paymentFilters.timeWindow || '',
+            options: [
+                { value: '', label: 'All' },
+                { value: 'weekly', label: 'Weekly' },
+                { value: 'monthly', label: 'Monthly' },
+                { value: 'quarterly', label: 'Quarterly' },
+                { value: 'yearly', label: 'Yearly' },
+            ],
+            onChange: (value) => handlePaymentFilterChange('timeWindow', value as string),
+        },
+        {
+            type: 'select',
+            name: 'isActive',
+            label: 'Status',
+            value: paymentFilters.isActive || '',
+            options: [
+                { value: '', label: 'All' },
+                { value: 'true', label: 'Active' },
+                { value: 'false', label: 'Inactive' },
+            ],
+            onChange: (value) => handlePaymentFilterChange('isActive', value as string),
+        },
+        {
+            type: 'select',
+            name: 'isDeleted',
+            label: 'Visibility',
+            value: paymentFilters.isDeleted || '',
+            options: [
+                { value: '', label: 'All' },
+                { value: 'false', label: 'Visible' },
+                { value: 'true', label: 'Deleted' },
+            ],
+            onChange: (value) => handlePaymentFilterChange('isDeleted', value as string),
+        },
+    ];
+
+    const foodFilterFields: FilterField[] = [
+        {
+            type: 'text',
+            name: 'householdId',
+            label: 'Household ID',
+            placeholder: 'Enter household ID',
+            value: foodFilters.householdId || '',
+            onChange: (value) => handleFoodFilterChange('householdId', value as string),
+        },
+        {
+            type: 'date',
+            name: 'fromDate',
+            label: 'Start Date',
+            value: foodFilters.fromDate || '',
+            onChange: (value) => handleFoodFilterChange('fromDate', value as string),
+        },
+        {
+            type: 'date',
+            name: 'toDate',
+            label: 'End Date',
+            value: foodFilters.toDate || '',
+            onChange: (value) => handleFoodFilterChange('toDate', value as string),
+        },
+        {
+            type: 'text',
+            name: 'weightUnitId',
+            label: 'Weight Unit ID',
+            placeholder: 'Enter weight unit ID',
+            value: foodFilters.weightUnitId || '',
+            onChange: (value) => handleFoodFilterChange('weightUnitId', value as string),
+        },
+        {
+            type: 'text',
+            name: 'volumeUnitId',
+            label: 'Volume Unit ID',
+            placeholder: 'Enter volume unit ID',
+            value: foodFilters.volumeUnitId || '',
+            onChange: (value) => handleFoodFilterChange('volumeUnitId', value as string),
+        },
+        {
+            type: 'select',
+            name: 'isDeleted',
+            label: 'Status',
+            value: foodFilters.isDeleted || '',
+            options: [
+                { value: '', label: 'All' },
+                { value: 'false', label: 'Active' },
+                { value: 'true', label: 'Deleted' },
+            ],
+            onChange: (value) => handleFoodFilterChange('isDeleted', value as string),
+        },
+    ];
 
     return (
         <AdminLayout>
-
-
-            <DataCards summary={summary} />
-
-            {/* Charts Row */}
             <div className="grid grid-cols-1 gap-6 w-full">
-                {/* FILTER ROW 1 - Search takes 2/3, Status & Delete take 1/3 */}
-                <div className="w-full grid grid-cols-3 gap-4 mb-4">
-                    {/* Search Text - 2/3 width */}
-                    <div className="relative col-span-1">
-                        <input
-                            type="text"
-                            placeholder="Search text"
-                            className="w-full p-2 rounded-lg border-2 border-white/40 bg-gray-100/50 pr-8"
-                            value={filters.searchText}
-                            onChange={(e) => handleChange("searchText", e.target.value)}
-                        />
-                        {filters.searchText && (
-                            <button
-                                onClick={() => handleChange("searchText", "")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-bold"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Status - 1/6 width */}
-                    <select
-                        className="p-2 rounded-lg border-2 border-white/40 bg-gray-100/50"
-                        value={filters.status}
-                        onChange={(e) => handleChange("status", e.target.value)}
-                    >
-                        <option value="">Status (All)</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="paid">Paid</option>
-                        <option value="expired">Expired</option>
-                        <option value="processing">Processing</option>
-                        <option value="failed">Failed</option>
-                    </select>
-
-                    {/* Is Deleted */}
-                    <select
-                        className="p-2 rounded-lg border-2 border-white/40 bg-gray-100/50"
-                        value={filters.isDeleted}
-                        onChange={(e) => handleChange("isDeleted", e.target.value)}
-                    >
-                        <option value="">Is Deleted (All)</option>
-                        <option value="true">Deleted</option>
-                        <option value="false">Not Deleted</option>
-                    </select>
+                {/* Subscription Payment Section */}
+                <FilterSection
+                    title="Subscription Payment Filters"
+                    fields={paymentFilterFields}
+                    onReset={handleResetPaymentFilters}
+                    resetButtonText="Clear All"
+                />
+                <div className="w-full">
+                    <ShareDataSetChart params={paymentApiParams} />
                 </div>
 
-                {/* FILTER ROW 2 - Amount, Dates spread, Delete with least width */}
-                <div className="w-full grid grid-cols-12 gap-4 mb-6">
-                    {/* From Amount - 2 cols */}
-                    <div className="relative col-span-2">
-                        <input
-                            type="number"
-                            placeholder="From Amount"
-                            className="w-full p-2 rounded-lg border-2 border-white/40 bg-gray-100/50 pr-8"
-                            value={filters.fromAmount}
-                            onChange={(e) => handleChange("fromAmount", e.target.value)}
-                        />
-                        {filters.fromAmount && (
-                            <button
-                                onClick={() => handleChange("fromAmount", "")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-bold"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-
-                    {/* To Amount - 2 cols */}
-                    <div className="relative col-span-2">
-                        <input
-                            type="number"
-                            placeholder="To Amount"
-                            className="w-full p-2 rounded-lg border-2 border-white/40 bg-gray-100/50 pr-8"
-                            value={filters.toAmount}
-                            onChange={(e) => handleChange("toAmount", e.target.value)}
-                        />
-                        {filters.toAmount && (
-                            <button
-                                onClick={() => handleChange("toAmount", "")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-bold"
-                            >
-                                ✕
-                            </button>
-                        )}
-                    </div>
-
-                    {/* From Date - 3 cols */}
-                    <div className="relative col-span-3">
-                        <button
-                            onClick={() => setFromDateOpen(!fromDateOpen)}
-                            className="w-full p-2 rounded-lg border-2 border-white/40 bg-gray-100/50 text-left text-sm flex items-center justify-between"
-                        >
-                            <span>{filters.fromDate || "From Date"}</span>
-                            {filters.fromDate && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleChange("fromDate", "");
-                                    }}
-                                    className="text-gray-400 hover:text-gray-600 text-sm font-bold"
-                                >
-                                    ✕
-                                </button>
-                            )}
-                        </button>
-                        {fromDateOpen && (
-                            <div className="absolute top-full mt-2 left-0 bg-white rounded-lg shadow-lg z-10 p-2">
-                                <Calendar
-                                    mode="single"
-                                    selected={filters.fromDate ? new Date(filters.fromDate) : undefined}
-                                    onSelect={(date) => {
-                                        if (date) handleChange("fromDate", date.toISOString().split("T")[0]);
-                                        setFromDateOpen(false);
-                                    }}
-                                    disabled={(date) => (filters.toDate ? date > new Date(filters.toDate) : false)}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* To Date - 3 cols */}
-                    <div className="relative col-span-3">
-                        <button
-                            onClick={() => setToDateOpen(!toDateOpen)}
-                            className="w-full p-2 rounded-lg border-2 border-white/40 bg-gray-100/50 text-left text-sm flex items-center justify-between"
-                        >
-                            <span>{filters.toDate || "To Date"}</span>
-                            {filters.toDate && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleChange("toDate", "");
-                                    }}
-                                    className="text-gray-400 hover:text-gray-600 text-sm font-bold"
-                                >
-                                    ✕
-                                </button>
-                            )}
-                        </button>
-                        {toDateOpen && (
-                            <div className="absolute top-full mt-2 left-0 bg-white rounded-lg shadow-lg z-10 p-2">
-                                <Calendar
-                                    mode="single"
-                                    selected={filters.toDate ? new Date(filters.toDate) : undefined}
-                                    onSelect={(date) => {
-                                        if (date) handleChange("toDate", date.toISOString().split("T")[0]);
-                                        setToDateOpen(false);
-                                    }}
-                                    disabled={(date) => (filters.fromDate ? date < new Date(filters.fromDate) : false)}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Clear All Filters - 2 cols (least width) */}
-                    <button
-                        onClick={clearAllFilters}
-                        className="col-span-2 p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition font-medium text-sm"
-                    >
-                        Clear All
-                    </button>
-                </div>
-
-                {/* Charts */}
-                <div className="flex gap-6 justify-start items-start w-full">
-                    {/* 70% */}
-                    <div className="flex-[0.7]">
-                        <div className="h-[500px] w-full">
-                            <GradientLineChart payments={payments} />
-                        </div>
-                    </div>
-
-                    {/* 30% */}
-                    <div className="flex-[0.3] w-[300px]">
-                        <SideDataCards summary={summary} />
-                    </div>
+                {/* Food Item Log Section */}
+                <FilterSection
+                    title="Food Item Log Filters"
+                    fields={foodFilterFields}
+                    onReset={handleResetFoodFilters}
+                    resetButtonText="Clear All"
+                />
+                <div className="w-full">
+                    <DoubleBarChart params={foodApiParams} />
                 </div>
             </div>
-
         </AdminLayout>
     );
 };
