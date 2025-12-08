@@ -164,8 +164,8 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
 
             {/* Expanded Details Modal */}
             {expandedId && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setExpandedId(null)}>
-                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 pt-12 pb-12 overflow-y-auto" onClick={() => setExpandedId(null)}>
+                    <div className="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold" style={{ color: '#113F67' }}>Subscription Details</h2>
                             <button

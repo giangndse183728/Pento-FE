@@ -3,11 +3,14 @@ import type {
     IngredientInput,
     DirectionInput,
     RecipeDetailedInput,
-    RecipeSummary
+    RecipeSummary,
+    UpdateRecipeInput,
+    UpdateRecipeIngredientInput,
+    UpdateRecipeDirectionInput,
 } from '../schema/recipeSchema';
 
 // Re-export types for convenience
-export type { IngredientInput, DirectionInput, RecipeDetailedInput, RecipeSummary };
+export type { IngredientInput, DirectionInput, RecipeDetailedInput, RecipeSummary, UpdateRecipeInput, UpdateRecipeIngredientInput, UpdateRecipeDirectionInput };
 
 export type RecipesQuery = {
     pageNumber: number;
@@ -97,6 +100,60 @@ export const getRecipeDetails = async (recipeId: string): Promise<RecipeDetailsR
         const qs = `?include=all`;
         const res = await apiRequest<RecipeDetailsResponse>('get', `/recipes/${encodeURIComponent(recipeId)}${qs}`);
         return res;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT /recipes/{recipeId} - Update recipe basic info
+export const updateRecipe = async (recipeId: string, payload: UpdateRecipeInput): Promise<unknown> => {
+    try {
+        const result = await apiRequest<unknown>('put', `/recipes/${encodeURIComponent(recipeId)}`, payload);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT /recipes/{id}/image - Upload recipe image
+export const uploadRecipeImage = async (recipeId: string, imageFile: File): Promise<unknown> => {
+    try {
+        const formData = new FormData();
+        formData.append('imageFile', imageFile);
+        const result = await apiRequest<unknown>('put', `/recipes/${encodeURIComponent(recipeId)}/image`, formData);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT /recipe-ingredients/{recipeIngredientId} - Update recipe ingredient
+export const updateRecipeIngredient = async (recipeIngredientId: string, payload: UpdateRecipeIngredientInput): Promise<unknown> => {
+    try {
+        const result = await apiRequest<unknown>('put', `/recipe-ingredients/${encodeURIComponent(recipeIngredientId)}`, payload);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT /recipe-directions/{directionId} - Update recipe direction
+export const updateRecipeDirection = async (directionId: string, payload: UpdateRecipeDirectionInput): Promise<unknown> => {
+    try {
+        const result = await apiRequest<unknown>('put', `/recipe-directions/${encodeURIComponent(directionId)}`, payload);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT /recipes-directions/{directionId}/image - Upload direction image
+export const uploadRecipeDirectionImage = async (directionId: string, file: File): Promise<unknown> => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const result = await apiRequest<unknown>('put', `/recipes-directions/${encodeURIComponent(directionId)}/image`, formData);
+        return result;
     } catch (error) {
         throw error;
     }
