@@ -12,17 +12,28 @@ import type {
 // GET /food-references - List with pagination
 export const getFoodReferences = async (params?: FoodReferencesQuery): Promise<FoodReferencesResponse> => {
     try {
+        // Map frontend parameter names to API parameter names
+        const paramKeyMap: Record<string, string> = {
+            page: 'pageNumber',
+            sortBy: 'SortBy',
+            sortOrder: 'SortOrder',
+            hasImage: 'HasImage',
+            foodGroup: 'FoodGroup',
+            search: 'Search',
+        };
+
         const qs = params
             ? '?' + Object.entries(params)
                 .filter(([, v]) => v !== undefined && v !== null && v !== '')
                 .map(([k, v]) => {
                     const val = typeof v === 'string' ? v.trim() : v;
-                    const key = k === 'page' ? 'pageNumber' : k;
+                    const key = paramKeyMap[k] || k;
                     return `${encodeURIComponent(key)}=${encodeURIComponent(String(val))}`;
                 })
                 .join('&')
             : '';
 
+        console.log('getFoodReferences query string:', `/food-references${qs}`);
         const res = await apiRequest<unknown>('get', `/food-references${qs}`);
 
         // API may return either an array or an object with `items`.

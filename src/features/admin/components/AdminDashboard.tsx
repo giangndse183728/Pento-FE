@@ -263,6 +263,7 @@ const Dashboard = () => {
                     fields={paymentFilterFields}
                     onReset={handleResetPaymentFilters}
                     resetButtonText="Clear All"
+                    defaultCollapsed={true}
                 />
                 <div className="w-full">
                     <ShareDataSetChart params={paymentApiParams} />
@@ -274,6 +275,7 @@ const Dashboard = () => {
                     fields={foodFilterFields}
                     onReset={handleResetFoodFilters}
                     resetButtonText="Clear All"
+                    defaultCollapsed={true}
                 />
                 <div className="w-full">
                     <DoubleBarChart params={foodApiParams} />
