@@ -1,0 +1,100 @@
+.card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.credit-card {
+    /* background: linear-gradient(145deg, #D6E6F2, #B9D7EA); */
+    background: url('/assets/img/placeholder.jpg') center/cover;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    color: white;
+    padding: 0;
+    position: relative;
+}
+
+.credit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    pointer-events: none;
+}
+
+.inner {
+    width: 320px;
+    min-height: 150px;
+    height: auto;
+    background: transparent;
+    border-radius: 16px;
+    box-shadow: inherit;
+    color: white;
+    padding: 20px;
+    position: relative;
+    text-align: left;
+    z-index: 1;
+}
+
+.magnetic-strip {
+    width: calc(100% + 40px);
+    height: 30px;
+    margin-top: 15px;
+    margin-left: -20px;
+    margin-right: -20px;
+    background: linear-gradient(90deg, #000000, #434343 20%, #000000);
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.card-number {
+    margin-top: -5px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-align: left;
+    color: #113F67
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+
+}
+
+.card-details div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #113F67
+}
+
+.card-details label,
+.number-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 5px;
+    text-align: left;
+    color: #113F67
+}
+
+.card-name,
+.card-date {
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 140px;
+    text-align: left;
+    color: #113F67
+}
+
+.number-label {
+    font-size: 10px;
+}
