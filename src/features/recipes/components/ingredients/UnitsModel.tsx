@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Unit } from "../../services/recipesService"
+import { type Unit } from "@/features/units";
 import { WhiteCard } from "@/components/decoration/WhiteCard";
 
 type Props = {

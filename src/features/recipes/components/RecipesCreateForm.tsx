@@ -34,7 +34,7 @@ export default function RecipesCreateForm({ create, onSuccess }: Props) {
     const [cookTimeMinutes, setCookTimeMinutes] = useState<number | undefined>(10);
     const [notes, setNotes] = useState('');
     const [servings, setServings] = useState<number | undefined>(1);
-    const [difficultyLevel, setDifficultyLevel] = useState<string>('Medium');
+    const [difficultyLevel, setDifficultyLevel] = useState<"Easy" | "Medium" | "Hard">('Medium');
     const [imageUrl, setImageUrl] = useState('');
     const [directions, setDirections] = useState<Array<{ stepNumber: number; description: string; image?: string | null }>>([
         { stepNumber: 1, description: '', image: '' },

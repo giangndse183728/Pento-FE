@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import { toast } from 'sonner';
-import { useFoodReferenceById, useUpdateFoodReference } from '../hooks/useFoodReferences';
+import { useFoodReferenceById, useUpdateFoodReference, useUploadFoodReferenceImage } from '../hooks/useFoodReferences';
 import type { UpdateFoodReferenceInput } from '../schema/foodReferenceSchema';
+import { ImageUp } from 'lucide-react';
 import '@/styles/toggle.css';
 
 type Props = {
@@ -31,8 +32,9 @@ const foodGroups = [
 const unitTypes = ['Weight', 'Volume', 'Count', 'Length'];
 
 export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Props) {
-    const { data, isLoading: isLoadingData } = useFoodReferenceById(foodRefId);
+    const { data, isLoading: isLoadingData, refetch } = useFoodReferenceById(foodRefId);
     const updateMutation = useUpdateFoodReference();
+    const uploadImageMutation = useUploadFoodReferenceImage();
 
     const [formData, setFormData] = useState<UpdateFoodReferenceInput>({
         name: '',
@@ -48,6 +50,8 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
         imageUrl: null,
         unitType: null,
     });
+
+    const [uploadImageUrl, setUploadImageUrl] = useState('');
 
     useEffect(() => {
         if (data) {
@@ -68,7 +72,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
         }
     }, [data]);
 
-    const isLoading = isLoadingData || updateMutation.isPending;
+    const isLoading = isLoadingData || updateMutation.isPending || uploadImageMutation.isPending;
 
     const inputClass = 'neomorphic-input w-full';
     const selectClass = 'neomorphic-select w-full';
@@ -81,6 +85,30 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
     const handleNumberChange = (field: keyof UpdateFoodReferenceInput, value: string) => {
         const num = value === '' ? null : parseInt(value, 10);
         handleChange(field, isNaN(num as number) ? null : num);
+    };
+
+    const handleUploadImage = async () => {
+        if (!uploadImageUrl.trim()) {
+            toast.error('Please enter an image URL to upload');
+            return;
+        }
+
+        try {
+            await uploadImageMutation.mutateAsync({
+                id: foodRefId,
+                payload: { imageUri: uploadImageUrl.trim() },
+            });
+
+            toast.success('Image uploaded successfully');
+            setUploadImageUrl('');
+            // Refetch to get the updated imageUrl
+            refetch();
+        } catch (err) {
+            console.error('Failed to upload image', err);
+            const error = err as Record<string, unknown>;
+            const errorData = (error?.response as Record<string, unknown>)?.data as Record<string, unknown>;
+            toast.error((errorData?.detail as string) || 'Failed to upload image');
+        }
     };
 
     const handleSave = async () => {
@@ -138,11 +166,11 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <WhiteCard className="w-full max-w-2xl bg-white/95" width="100%" height="auto">
-                <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            <WhiteCard className="w-full max-w-2xl max-h-[90vh] overflow-y-auto" width="100%" height="auto">
+                <div className="p-6 space-y-4">
                     {/* Header */}
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-semibold" style={{ color: '#113F67' }}>
+                    <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: '#D6E6F2' }}>
+                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>
                             Edit Food Reference
                         </h2>
                         <button
@@ -159,7 +187,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                         {/* Name */}
                         <div>
                             <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Name *
+                                Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -251,14 +279,45 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                             </div>
                         </div>
 
+                        {/* USDA ID & Food Category ID */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                    USDA ID
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.usdaId || ''}
+                                    onChange={(e) => handleChange('usdaId', e.target.value || null)}
+                                    className={inputClass}
+                                    placeholder="USDA ID"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                    Food Category ID
+                                </label>
+                                <input
+                                    type="number"
+                                    value={formData.foodCategoryId ?? ''}
+                                    onChange={(e) => handleNumberChange('foodCategoryId', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="Category ID"
+                                    min={0}
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        </div>
+
                         {/* Shelf Life */}
                         <div>
                             <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Shelf Life (days)
+                                Typical Shelf Life (Days)
                             </label>
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Pantry</label>
+                                    <label className="text-xs text-gray-500 mb-1 block">Pantry</label>
                                     <input
                                         type="number"
                                         value={formData.typicalShelfLifeDays_Pantry ?? ''}
@@ -270,7 +329,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Fridge</label>
+                                    <label className="text-xs text-gray-500 mb-1 block">Fridge</label>
                                     <input
                                         type="number"
                                         value={formData.typicalShelfLifeDays_Fridge ?? ''}
@@ -282,7 +341,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Freezer</label>
+                                    <label className="text-xs text-gray-500 mb-1 block">Freezer</label>
                                     <input
                                         type="number"
                                         value={formData.typicalShelfLifeDays_Freezer ?? ''}
@@ -296,19 +355,53 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                             </div>
                         </div>
 
-                        {/* Image URL */}
-                        <div>
+                        {/* Current Image URL (Read-only display) */}
+                        {data?.imageUrl && (
+                            <div>
+                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                    Current Image
+                                </label>
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <img
+                                        src={data.imageUrl}
+                                        alt="Current"
+                                        className="w-16 h-16 object-cover rounded"
+                                    />
+                                    <span className="text-sm text-gray-500 truncate flex-1">
+                                        {data.imageUrl}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Upload Image Section */}
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                             <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Image URL
+                                Upload New Image
                             </label>
-                            <input
-                                type="url"
-                                value={formData.imageUrl || ''}
-                                onChange={(e) => handleChange('imageUrl', e.target.value || null)}
-                                className={inputClass}
-                                placeholder="https://..."
-                                disabled={isLoading}
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="url"
+                                    value={uploadImageUrl}
+                                    onChange={(e) => setUploadImageUrl(e.target.value)}
+                                    className={inputClass}
+                                    placeholder="https://example.com/image.jpg"
+                                    disabled={isLoading}
+                                />
+                                <CusButton
+                                    type="button"
+                                    onClick={handleUploadImage}
+                                    disabled={isLoading || !uploadImageUrl.trim()}
+                                    variant="blueGray"
+                                    className="flex items-center gap-2 whitespace-nowrap"
+                                >
+                                    <ImageUp className="w-4 h-4" />
+                                    {uploadImageMutation.isPending ? 'Uploading...' : 'Upload'}
+                                </CusButton>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Paste an image URL and click Upload to update the food reference image.
+                            </p>
                         </div>
                     </div>
 

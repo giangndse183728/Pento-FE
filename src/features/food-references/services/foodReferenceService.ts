@@ -5,7 +5,8 @@ import type {
     FoodReferencesQuery,
     FoodReferencesResponse,
     CreateFoodReferenceInput,
-    UpdateFoodReferenceInput
+    UpdateFoodReferenceInput,
+    UploadFoodReferenceImageInput
 } from '../schema/foodReferenceSchema';
 
 // GET /food-references - List with pagination
@@ -69,6 +70,12 @@ export const updateFoodReference = async (id: string, payload: UpdateFoodReferen
     return res;
 };
 
+// POST /food-references/{id}/upload-image - Upload image for food reference
+export const uploadFoodReferenceImage = async (id: string, payload: UploadFoodReferenceImageInput): Promise<FoodReferenceDetail> => {
+    const res = await apiRequest<FoodReferenceDetail>('post', `/food-references/${encodeURIComponent(id)}/upload-image`, payload);
+    return res;
+};
+
 // Re-export types for convenience
 export type {
     FoodRef,
@@ -76,5 +83,6 @@ export type {
     FoodReferencesQuery,
     FoodReferencesResponse,
     CreateFoodReferenceInput,
-    UpdateFoodReferenceInput
+    UpdateFoodReferenceInput,
+    UploadFoodReferenceImageInput
 } from '../schema/foodReferenceSchema';

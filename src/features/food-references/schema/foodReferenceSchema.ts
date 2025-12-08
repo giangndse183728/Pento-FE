@@ -56,6 +56,10 @@ export type UpdateFoodReferenceInput = {
     unitType?: string | null;
 };
 
+export type UploadFoodReferenceImageInput = {
+    imageUri: string;
+};
+
 export type FoodReferencesQuery = {
     foodGroup?: string;
     search?: string;

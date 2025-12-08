@@ -202,7 +202,7 @@ export default function RecipesDetailsPage({ initialData, onSave }: Props) {
                                         setCookTimeMinutes={(n) => update({ cookTimeMinutes: n ?? 0 })}
                                         servings={local.servings ?? undefined}
                                         setServings={(n) => update({ servings: n ?? 1 })}
-                                        difficultyLevel={local.difficultyLevel ?? "Medium"}
+                                        difficultyLevel={(local.difficultyLevel ?? "Medium") as "Easy" | "Medium" | "Hard"}
                                         setDifficultyLevel={(s) => update({ difficultyLevel: s })}
                                         imageUrl={local.imageUrl ?? ""}
                                         setImageUrl={(s) => update({ imageUrl: s })}

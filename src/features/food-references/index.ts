@@ -5,7 +5,8 @@ export type {
     FoodReferencesQuery,
     FoodReferencesResponse,
     CreateFoodReferenceInput,
-    UpdateFoodReferenceInput
+    UpdateFoodReferenceInput,
+    UploadFoodReferenceImageInput
 } from './schema/foodReferenceSchema';
 
 // Services
@@ -13,7 +14,8 @@ export {
     getFoodReferences,
     getFoodReferenceById,
     createFoodReference,
-    updateFoodReference
+    updateFoodReference,
+    uploadFoodReferenceImage
 } from './services/foodReferenceService';
 
 // Hooks
@@ -21,5 +23,6 @@ export {
     useFoodReferences,
     useFoodReferenceById,
     useCreateFoodReference,
-    useUpdateFoodReference
+    useUpdateFoodReference,
+    useUploadFoodReferenceImage
 } from './hooks/useFoodReferences';

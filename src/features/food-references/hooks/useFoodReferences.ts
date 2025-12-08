@@ -5,14 +5,16 @@ import {
     getFoodReferences,
     getFoodReferenceById,
     createFoodReference,
-    updateFoodReference
+    updateFoodReference,
+    uploadFoodReferenceImage
 } from '../services/foodReferenceService';
 import type {
     FoodReferencesQuery,
     FoodReferencesResponse,
     FoodReferenceDetail,
     CreateFoodReferenceInput,
-    UpdateFoodReferenceInput
+    UpdateFoodReferenceInput,
+    UploadFoodReferenceImageInput
 } from '../schema/foodReferenceSchema';
 
 // Hook for listing food references with pagination
@@ -65,4 +67,19 @@ export const useUpdateFoodReference = () => {
     });
 };
 
+// Hook for uploading image for a food reference
+export const useUploadFoodReferenceImage = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<FoodReferenceDetail, Error, { id: string; payload: UploadFoodReferenceImageInput }>({
+        mutationFn: ({ id, payload }) => uploadFoodReferenceImage(id, payload),
+        onSuccess: (data, variables) => {
+            // Invalidate both the list and the specific item
+            queryClient.invalidateQueries({ queryKey: ['foodReferences'] });
+            queryClient.invalidateQueries({ queryKey: ['foodReference', variables.id] });
+        },
+    });
+};
+
 export default useFoodReferences;
+

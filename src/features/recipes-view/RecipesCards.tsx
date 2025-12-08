@@ -18,7 +18,7 @@ const difficultyColors: Record<string, { bg: string; text: string; badgeBg: stri
     Hard: { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444', badgeBg: '#FF8F8F' }
 };
 
-const getDifficultyBadgeColor = (difficulty?: string) => {
+const getDifficultyBadgeColor = (difficulty?: string | null) => {
     if (!difficulty) return '#6b7280';
     return difficultyColors[difficulty]?.badgeBg ?? '#6b7280';
 };

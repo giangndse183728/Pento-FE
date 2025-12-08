@@ -19,8 +19,8 @@ type Props = {
     setCookTimeMinutes: (n?: number) => void;
     servings?: number | undefined;
     setServings: (n?: number) => void;
-    difficultyLevel: string;
-    setDifficultyLevel: (s: string) => void;
+    difficultyLevel: "Easy" | "Medium" | "Hard";
+    setDifficultyLevel: (s: "Easy" | "Medium" | "Hard") => void;
     imageUrl: string;
     setImageUrl: (s: string) => void;
     notes: string;
@@ -227,7 +227,7 @@ export default function BasicInfo(props: Props) {
                         <select
                             className="neomorphic-select w-full"
                             value={difficultyLevel}
-                            onChange={(e) => setDifficultyLevel(e.target.value)}
+                            onChange={(e) => setDifficultyLevel(e.target.value as "Easy" | "Medium" | "Hard")}
                         >
                             <option value="Easy">Easy</option>
                             <option value="Medium">Medium</option>
