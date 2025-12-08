@@ -25,8 +25,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { CusButton } from '@/components/ui/cusButton';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
-import { Search, SquarePen, Trash2 } from 'lucide-react';
+import { Search, SquarePen, Trash2, RotateCcw, ImagePlus } from 'lucide-react';
 import { ColorTheme } from '@/constants/color';
+import FoodRefImgModal from './FoodRefImgModal';
 
 type Props = {
     onSelect?: (foodRef: FoodRef) => void;
@@ -40,12 +41,19 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
     const [searchInput, setSearchInput] = useState('');
     const [search, setSearch] = useState('');
     const [foodGroup, setFoodGroup] = useState<string | undefined>();
+    const [hasImage, setHasImage] = useState<boolean | undefined>();
+    const [sortBy, setSortBy] = useState<'Name' | 'FoodGroup' | 'Brand' | 'CreatedAt' | undefined>();
+    const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC' | undefined>();
+    const [imageEditItem, setImageEditItem] = useState<FoodRef | null>(null);
 
     const { data, isLoading, isFetching, refetch } = useFoodReferences({
         page,
         pageSize,
         search: search || undefined,
         foodGroup,
+        hasImage,
+        sortBy,
+        sortOrder,
     });
 
     const items = data?.items ?? [];
@@ -61,6 +69,16 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
         if (e.key === 'Enter') {
             handleSearch();
         }
+    };
+
+    const handleResetFilters = () => {
+        setSearchInput('');
+        setSearch('');
+        setFoodGroup(undefined);
+        setHasImage(undefined);
+        setSortBy(undefined);
+        setSortOrder(undefined);
+        setPage(1);
     };
 
     const renderPageNumbers = () => {
@@ -112,7 +130,7 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                     </h3>
                 </div>
 
-                {/* Filters */}
+                {/* Search Row */}
                 <div className="flex flex-col md:flex-row gap-3">
                     <div className="flex-1 flex gap-2">
                         <input
@@ -127,6 +145,11 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                             <Search className="w-4 h-4" />
                         </CusButton>
                     </div>
+                </div>
+
+                {/* Filters Row */}
+                <div className="flex flex-wrap gap-3">
+                    {/* Food Group Filter */}
                     <select
                         value={foodGroup ?? ''}
                         onChange={(e) => {
@@ -140,18 +163,78 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                             <option key={group.id} value={group.name}>{group.name}</option>
                         ))}
                     </select>
+
+                    {/* Has Image Filter */}
+                    <select
+                        value={hasImage === undefined ? '' : hasImage.toString()}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setHasImage(val === '' ? undefined : val === 'true');
+                            setPage(1);
+                        }}
+                        className="neomorphic-select w-full md:w-36"
+                    >
+                        <option value="">All Images</option>
+                        <option value="true">Has Image</option>
+                        <option value="false">No Image</option>
+                    </select>
+
+                    {/* Sort By Filter */}
+                    <select
+                        value={sortBy ?? ''}
+                        onChange={(e) => {
+                            const val = e.target.value as 'Name' | 'FoodGroup' | 'Brand' | 'CreatedAt' | '';
+                            setSortBy(val || undefined);
+                            setPage(1);
+                        }}
+                        className="neomorphic-select w-full md:w-36"
+                    >
+                        <option value="">Sort By</option>
+                        <option value="Name">Name</option>
+                        <option value="FoodGroup">Food Group</option>
+                        <option value="Brand">Brand</option>
+                        <option value="CreatedAt">Created At</option>
+                    </select>
+
+                    {/* Sort Order Filter */}
+                    <select
+                        value={sortOrder ?? ''}
+                        onChange={(e) => {
+                            const val = e.target.value as 'ASC' | 'DESC' | '';
+                            setSortOrder(val || undefined);
+                            setPage(1);
+                        }}
+                        className="neomorphic-select w-full md:w-28"
+                    >
+                        <option value="">Order</option>
+                        <option value="ASC">Ascending</option>
+                        <option value="DESC">Descending</option>
+                    </select>
+
+                    {/* Page Size */}
                     <select
                         value={pageSize}
                         onChange={(e) => {
                             setPageSize(Number(e.target.value));
                             setPage(1);
                         }}
-                        className="neomorphic-select w-full md:w-32"
+                        className="neomorphic-select w-full md:w-28"
                     >
                         <option value={10}>10 / page</option>
                         <option value={25}>25 / page</option>
                         <option value={50}>50 / page</option>
                     </select>
+
+                    {/* Reset Filters Button */}
+                    <CusButton
+                        variant="gray"
+                        size="default"
+                        onClick={handleResetFilters}
+                        className="flex items-center gap-2"
+                    >
+                        <RotateCcw className="w-4 h-4" />
+                        Reset
+                    </CusButton>
                 </div>
 
                 {/* Table */}
@@ -254,6 +337,16 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                                                         <SquarePen className="w-4 h-4" />
                                                     </button>
                                                 )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setImageEditItem(item);
+                                                    }}
+                                                    className="p-2 rounded-full hover:bg-green-100 text-green-600 transition-colors"
+                                                    title="Edit Image"
+                                                >
+                                                    <ImagePlus className="w-4 h-4" />
+                                                </button>
                                                 {onDelete && (
                                                     <button
                                                         onClick={(e) => {
@@ -326,6 +419,18 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                     </Pagination>
                 )}
             </div>
+
+            {/* Image Upload Modal */}
+            {imageEditItem && (
+                <FoodRefImgModal
+                    foodRefId={imageEditItem.id}
+                    onClose={() => setImageEditItem(null)}
+                    onSuccess={() => {
+                        refetch();
+                        setImageEditItem(null);
+                    }}
+                />
+            )}
         </WhiteCard>
     );
 }

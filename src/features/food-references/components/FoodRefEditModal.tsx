@@ -4,9 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import { toast } from 'sonner';
-import { useFoodReferenceById, useUpdateFoodReference, useUploadFoodReferenceImage } from '../hooks/useFoodReferences';
+import { useFoodReferenceById, useUpdateFoodReference } from '../hooks/useFoodReferences';
 import type { UpdateFoodReferenceInput } from '../schema/foodReferenceSchema';
-import { ImageUp } from 'lucide-react';
 import '@/styles/toggle.css';
 
 type Props = {
@@ -16,42 +15,36 @@ type Props = {
 };
 
 const foodGroups = [
-    { id: 1, name: 'Meat' },
-    { id: 2, name: 'Seafood' },
-    { id: 3, name: 'Fruits & Vegetables' },
-    { id: 4, name: 'Dairy' },
-    { id: 5, name: 'Cereal, Grains & Pasta' },
-    { id: 6, name: 'Legumes, Nuts & Seeds' },
-    { id: 7, name: 'Fats & Oils' },
-    { id: 8, name: 'Confectionery' },
-    { id: 9, name: 'Beverages' },
-    { id: 10, name: 'Condiments' },
-    { id: 11, name: 'Mixed Dishes' },
+    { value: 'Meat', label: 'Meat' },
+    { value: 'Seafood', label: 'Seafood' },
+    { value: 'FruitsVegetables', label: 'Fruits & Vegetables' },
+    { value: 'Dairy', label: 'Dairy' },
+    { value: 'CerealGrainsPasta', label: 'Cereal, Grains & Pasta' },
+    { value: 'LegumesNutsSeeds', label: 'Legumes, Nuts & Seeds' },
+    { value: 'FatsOils', label: 'Fats & Oils' },
+    { value: 'Confectionery', label: 'Confectionery' },
+    { value: 'Beverages', label: 'Beverages' },
+    { value: 'Condiments', label: 'Condiments' },
+    { value: 'MixedDishes', label: 'Mixed Dishes' },
 ];
 
 const unitTypes = ['Weight', 'Volume', 'Count', 'Length'];
 
 export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Props) {
-    const { data, isLoading: isLoadingData, refetch } = useFoodReferenceById(foodRefId);
+    const { data, isLoading: isLoadingData } = useFoodReferenceById(foodRefId);
     const updateMutation = useUpdateFoodReference();
-    const uploadImageMutation = useUploadFoodReferenceImage();
 
     const [formData, setFormData] = useState<UpdateFoodReferenceInput>({
         name: '',
         foodGroup: null,
         notes: null,
-        foodCategoryId: null,
         brand: null,
-        barcode: null,
         usdaId: null,
         typicalShelfLifeDays_Pantry: null,
         typicalShelfLifeDays_Fridge: null,
         typicalShelfLifeDays_Freezer: null,
-        imageUrl: null,
         unitType: null,
     });
-
-    const [uploadImageUrl, setUploadImageUrl] = useState('');
 
     useEffect(() => {
         if (data) {
@@ -59,20 +52,17 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                 name: data.name,
                 foodGroup: data.foodGroup || null,
                 notes: data.notes || null,
-                foodCategoryId: data.foodCategoryId || null,
                 brand: data.brand || null,
-                barcode: data.barcode || null,
                 usdaId: data.usdaId || null,
                 typicalShelfLifeDays_Pantry: data.typicalShelfLifeDays_Pantry || null,
                 typicalShelfLifeDays_Fridge: data.typicalShelfLifeDays_Fridge || null,
                 typicalShelfLifeDays_Freezer: data.typicalShelfLifeDays_Freezer || null,
-                imageUrl: data.imageUrl || null,
                 unitType: data.unitType || null,
             });
         }
     }, [data]);
 
-    const isLoading = isLoadingData || updateMutation.isPending || uploadImageMutation.isPending;
+    const isLoading = isLoadingData || updateMutation.isPending;
 
     const inputClass = 'neomorphic-input w-full';
     const selectClass = 'neomorphic-select w-full';
@@ -87,30 +77,6 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
         handleChange(field, isNaN(num as number) ? null : num);
     };
 
-    const handleUploadImage = async () => {
-        if (!uploadImageUrl.trim()) {
-            toast.error('Please enter an image URL to upload');
-            return;
-        }
-
-        try {
-            await uploadImageMutation.mutateAsync({
-                id: foodRefId,
-                payload: { imageUri: uploadImageUrl.trim() },
-            });
-
-            toast.success('Image uploaded successfully');
-            setUploadImageUrl('');
-            // Refetch to get the updated imageUrl
-            refetch();
-        } catch (err) {
-            console.error('Failed to upload image', err);
-            const error = err as Record<string, unknown>;
-            const errorData = (error?.response as Record<string, unknown>)?.data as Record<string, unknown>;
-            toast.error((errorData?.detail as string) || 'Failed to upload image');
-        }
-    };
-
     const handleSave = async () => {
         if (!formData.name?.trim()) {
             toast.error('Name is required');
@@ -118,23 +84,22 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
         }
 
         try {
-            // Send all fields - backend requires notes/foodCategoryId to have values
-            const cleanPayload = {
+            // Build payload - only include fields with actual values
+            // Swagger omits null fields rather than sending them as null
+            const cleanPayload: Record<string, unknown> = {
                 name: formData.name?.trim() || '',
-                foodGroup: formData.foodGroup || null,
-                notes: formData.notes || '', // Backend requires non-null
-                foodCategoryId: formData.foodCategoryId ?? 1, // Backend requires non-null
-                brand: formData.brand || null,
-                barcode: formData.barcode || null,
-                usdaId: formData.usdaId || null,
-                typicalShelfLifeDays_Pantry: formData.typicalShelfLifeDays_Pantry ?? null,
-                typicalShelfLifeDays_Fridge: formData.typicalShelfLifeDays_Fridge ?? null,
-                typicalShelfLifeDays_Freezer: formData.typicalShelfLifeDays_Freezer ?? null,
-                imageUrl: formData.imageUrl?.trim() || null,
-                unitType: formData.unitType || null,
             };
 
-            console.log('Sending payload:', cleanPayload);
+            if (formData.foodGroup) cleanPayload.foodGroup = formData.foodGroup;
+            if (formData.notes) cleanPayload.notes = formData.notes;
+            if (formData.brand) cleanPayload.brand = formData.brand;
+            if (formData.usdaId) cleanPayload.usdaId = formData.usdaId;
+            if (formData.typicalShelfLifeDays_Pantry != null) cleanPayload.typicalShelfLifeDays_Pantry = formData.typicalShelfLifeDays_Pantry;
+            if (formData.typicalShelfLifeDays_Fridge != null) cleanPayload.typicalShelfLifeDays_Fridge = formData.typicalShelfLifeDays_Fridge;
+            if (formData.typicalShelfLifeDays_Freezer != null) cleanPayload.typicalShelfLifeDays_Freezer = formData.typicalShelfLifeDays_Freezer;
+            if (formData.unitType) cleanPayload.unitType = formData.unitType;
+
+            console.log('Sending payload (only non-null fields):', JSON.stringify(cleanPayload, null, 2));
 
             await updateMutation.mutateAsync({
                 id: foodRefId,
@@ -213,7 +178,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                                 >
                                     <option value="">Select...</option>
                                     {foodGroups.map((group) => (
-                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                        <option key={group.value} value={group.value}>{group.label}</option>
                                     ))}
                                 </select>
                             </div>
@@ -249,7 +214,7 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                             />
                         </div>
 
-                        {/* Brand & Barcode */}
+                        {/* Brand & USDA ID */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
@@ -266,23 +231,6 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                             </div>
                             <div>
                                 <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Barcode
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.barcode || ''}
-                                    onChange={(e) => handleChange('barcode', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="Barcode"
-                                    disabled={isLoading}
-                                />
-                            </div>
-                        </div>
-
-                        {/* USDA ID & Food Category ID */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
                                     USDA ID
                                 </label>
                                 <input
@@ -294,21 +242,8 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                                     disabled={isLoading}
                                 />
                             </div>
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Food Category ID
-                                </label>
-                                <input
-                                    type="number"
-                                    value={formData.foodCategoryId ?? ''}
-                                    onChange={(e) => handleNumberChange('foodCategoryId', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Category ID"
-                                    min={0}
-                                    disabled={isLoading}
-                                />
-                            </div>
                         </div>
+
 
                         {/* Shelf Life */}
                         <div>
@@ -353,55 +288,6 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
                                     />
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Current Image URL (Read-only display) */}
-                        {data?.imageUrl && (
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Current Image
-                                </label>
-                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                    <img
-                                        src={data.imageUrl}
-                                        alt="Current"
-                                        className="w-16 h-16 object-cover rounded"
-                                    />
-                                    <span className="text-sm text-gray-500 truncate flex-1">
-                                        {data.imageUrl}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Upload Image Section */}
-                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Upload New Image
-                            </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="url"
-                                    value={uploadImageUrl}
-                                    onChange={(e) => setUploadImageUrl(e.target.value)}
-                                    className={inputClass}
-                                    placeholder="https://example.com/image.jpg"
-                                    disabled={isLoading}
-                                />
-                                <CusButton
-                                    type="button"
-                                    onClick={handleUploadImage}
-                                    disabled={isLoading || !uploadImageUrl.trim()}
-                                    variant="blueGray"
-                                    className="flex items-center gap-2 whitespace-nowrap"
-                                >
-                                    <ImageUp className="w-4 h-4" />
-                                    {uploadImageMutation.isPending ? 'Uploading...' : 'Upload'}
-                                </CusButton>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                                Paste an image URL and click Upload to update the food reference image.
-                            </p>
                         </div>
                     </div>
 

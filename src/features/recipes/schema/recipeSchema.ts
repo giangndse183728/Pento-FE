@@ -52,8 +52,39 @@ export const recipeSummarySchema = z.object({
     updatedOnUtc: z.string().optional().nullable(),
 });
 
+// PUT /recipes/{recipeId} payload
+export const updateRecipeSchema = z.object({
+    title: z.string().min(1, { message: 'Title is required' }),
+    description: z.string().optional().nullable(),
+    prepTimeMinutes: z.number().int().nonnegative().optional().nullable(),
+    cookTimeMinutes: z.number().int().nonnegative().optional().nullable(),
+    notes: z.string().optional().nullable(),
+    servings: z.number().int().positive().optional().nullable(),
+    difficultyLevel: z
+        .enum(['Easy', 'Medium', 'Hard'])
+        .optional()
+        .nullable(),
+    imageUrl: z.string().url().optional().nullable(),
+    isPublic: z.boolean().optional().default(true),
+});
+
+// PUT /recipe-ingredients/{recipeIngredientId} payload
+export const updateRecipeIngredientSchema = z.object({
+    quantity: z.number().positive({ message: 'Quantity must be > 0' }),
+    notes: z.string().optional().nullable(),
+    unitId: z.string().uuid({ message: 'Invalid unitId (must be UUID)' }),
+});
+
+// PUT /recipe-directions/{directionId} payload
+export const updateRecipeDirectionSchema = z.object({
+    description: z.string().min(1, { message: 'Description is required' }),
+});
+
 // Inferred types from schemas
 export type IngredientInput = z.infer<typeof ingredientSchema>;
 export type DirectionInput = z.infer<typeof directionSchema>;
 export type RecipeDetailedInput = z.infer<typeof recipeDetailedSchema>;
 export type RecipeSummary = z.infer<typeof recipeSummarySchema>;
+export type UpdateRecipeInput = z.infer<typeof updateRecipeSchema>;
+export type UpdateRecipeIngredientInput = z.infer<typeof updateRecipeIngredientSchema>;
+export type UpdateRecipeDirectionInput = z.infer<typeof updateRecipeDirectionSchema>;

@@ -7,8 +7,10 @@ import { CusButton } from "@/components/ui/cusButton";
 import { FieldSet, FieldContent, FieldLegend } from "@/components/ui/field";
 import { ColorTheme } from "@/constants/color";
 import BasicInfo from "./BasicInfo";
-import { Edit, Save, X, ArrowLeft } from "lucide-react";
+import { Edit, Save, X, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { updateRecipe } from "../services/recipesService";
+import { toast } from "sonner";
 import "@/styles/tab-bar.css";
 
 type Ingredient = {
@@ -45,13 +47,15 @@ type RecipeDetail = {
 };
 
 type Props = {
+    recipeId: string;
     initialData: RecipeDetail;
-    onSave: (data: RecipeDetail) => void;
+    onSave?: (data: RecipeDetail) => void;
 };
 
-export default function RecipesDetailsPage({ initialData, onSave }: Props) {
+export default function RecipesDetailsPage({ recipeId, initialData, onSave }: Props) {
     const router = useRouter();
     const [isEditMode, setIsEditMode] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [data, setData] = useState<RecipeDetail>(initialData);
     const [local, setLocal] = useState<RecipeDetail>(initialData);
     const [activeTab, setActiveTab] = useState<'basic' | 'ingredients' | 'directions'>('basic');
@@ -66,10 +70,38 @@ export default function RecipesDetailsPage({ initialData, onSave }: Props) {
         setLocal(data);
         setIsEditMode(false);
     };
-    const handleSave = () => {
-        setData(local);
-        onSave(local);
-        setIsEditMode(false);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            // Build the payload for PUT /recipes/{recipeId}
+            const payload = {
+                title: local.recipeTitle,
+                description: local.description ?? null,
+                prepTimeMinutes: local.prepTimeMinutes ?? null,
+                cookTimeMinutes: local.cookTimeMinutes ?? null,
+                notes: local.notes ?? null,
+                servings: local.servings ?? null,
+                difficultyLevel: (local.difficultyLevel as "Easy" | "Medium" | "Hard") ?? null,
+                imageUrl: local.imageUrl ?? null,
+                isPublic: local.isPublic ?? true,
+            };
+
+            console.log('Updating recipe with payload:', JSON.stringify(payload, null, 2));
+
+            // Call updateRecipe service directly
+            await updateRecipe(recipeId, payload);
+
+            toast.success('Recipe updated successfully');
+            setData(local);
+            onSave?.(local);
+            setIsEditMode(false);
+        } catch (error) {
+            console.error('Failed to update recipe:', error);
+            const message = error instanceof Error ? error.message : 'Failed to update recipe';
+            toast.error(message);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const update = (patch: Partial<RecipeDetail>) => setLocal((p) => ({ ...p, ...patch }));
@@ -142,9 +174,14 @@ export default function RecipesDetailsPage({ initialData, onSave }: Props) {
                                 variant="blueGray"
                                 onClick={handleSave}
                                 className="flex items-center gap-2"
+                                disabled={isSaving}
                             >
-                                <Save className="w-4 h-4" />
-                                Save Changes
+                                {isSaving ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Save className="w-4 h-4" />
+                                )}
+                                {isSaving ? 'Saving...' : 'Save Changes'}
                             </CusButton>
                         </>
                     )}
