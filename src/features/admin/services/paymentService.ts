@@ -2,6 +2,8 @@ import { apiRequest } from '@/lib/apiRequest';
 
 export type PaymentStatus = 'pending' | 'cancelled' | 'paid' | 'expired' | 'processing' | 'failed';
 
+export type TimeWindow = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+
 export type GetPaymentsParams = {
     userId?: string;
     searchText?: string;
@@ -13,6 +15,15 @@ export type GetPaymentsParams = {
     isDeleted?: boolean;
     pageNumber?: number;
     pageSize?: number;
+};
+
+export type GetPaymentSummaryParams = {
+    subscriptionIds?: string[];
+    fromDate?: string; // ISO date
+    toDate?: string;   // ISO date
+    isActive?: boolean;
+    isDeleted?: boolean;
+    timeWindow?: TimeWindow;
 };
 
 // Response models based on provided body
@@ -45,11 +56,7 @@ export type PaginatedPayments = {
     hasPrevious: boolean;
     hasNext: boolean;
     items: PaymentItem[];
-};
-
-export type GetPaymentsResponse = {
     summary: PaymentSummary;
-    payments: PaginatedPayments;
 };
 
 export type FoodItemLog = {
@@ -61,7 +68,22 @@ export type FoodItemLog = {
     createdAt: string;
 };
 
-export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<GetPaymentsResponse> {
+export async function getAdminPaymentSummary(params: GetPaymentSummaryParams = {}): Promise<PaymentSummary> {
+    const query = new URLSearchParams();
+    if (params.subscriptionIds?.length) {
+        params.subscriptionIds.forEach(id => query.append('subscriptionIds', id));
+    }
+    if (params.fromDate) query.set('fromDate', params.fromDate);
+    if (params.toDate) query.set('toDate', params.toDate);
+    if (typeof params.isActive === 'boolean') query.set('isActive', String(params.isActive));
+    if (typeof params.isDeleted === 'boolean') query.set('isDeleted', String(params.isDeleted));
+    if (params.timeWindow) query.set('timeWindow', params.timeWindow);
+
+    const url = query.toString() ? `/admin/subscriptions/payment-summary?${query.toString()}` : '/admin/subscriptions/payment-summary';
+    return apiRequest<PaymentSummary>('get', url);
+}
+
+export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<PaginatedPayments> {
     const query = new URLSearchParams();
     if (params.userId) query.set('userId', params.userId);
     if (params.searchText) query.set('searchText', params.searchText);
@@ -75,7 +97,7 @@ export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<
     if (typeof params.pageSize === 'number') query.set('pageSize', String(params.pageSize));
 
     const url = query.toString() ? `/admin/payments?${query.toString()}` : '/admin/payments';
-    return apiRequest<GetPaymentsResponse>('get', url);
+    return apiRequest<PaginatedPayments>('get', url);
 }
 
 export async function getAdminFoodItemLog(): Promise<FoodItemLog[]> {

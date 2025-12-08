@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { getUnits, Unit } from '../services/recipesService';
+import { getUnits, type Unit } from '@/features/units';
 
 export const useUnits = () => {
     type AxiosLike = { response?: { status?: number } };

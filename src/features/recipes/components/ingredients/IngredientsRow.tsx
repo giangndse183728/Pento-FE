@@ -2,7 +2,9 @@
 
 import React from "react";
 import ElasticSlider from "@/components/decoration/ElasticSlider";
-import { FoodRef, IngredientInput, Unit } from "../../services/recipesService";
+import { IngredientInput } from "../../services/recipesService";
+import { FoodRef } from "@/features/food-references";
+import { Unit } from "@/features/units";
 import { CusButton } from "@/components/ui/cusButton";
 import { BadgeInfo, CircleMinus, CirclePlus, Trash } from "lucide-react";
 

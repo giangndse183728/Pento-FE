@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ROUTES } from '@/constants/routes';
 import { ColorTheme } from '@/constants/color';
-import {
-    ChartColumnBig,
-    BookMarked,
-    UtensilsCrossed,
-    CalendarPlus,
-    Medal
-} from 'lucide-react';
 
 const navItems = [
-    { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: ChartColumnBig },
-    { href: ROUTES.RECIPES, label: 'Recipes', icon: BookMarked },
-    // { href: '#', label: 'Food References', icon: UtensilsCrossed },
-    { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: CalendarPlus },
-    { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: Medal },
+    { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: '/assets/img/admin-dashboard.png', size: 40 },
+    { href: ROUTES.RECIPES, label: 'Recipes', icon: '/assets/img/recipe-book.png' },
+    { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
+    { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
+    { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
+
 ];
 
 const AdminSidebar = () => {
@@ -60,7 +55,7 @@ const AdminSidebar = () => {
 
                     {/* Navigation */}
                     <nav className="flex flex-col space-y-3 w-full relative">
-                        {navItems.map(({ href, label, icon: Icon }) => {
+                        {navItems.map(({ href, label, icon }) => {
                             const isActive = pathname === href;
                             const isHovered = hovered === href;
 
@@ -88,13 +83,15 @@ const AdminSidebar = () => {
                                             boxShadow: isHovered ? `0 4px 10px rgba(0,0,0,0.08)` : 'none',
                                         }}
                                     >
-                                        <Icon
-                                            className={`w-5 h-5 flex-shrink-0 transition-transform`}
-                                            style={{
-                                                color: isActive || isHovered ? ColorTheme.blueGray : ColorTheme.darkBlue,
-                                                transform: isHovered ? 'translateX(2px)' : 'translateX(0)',
-                                            }}
-                                        />
+                                        <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+                                            <Image
+                                                src={icon}
+                                                alt={label}
+                                                width={30}
+                                                height={30}
+                                                className="w-7 h-7"
+                                            />
+                                        </div>
                                         <span
                                             className="truncate font-medium transition-colors"
                                             style={{

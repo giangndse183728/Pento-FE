@@ -10,6 +10,7 @@ export const ROUTES = {
   ADMIN: "/admin",
   SUBSCRIPTIONS: "/admin/subscriptions",
   ACHIEVEMENTS: "/admin/achievements",
+  FOODREFERENCES: "/admin/food-references",
 
 };
 

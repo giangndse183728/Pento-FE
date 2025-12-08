@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { MantineProvider } from '@mantine/core';
 import Navbar from '@/components/layouts/Navbar';
 import { ROUTES_NO_LAYOUT } from '@/constants/routes';
-import QueryProvider from '../../../public/providers/QueryProvider';
+import QueryProvider from '../../providers/QueryProvider';
 
 function shouldHideNavbar(pathname: string): boolean {
   return ROUTES_NO_LAYOUT.some((route) =>

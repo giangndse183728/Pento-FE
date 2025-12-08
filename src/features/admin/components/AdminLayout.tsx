@@ -1,12 +1,59 @@
+"use client";
+
 import React from 'react';
+// TEMPORARILY DISABLED - uncomment imports to enable auth blocking
+// import { useEffect, useState } from 'react';
+// import { useRouter } from 'next/navigation';
 import AdminSidebar from './AdminSidebar';
 import { BlurCard } from '@/components/decoration/BlurCard';
+// import { ROUTES } from '@/constants/routes';
 
 type Props = {
     children: React.ReactNode;
 };
 
 const AdminLayout = ({ children }: Props) => {
+    // TEMPORARILY DISABLED - uncomment to enable auth blocking
+    /*
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        // Check for authentication token
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            // Redirect to login if not authenticated
+            router.replace(ROUTES.LOGIN);
+        } else {
+            setIsAuthenticated(true);
+        }
+    }, [router]);
+
+    // Show loading state while checking authentication
+    if (isAuthenticated === null) {
+        return (
+            <div
+                className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+                style={{
+                    backgroundImage: 'url("/assets/img/admin-background.jpg")',
+                    backgroundAttachment: 'fixed',
+                }}
+            >
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-gray-600">Checking authentication...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If not authenticated, don't render anything (redirect is happening)
+    if (!isAuthenticated) {
+        return null;
+    }
+    */
+
     return (
         <div
             className="min-h-screen p-4 md:p-6 bg-cover bg-center bg-no-repeat font-primary"

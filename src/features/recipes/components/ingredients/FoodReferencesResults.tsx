@@ -1,8 +1,7 @@
-"use client";
-
 import React from 'react';
 import Image from 'next/image';
-import { IngredientInput, FoodReferencesResponse, FoodRef } from '../../services/recipesService';
+import { IngredientInput } from '../../services/recipesService';
+import { FoodReferencesResponse, FoodRef } from '@/features/food-references';
 import { UseQueryResult } from '@tanstack/react-query';
 import {
     Pagination,

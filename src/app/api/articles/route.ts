@@ -60,7 +60,7 @@ export async function GET(request: Request) {
         const feed = await parser.parseURL(feedUrl);
 
         const items = await Promise.all(
-            feed.items.slice(0, 10).map(async (item: FeedItem) => {
+            feed.items.slice(0, 50).map(async (item: FeedItem) => {
                 let image =
                     item["media:thumbnail"]?.$?.url ||
                     item["media:content"]?.$?.url ||

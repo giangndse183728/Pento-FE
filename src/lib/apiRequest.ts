@@ -1,9 +1,22 @@
 import api from '@/lib/axios';
 import { AxiosResponse, AxiosError } from 'axios';
 
-export async function apiRequest<T>(method: 'get' | 'post' | 'put' | 'delete', url: string, data?: unknown): Promise<T> {
+export async function apiRequest<T>(method: 'get' | 'post' | 'put' | 'patch' | 'delete', url: string, data?: unknown): Promise<T> {
     try {
-        const res = await api.request<unknown>({ method, url, data }) as AxiosResponse<unknown>;
+        const config: { method: string; url: string; data?: unknown; headers?: Record<string, string> } = {
+            method,
+            url,
+            data,
+        };
+
+        // If data is FormData, remove Content-Type header to let browser set it with boundary
+        if (data instanceof FormData) {
+            config.headers = {
+                'Content-Type': 'multipart/form-data',
+            };
+        }
+
+        const res = await api.request<unknown>(config) as AxiosResponse<unknown>;
 
         const body = res.data;
 

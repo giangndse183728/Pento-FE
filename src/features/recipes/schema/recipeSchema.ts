@@ -51,3 +51,9 @@ export const recipeSummarySchema = z.object({
     createdOnUtc: z.string().optional().nullable(),
     updatedOnUtc: z.string().optional().nullable(),
 });
+
+// Inferred types from schemas
+export type IngredientInput = z.infer<typeof ingredientSchema>;
+export type DirectionInput = z.infer<typeof directionSchema>;
+export type RecipeDetailedInput = z.infer<typeof recipeDetailedSchema>;
+export type RecipeSummary = z.infer<typeof recipeSummarySchema>;
