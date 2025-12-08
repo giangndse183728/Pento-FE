@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { getFoodReferences, FoodReferencesResponse, FoodReferencesQuery } from '../services/recipesService';
+import { getFoodReferences, FoodReferencesResponse, FoodReferencesQuery } from '@/features/food-references';
 
 export const useFoodReferences = (params?: FoodReferencesQuery) => {
     type AxiosLike = { response?: { status?: number } };

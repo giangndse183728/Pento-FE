@@ -9,10 +9,10 @@ import { ColorTheme } from '@/constants/color';
 const navItems = [
     { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: '/assets/img/admin-dashboard.png', size: 40 },
     { href: ROUTES.RECIPES, label: 'Recipes', icon: '/assets/img/recipe-book.png' },
-    // { href: '#', label: 'Food References', icon: UtensilsCrossed },
+    { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
-    
+
 ];
 
 const AdminSidebar = () => {

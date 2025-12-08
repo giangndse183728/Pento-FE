@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { IngredientInput, FoodRef } from '../../services/recipesService';
+import { IngredientInput } from '../../services/recipesService';
 import { UseQueryResult } from '@tanstack/react-query';
-import { FoodReferencesResponse } from '../../services/recipesService';
+import { FoodReferencesResponse, FoodRef } from '@/features/food-references';
 import useUnits from '../../hooks/useUnit';
 import { FieldContent } from '@/components/ui/field';
 import UnitsModal from '../ingredients/UnitsModel';

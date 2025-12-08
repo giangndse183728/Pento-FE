@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AdminLayout from './AdminLayout';
 import ShareDataSetChart from './charts/ShareDataSetChart';
 import DoubleBarChart from './charts/DoubleBarChart';
@@ -8,8 +8,19 @@ import FilterSection, { type FilterField } from '@/components/decoration/FilterS
 import type { TimeWindow } from '../services/paymentService';
 import type { GetFoodItemLogSummaryParams } from '../services/foodItemsLogServices';
 import { getSubscriptions } from '@/features/subscription/services/subscriptionService';
+import { getUnits } from '@/features/units';
+
+// Default unit names
+const DEFAULT_WEIGHT_UNIT = 'Kilogram';
+const DEFAULT_VOLUME_UNIT = 'Millilitre';
 
 const Dashboard = () => {
+    // Store default unit IDs
+    const defaultUnitsRef = useRef<{ weightUnitId: string; volumeUnitId: string }>({
+        weightUnitId: '',
+        volumeUnitId: '',
+    });
+
     // Subscription Payment Filters
     const [paymentFilters, setPaymentFilters] = useState({
         subscriptionIds: "",
@@ -22,13 +33,36 @@ const Dashboard = () => {
 
     // Food Item Log Filters
     const [foodFilters, setFoodFilters] = useState({
-        householdId: "",
         fromDate: "",
         toDate: "",
         weightUnitId: "",
         volumeUnitId: "",
         isDeleted: "",
     });
+
+    // Load default units on mount
+    useEffect(() => {
+        const loadDefaultUnits = async () => {
+            const units = await getUnits();
+            const kilogram = units.find(u => u.name.toLowerCase() === DEFAULT_WEIGHT_UNIT.toLowerCase());
+            const millilitre = units.find(u => u.name.toLowerCase() === DEFAULT_VOLUME_UNIT.toLowerCase());
+
+            const defaultWeight = kilogram?.id || '';
+            const defaultVolume = millilitre?.id || '';
+
+            defaultUnitsRef.current = {
+                weightUnitId: defaultWeight,
+                volumeUnitId: defaultVolume,
+            };
+
+            setFoodFilters(prev => ({
+                ...prev,
+                weightUnitId: defaultWeight,
+                volumeUnitId: defaultVolume,
+            }));
+        };
+        loadDefaultUnits();
+    }, []);
 
     // Convert payment filter values to proper types for the API
     const paymentApiParams = {
@@ -42,7 +76,6 @@ const Dashboard = () => {
 
     // Convert food filter values to proper types for the API
     const foodApiParams: GetFoodItemLogSummaryParams = {
-        householdId: foodFilters.householdId || undefined,
         fromDate: foodFilters.fromDate || undefined,
         toDate: foodFilters.toDate || undefined,
         weightUnitId: foodFilters.weightUnitId || undefined,
@@ -71,11 +104,10 @@ const Dashboard = () => {
 
     const handleResetFoodFilters = () => {
         setFoodFilters({
-            householdId: "",
             fromDate: "",
             toDate: "",
-            weightUnitId: "",
-            volumeUnitId: "",
+            weightUnitId: defaultUnitsRef.current.weightUnitId,
+            volumeUnitId: defaultUnitsRef.current.volumeUnitId,
             isDeleted: "",
         });
     };
@@ -87,6 +119,28 @@ const Dashboard = () => {
             value: sub.id || sub.subscriptionId || '',
             label: sub.name,
         }));
+    }, []);
+
+    // Load weight units for combobox (only type: Weight)
+    const loadWeightUnitOptions = useCallback(async () => {
+        const units = await getUnits();
+        return units
+            .filter((unit) => unit.type?.toLowerCase() === 'weight')
+            .map((unit) => ({
+                value: unit.id,
+                label: unit.name,
+            }));
+    }, []);
+
+    // Load volume units for combobox (only type: Volume)
+    const loadVolumeUnitOptions = useCallback(async () => {
+        const units = await getUnits();
+        return units
+            .filter((unit) => unit.type?.toLowerCase() === 'volume')
+            .map((unit) => ({
+                value: unit.id,
+                label: unit.name,
+            }));
     }, []);
 
     const paymentFilterFields: FilterField[] = [
@@ -155,14 +209,6 @@ const Dashboard = () => {
 
     const foodFilterFields: FilterField[] = [
         {
-            type: 'text',
-            name: 'householdId',
-            label: 'Household ID',
-            placeholder: 'Enter household ID',
-            value: foodFilters.householdId || '',
-            onChange: (value) => handleFoodFilterChange('householdId', value as string),
-        },
-        {
             type: 'date',
             name: 'fromDate',
             label: 'Start Date',
@@ -177,20 +223,22 @@ const Dashboard = () => {
             onChange: (value) => handleFoodFilterChange('toDate', value as string),
         },
         {
-            type: 'text',
+            type: 'combobox',
             name: 'weightUnitId',
-            label: 'Weight Unit ID',
-            placeholder: 'Enter weight unit ID',
+            label: 'Weight Unit',
+            placeholder: 'Select weight unit',
             value: foodFilters.weightUnitId || '',
             onChange: (value) => handleFoodFilterChange('weightUnitId', value as string),
+            loadOptions: loadWeightUnitOptions,
         },
         {
-            type: 'text',
+            type: 'combobox',
             name: 'volumeUnitId',
-            label: 'Volume Unit ID',
-            placeholder: 'Enter volume unit ID',
+            label: 'Volume Unit',
+            placeholder: 'Select volume unit',
             value: foodFilters.volumeUnitId || '',
             onChange: (value) => handleFoodFilterChange('volumeUnitId', value as string),
+            loadOptions: loadVolumeUnitOptions,
         },
         {
             type: 'select',
