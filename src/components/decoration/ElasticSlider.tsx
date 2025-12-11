@@ -138,13 +138,13 @@ const Slider: React.FC<SliderProps> = ({
   return (
     <>
       <motion.div
-        onHoverStart={() => animate(scale, 1.2)}
+        onHoverStart={() => animate(scale, 1.05)}
         onHoverEnd={() => animate(scale, 1)}
-        onTouchStart={() => animate(scale, 1.2)}
+        onTouchStart={() => animate(scale, 1.05)}
         onTouchEnd={() => animate(scale, 1)}
         style={{
           scale,
-          opacity: useTransform(scale, [1, 1.2], [0.7, 1])
+          opacity: useTransform(scale, [1, 1.05], [0.8, 1])
         }}
         className="slider-wrapper"
       >
@@ -184,9 +184,9 @@ const Slider: React.FC<SliderProps> = ({
                 }
                 return 'center';
               }),
-              height: useTransform(scale, [1, 1.2], [6, 12]),
-              marginTop: useTransform(scale, [1, 1.2], [0, -3]),
-              marginBottom: useTransform(scale, [1, 1.2], [0, -3])
+              height: useTransform(scale, [1, 1.05], [6, 8]),
+              marginTop: useTransform(scale, [1, 1.05], [0, -1]),
+              marginBottom: useTransform(scale, [1, 1.05], [0, -1])
             }}
             className="slider-track-wrapper"
           >

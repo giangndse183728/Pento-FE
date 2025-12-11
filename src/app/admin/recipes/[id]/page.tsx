@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import RecipesDetailsPage from "@/features/recipes/components/RecipesDetailsPage";
+import RecipesDetailsPage from "@/features/recipes/components/recipes-details/RecipesDetailsPage";
 import { useRecipeDetails } from "@/features/recipes/hooks/useRecipes";
 
 type PageProps = {

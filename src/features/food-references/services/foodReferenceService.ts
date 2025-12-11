@@ -87,6 +87,11 @@ export const uploadFoodReferenceImage = async (id: string, payload: UploadFoodRe
     return res;
 };
 
+// DELETE /food-references/{id} - Delete food reference
+export const deleteFoodReference = async (id: string): Promise<void> => {
+    await apiRequest<void>('delete', `/food-references/${encodeURIComponent(id)}`);
+};
+
 // Re-export types for convenience
 export type {
     FoodRef,
@@ -95,5 +100,6 @@ export type {
     FoodReferencesResponse,
     CreateFoodReferenceInput,
     UpdateFoodReferenceInput,
-    UploadFoodReferenceImageInput
+    UploadFoodReferenceImageInput,
+    DeleteFoodReferenceResponse
 } from '../schema/foodReferenceSchema';
