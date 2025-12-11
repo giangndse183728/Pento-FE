@@ -68,7 +68,7 @@ export default function RecipesViewDetails({ data }: Props) {
                 <div className="w-full max-w-5xl">
                     <div className="mb-6">
                         <CusButton
-                            variant="darkBlue"
+                            variant="blueGray"
                             onClick={() => router.back()}
                             className="flex items-center gap-2"
                         >
@@ -104,7 +104,7 @@ export default function RecipesViewDetails({ data }: Props) {
                                         alt={data.recipeTitle}
                                         width={800}
                                         height={500}
-                                        className="w-full object-cover rounded-2xl mb-6 shadow-lg"
+                                        className="w-full max-h-[700px] object-cover rounded-2xl mb-6 shadow-lg"
                                     />
                                 )}
 
