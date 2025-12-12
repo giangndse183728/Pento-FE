@@ -8,6 +8,7 @@ import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import GlassSurface from "@/components/decoration/Liquidglass";
+import { usePathname } from "next/navigation";
 import "./ChatbotWidget.css";
 
 type ChatMessage = {
@@ -29,11 +30,11 @@ function ChatBubble({ message }: { message: ChatMessage }) {
     if (bubbleRef.current) {
       gsap.fromTo(
         bubbleRef.current,
-        { 
+        {
           opacity: 0,
           scale: 0.95
         },
-        { 
+        {
           opacity: 1,
           scale: 1,
           duration: 0.3,
@@ -46,13 +47,12 @@ function ChatBubble({ message }: { message: ChatMessage }) {
   return (
     <div ref={bubbleRef} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all hover:shadow-2xl markdown-content relative ${
-          isUser
-            ? "rounded-br-none"
-            : "rounded-bl-none"
-        }`}
+        className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all hover:shadow-2xl markdown-content relative ${isUser
+          ? "rounded-br-none"
+          : "rounded-bl-none"
+          }`}
         style={{
-          background: isUser 
+          background: isUser
             ? `linear-gradient(135deg, 
                 rgba(118, 159, 205, 0.85) 0%, 
                 rgba(17, 63, 103, 0.9) 100%)`
@@ -72,7 +72,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         }}
       >
         {/* Glass highlight overlay */}
-        <div 
+        <div
           className="absolute inset-0 rounded-2xl pointer-events-none"
           style={{
             background: isUser
@@ -97,7 +97,7 @@ export default function ChatbotWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -218,53 +218,56 @@ export default function ChatbotWidget() {
     }
   };
 
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
+
   return (
-    <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-3 font-primary">
+    <div className={`fixed bottom-6 z-[60] flex flex-col gap-3 font-primary ${isAdmin ? 'left-6 items-start' : 'right-6 items-end'}`}>
       {isOpen && (
-      <div 
-        ref={chatBoxRef}
-        className="w-[340px] sm:w-[380px] rounded-3xl overflow-hidden chatbot-glass-surface glass-reflection flex flex-col relative"
-        style={{
-          background: `linear-gradient(135deg, 
+        <div
+          ref={chatBoxRef}
+          className="w-[340px] sm:w-[380px] rounded-3xl overflow-hidden chatbot-glass-surface glass-reflection flex flex-col relative"
+          style={{
+            background: `linear-gradient(135deg, 
             rgba(247, 251, 252, 0.4) 0%, 
             rgba(214, 230, 242, 0.35) 30%,
             rgba(185, 215, 234, 0.3) 60%,
             rgba(214, 230, 242, 0.35) 100%)`,
-          backdropFilter: 'blur(40px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(200%)',
-          border: `1px solid rgba(255, 255, 255, 0.5)`,
-          boxShadow: `
+            backdropFilter: 'blur(40px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+            border: `1px solid rgba(255, 255, 255, 0.5)`,
+            boxShadow: `
             0 8px 32px rgba(17, 63, 103, 0.2),
             0 0 0 1px rgba(255, 255, 255, 0.5) inset,
             0 0 80px rgba(118, 159, 205, 0.15),
             inset 0 2px 4px rgba(255, 255, 255, 0.8),
             inset 0 -1px 2px rgba(255, 255, 255, 0.3)`,
-          maxHeight: '600px'
-        }}
-      >
-        {/* Enhanced glass overlay gradient for shine */}
-        <div 
-          className="absolute inset-0 pointer-events-none rounded-3xl"
-          style={{
-            background: `linear-gradient(135deg, 
+            maxHeight: '600px'
+          }}
+        >
+          {/* Enhanced glass overlay gradient for shine */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-3xl"
+            style={{
+              background: `linear-gradient(135deg, 
               rgba(255, 255, 255, 0.25) 0%, 
               rgba(255, 255, 255, 0.15) 25%,
               transparent 50%,
               rgba(255, 255, 255, 0.1) 75%,
               rgba(255, 255, 255, 0.2) 100%)`,
-            mixBlendMode: 'overlay'
-          }}
-        />
-        {/* Additional shine layer */}
-        <div 
-          className="absolute inset-0 pointer-events-none rounded-3xl"
-          style={{
-            background: `radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%)`,
-            mixBlendMode: 'soft-light'
-          }}
-        />
+              mixBlendMode: 'overlay'
+            }}
+          />
+          {/* Additional shine layer */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-3xl"
+            style={{
+              background: `radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%)`,
+              mixBlendMode: 'soft-light'
+            }}
+          />
           {/* Header with Logo */}
-          <div 
+          <div
             className="px-4 py-3 flex items-center justify-between relative overflow-hidden flex-shrink-0 z-10"
             style={{
               background: `linear-gradient(135deg, 
@@ -279,13 +282,13 @@ export default function ChatbotWidget() {
             <div className="absolute inset-0 opacity-30">
               <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-white/20 to-transparent" />
             </div>
-            
+
             <div className="flex items-center gap-3 relative z-10">
               <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white/50 shadow-lg">
-                <Image 
-                  src="/logo2.PNG" 
-                  alt="Pento" 
-                  width={32} 
+                <Image
+                  src="/logo2.PNG"
+                  alt="Pento"
+                  width={32}
                   height={32}
                   className="object-cover"
                 />
@@ -302,7 +305,7 @@ export default function ChatbotWidget() {
                 </span>
               </div>
             </div>
-            
+
             <button
               type="button"
               className="text-xs rounded-full px-3 py-1.5 transition-all hover:scale-105 relative z-10"
@@ -321,11 +324,11 @@ export default function ChatbotWidget() {
           </div>
 
           {/* Messages */}
-          <div 
+          <div
             ref={messagesContainerRef}
             className="flex-1 overflow-y-auto px-4 py-4 space-y-3 chatbot-scrollbar relative z-10"
             style={{
-         
+
               minHeight: '320px',
               maxHeight: '400px'
             }}
@@ -335,10 +338,10 @@ export default function ChatbotWidget() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div 
+                <div
                   className="rounded-bl-none rounded-2xl px-4 py-3 text-sm border animate-pulse relative"
                   style={{
-                   
+
                     backdropFilter: 'blur(30px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(30px) saturate(180%)',
                     borderColor: `rgba(185, 215, 234, 0.5)`,
@@ -360,7 +363,7 @@ export default function ChatbotWidget() {
               </div>
             )}
             {error && (
-              <div 
+              <div
                 className="text-xs rounded-xl px-3 py-2 border relative"
                 style={{
                   background: `linear-gradient(135deg, 
@@ -380,8 +383,8 @@ export default function ChatbotWidget() {
           </div>
 
           {/* Input Form */}
-          <form 
-            onSubmit={handleSubmit} 
+          <form
+            onSubmit={handleSubmit}
             className="px-4 py-3 flex-shrink-0 relative z-10"
           >
             <div className="flex items-center gap-2">
@@ -408,7 +411,7 @@ export default function ChatbotWidget() {
                 type="submit"
                 disabled={isLoading}
                 className="rounded-full p-2.5 transition-all hover:scale-110 disabled:opacity-50 disabled:scale-100 relative"
-                style={{              
+                style={{
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.8)',
