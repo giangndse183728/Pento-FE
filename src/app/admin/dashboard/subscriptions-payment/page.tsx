@@ -129,7 +129,7 @@ export default function SubscriptionsPaymentPage() {
                     resetButtonText="Clear All"
                     defaultCollapsed={true}
                 />
-                <ShareDataSetChart params={paymentApiParams} />
+                <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
             </div>
         </AdminLayout>
     );

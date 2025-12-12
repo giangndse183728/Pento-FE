@@ -36,16 +36,16 @@ const ShareDataSetChart = ({ params }: Props) => {
         const subscriptionData: Map<string, Map<string, number>> = new Map();
         const subscriptionTotals: Map<string, number> = new Map();
 
-        payments.forEach((subscription: { name?: string; subscriptionId?: string; payments?: { fromDate: string; amount: number }[] }) => {
+        payments.forEach((subscription: { name?: string; subscriptionId?: string; payments?: { date: string; amount: number }[] }) => {
             const subName = subscription.name || subscription.subscriptionId || 'Unknown';
             const subPayments = new Map<string, number>();
             let total = 0;
 
             if (subscription.payments && Array.isArray(subscription.payments)) {
                 subscription.payments.forEach((payment) => {
-                    allDates.add(payment.fromDate);
-                    const existing = subPayments.get(payment.fromDate) || 0;
-                    subPayments.set(payment.fromDate, existing + payment.amount);
+                    allDates.add(payment.date);
+                    const existing = subPayments.get(payment.date) || 0;
+                    subPayments.set(payment.date, existing + payment.amount);
                     total += payment.amount;
                 });
             }
@@ -174,6 +174,8 @@ const ShareDataSetChart = ({ params }: Props) => {
             <ReactECharts
                 option={option}
                 style={{ height: '550px', width: '100%' }}
+                notMerge={true}
+                lazyUpdate={true}
             />
         </WhiteCard>
     );

@@ -68,19 +68,36 @@ export type FoodItemLog = {
     createdAt: string;
 };
 
-export async function getAdminPaymentSummary(params: GetPaymentSummaryParams = {}): Promise<PaymentSummary> {
+export type SubscriptionPaymentSummary = {
+    subscriptionId: string;
+    name: string;
+    totalPaidAmount: number;
+    payments: {
+        date: string;
+        amount: number;
+        currency: string;
+    }[];
+};
+
+export async function getAdminPaymentSummary(params: GetPaymentSummaryParams = {}): Promise<SubscriptionPaymentSummary[]> {
     const query = new URLSearchParams();
-    if (params.subscriptionIds?.length) {
-        params.subscriptionIds.forEach(id => query.append('subscriptionIds', id));
+    if (params.subscriptionIds && params.subscriptionIds.length > 0) {
+        params.subscriptionIds.forEach(id => {
+            if (id) query.append('subscriptionIds', id);
+        });
     }
     if (params.fromDate) query.set('fromDate', params.fromDate);
     if (params.toDate) query.set('toDate', params.toDate);
     if (typeof params.isActive === 'boolean') query.set('isActive', String(params.isActive));
     if (typeof params.isDeleted === 'boolean') query.set('isDeleted', String(params.isDeleted));
-    if (params.timeWindow) query.set('timeWindow', params.timeWindow);
+    if (params.timeWindow) {
+        // Convert to Pascal case: 'weekly' -> 'Weekly', 'monthly' -> 'Monthly', etc.
+        const pascalCase = params.timeWindow.charAt(0).toUpperCase() + params.timeWindow.slice(1);
+        query.set('timeWindow', pascalCase);
+    }
 
     const url = query.toString() ? `/admin/subscriptions/payment-summary?${query.toString()}` : '/admin/subscriptions/payment-summary';
-    return apiRequest<PaymentSummary>('get', url);
+    return apiRequest<SubscriptionPaymentSummary[]>('get', url);
 }
 
 export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<PaginatedPayments> {
