@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    unoptimized: process.env.NODE_ENV === 'development',
+    unoptimized: true,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
