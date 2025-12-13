@@ -40,7 +40,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       toast.success("Login successful!");
       // Use redirect param from URL, or default to subscriptions payment dashboard
       const redirectTo = searchParams.get("redirect") || "/admin/dashboard/subscriptions-payment";
-      router.push(redirectTo);
+      router.refresh();
+      router.replace(redirectTo);
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please check your credentials.");
