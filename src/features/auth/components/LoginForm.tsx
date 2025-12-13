@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "@/features/auth/schema";
@@ -22,6 +22,7 @@ import { toast } from "sonner"; // or use any toast lib you have
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -37,7 +38,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       setLoading(true);
       await login(data);
       toast.success("Login successful!");
-      router.push("/admin/dashboard");
+      // Use redirect param from URL, or default to subscriptions payment dashboard
+      const redirectTo = searchParams.get("redirect") || "/admin/dashboard/subscriptions-payment";
+      router.refresh();
+      router.replace(redirectTo);
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please check your credentials.");

@@ -25,7 +25,8 @@ const Navbar: React.FC = () => {
   const navItems: NavItem[] = [
     { id: 'home', name: 'Home', iconSrc: '/assets/img/igloo.png', href: ROUTES.HOME },
     { id: 'news', name: 'News', iconSrc: '/assets/img/nutrition.png', href: ROUTES.ARTICLES },
-    { id: 'recipe', name: 'Recipe', iconSrc: '/assets/img/recipe-book.png', href: ROUTES.RECIPESVIEW },
+    { id: 'recipe', name: 'Recipes', iconSrc: '/assets/img/recipe-book.png', href: ROUTES.RECIPESVIEW },
+    { id: 'subscriptions', name: 'Subscriptions', iconSrc: '/assets/img/admin-subscription.png', href: ROUTES.SUBSCRIPTIONS_VIEW },
   ];
 
   const handleItemClick = (item: NavItem) => {

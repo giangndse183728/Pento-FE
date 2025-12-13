@@ -113,7 +113,7 @@ const AddPlansStep = ({
                                         <ElasticSlider
                                             defaultValue={form.amount}
                                             startingValue={0}
-                                            maxValue={100000}
+                                            maxValue={1000000}
                                             isStepped
                                             stepSize={500}
                                             leftIcon={<span />}

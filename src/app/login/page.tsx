@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Silk from '@/features/auth/components/Silk';
 import GlassSurface from '@/components/decoration/Liquidglass';
 import { LoginForm } from '@/features/auth/components/LoginForm';
@@ -25,7 +26,9 @@ export default function Login() {
                         }}
                     >
                         <div className="w-full h-full flex items-start justify-center pt-8">
-                            <LoginForm className="w-[100%]" />
+                            <Suspense fallback={<div className="w-[100%] flex items-center justify-center text-white">Loading...</div>}>
+                                <LoginForm className="w-[100%]" />
+                            </Suspense>
                         </div>
                     </GlassSurface>
 
@@ -39,4 +42,3 @@ export default function Login() {
         </div>
     );
 }
-

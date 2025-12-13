@@ -3,6 +3,7 @@ export const ROUTES = {
   LOGIN: "/login",
   ARTICLES: "/articles",
   RECIPESVIEW: "/recipes-view",
+  SUBSCRIPTIONS_VIEW: "/subscriptions-view",
   RECIPES_VIEW_DETAIL: "/recipes-view/[id]",
   DASHBOARD: "/admin/dashboard",
   DASHBOARD_SUBSCRIPTIONS_PAYMENT: "/admin/dashboard/subscriptions-payment",
