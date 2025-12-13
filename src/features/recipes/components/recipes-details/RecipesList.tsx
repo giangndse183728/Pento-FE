@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
-import { RecipeSummary, PaginatedResponse } from '../services/recipesService';
+import { RecipeSummary, PaginatedResponse } from '../../services/recipesService';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
 import { ChefHat, Trash2 } from 'lucide-react';
@@ -17,7 +17,7 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
-import RecipesTableCards from './RecipesTableCards';
+import RecipesTableCards from './RecipesListCards';
 
 type Props = {
     list: UseQueryResult<PaginatedResponse<RecipeSummary>, unknown>;
@@ -26,7 +26,7 @@ type Props = {
     pageSize?: number;
 };
 
-export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 6 }: Props) {
+export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12 }: Props) {
     const [deleteMode, setDeleteMode] = useState(false);
     const items = list.data?.items ?? [];
     const totalCount = list.data?.totalCount ?? 0;
@@ -48,7 +48,7 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
         return pages;
     };
     return (
-        <div className="w-full max-w-5xl space-y-6">
+        <div className="w-full max-w-7xl space-y-6">
             <div className="flex flex-col gap-3">
                 {/* HEADER SECTION */}
                 <div className="flex items-center justify-between">

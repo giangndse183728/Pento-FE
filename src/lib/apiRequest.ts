@@ -9,10 +9,11 @@ export async function apiRequest<T>(method: 'get' | 'post' | 'put' | 'patch' | '
             data,
         };
 
-        // If data is FormData, remove Content-Type header to let browser set it with boundary
+        // If data is FormData, explicitly unset Content-Type to override axios default 'application/json'
+        // This lets the browser set correct multipart/form-data with boundary
         if (data instanceof FormData) {
             config.headers = {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': undefined as unknown as string,
             };
         }
 

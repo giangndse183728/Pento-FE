@@ -90,3 +90,9 @@ export type FoodReferencesResponse = {
     pageNumber: number;
     pageSize: number;
 };
+
+// Response type for delete operation
+export type DeleteFoodReferenceResponse = {
+    success: boolean;
+    message?: string;
+};

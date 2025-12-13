@@ -266,7 +266,7 @@ const Dashboard = () => {
                     defaultCollapsed={true}
                 />
                 <div className="w-full">
-                    <ShareDataSetChart params={paymentApiParams} />
+                    <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
                 </div>
 
                 {/* Food Item Log Section */}
