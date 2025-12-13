@@ -127,11 +127,11 @@ export default function SubscriptionsManager() {
     };
 
     const handlePlanAmountChange = (value: number) => {
-        setPlanForm((prev) => ({ ...prev, amount: clamp(Math.round(value), 0, 100000) }));
+        setPlanForm((prev) => ({ ...prev, amount: clamp(Math.round(value), 0, 1000000) }));
     };
 
     const adjustPlanAmount = (delta: number) => {
-        setPlanForm((prev) => ({ ...prev, amount: clamp(prev.amount + delta, 0, 100000) }));
+        setPlanForm((prev) => ({ ...prev, amount: clamp(prev.amount + delta, 0, 1000000) }));
     };
 
 
