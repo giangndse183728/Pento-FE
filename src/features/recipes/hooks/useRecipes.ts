@@ -12,6 +12,10 @@ import {
     updateRecipeIngredient,
     updateRecipeDirection,
     uploadRecipeDirectionImage,
+    deleteRecipeIngredient,
+    deleteRecipeDirection,
+    createRecipeIngredient,
+    createRecipeDirection,
     RecipeDetailedInput,
     RecipeSummary,
     RecipesQuery,
@@ -20,10 +24,12 @@ import {
     UpdateRecipeInput,
     UpdateRecipeIngredientInput,
     UpdateRecipeDirectionInput,
+    CreateRecipeIngredientInput,
+    CreateRecipeDirectionInput,
 } from '../services/recipesService';
 import useUnits from './useUnit';
 import useFoodReferences from './useFoodReferences';
-import { recipeDetailedSchema, updateRecipeSchema, updateRecipeIngredientSchema, updateRecipeDirectionSchema } from '../schema/recipeSchema';
+import { recipeDetailedSchema, updateRecipeSchema, updateRecipeIngredientSchema, updateRecipeDirectionSchema, createRecipeIngredientSchema, createRecipeDirectionSchema } from '../schema/recipeSchema';
 
 export const useRecipesList = (params: RecipesQuery) => {
     return useQuery<PaginatedResponse<RecipeSummary>>({
@@ -209,6 +215,98 @@ export const useUploadRecipeDirectionImage = () => {
         },
         onError: (err: unknown) => {
             const message = err instanceof Error ? err.message : 'Failed to upload direction image';
+            toast.error(message);
+        },
+    });
+};
+
+// DELETE /recipe-ingredients/{recipeIngredientId} - Delete recipe ingredient
+export const useDeleteRecipeIngredient = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (recipeIngredientId: string) => deleteRecipeIngredient(recipeIngredientId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            queryClient.invalidateQueries({ queryKey: ['recipe-details'] });
+            toast.success('Ingredient deleted successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to delete ingredient';
+            toast.error(message);
+        },
+    });
+};
+
+// DELETE /recipe-directions/{recipeDirectionId} - Delete recipe direction
+export const useDeleteRecipeDirection = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (recipeDirectionId: string) => deleteRecipeDirection(recipeDirectionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            queryClient.invalidateQueries({ queryKey: ['recipe-details'] });
+            toast.success('Direction deleted successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to delete direction';
+            toast.error(message);
+        },
+    });
+};
+
+// POST /recipe-ingredients - Create recipe ingredient
+export const useCreateRecipeIngredient = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (payload: CreateRecipeIngredientInput) => {
+            const result = createRecipeIngredientSchema.safeParse(payload);
+            if (!result.success) {
+                const messages = result.error.errors.map((e) => {
+                    const path = e.path.length ? `${e.path.join('.')}:` : '';
+                    return path + ' ' + (e.message || 'Invalid value');
+                });
+                throw new Error(messages.join(' | '));
+            }
+            return createRecipeIngredient(result.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            queryClient.invalidateQueries({ queryKey: ['recipe-details'] });
+            toast.success('Ingredient added successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to add ingredient';
+            toast.error(message);
+        },
+    });
+};
+
+// POST /recipe-directions - Create recipe direction
+export const useCreateRecipeDirection = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (payload: CreateRecipeDirectionInput) => {
+            const result = createRecipeDirectionSchema.safeParse(payload);
+            if (!result.success) {
+                const messages = result.error.errors.map((e) => {
+                    const path = e.path.length ? `${e.path.join('.')}:` : '';
+                    return path + ' ' + (e.message || 'Invalid value');
+                });
+                throw new Error(messages.join(' | '));
+            }
+            return createRecipeDirection(result.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['recipes'] });
+            queryClient.invalidateQueries({ queryKey: ['recipe-details'] });
+            toast.success('Direction added successfully');
+        },
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Failed to add direction';
             toast.error(message);
         },
     });

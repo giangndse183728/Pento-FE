@@ -194,9 +194,9 @@ export default function FilterSection(props: FilterSectionProps) {
                     </AccordionTrigger>
                     <AccordionContent className="pt-4 pb-0">
                         <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div className="flex flex-wrap gap-3 items-end">
                                 {fields.map((field, index) => (
-                                    <div key={index}>
+                                    <div key={index} className="min-w-[180px] flex-1">
                                         <label className="text-sm font-semibold" style={{ color: '#113F67' }}>
                                             {field.label}
                                         </label>

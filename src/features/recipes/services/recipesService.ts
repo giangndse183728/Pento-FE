@@ -7,10 +7,12 @@ import type {
     UpdateRecipeInput,
     UpdateRecipeIngredientInput,
     UpdateRecipeDirectionInput,
+    CreateRecipeIngredientInput,
+    CreateRecipeDirectionInput,
 } from '../schema/recipeSchema';
 
 // Re-export types for convenience
-export type { IngredientInput, DirectionInput, RecipeDetailedInput, RecipeSummary, UpdateRecipeInput, UpdateRecipeIngredientInput, UpdateRecipeDirectionInput };
+export type { IngredientInput, DirectionInput, RecipeDetailedInput, RecipeSummary, UpdateRecipeInput, UpdateRecipeIngredientInput, UpdateRecipeDirectionInput, CreateRecipeIngredientInput, CreateRecipeDirectionInput };
 
 export type RecipesQuery = {
     pageNumber: number;
@@ -149,10 +151,49 @@ export const updateRecipeDirection = async (directionId: string, payload: Update
 
 // PUT /recipes-directions/{directionId}/image - Upload direction image
 export const uploadRecipeDirectionImage = async (directionId: string, file: File): Promise<unknown> => {
+    const { default: api } = await import('@/lib/axios');
+    const formData = new FormData();
+    formData.append('file', file);
+    const result = await api.put(`/recipes-directions/${encodeURIComponent(directionId)}/image`, formData, {
+        headers: {
+            'Content-Type': undefined,
+        },
+    });
+    return result.data;
+};
+
+// DELETE /recipe-ingredients/{recipeIngredientId} - Delete recipe ingredient
+export const deleteRecipeIngredient = async (recipeIngredientId: string): Promise<void> => {
     try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const result = await apiRequest<unknown>('put', `/recipes-directions/${encodeURIComponent(directionId)}/image`, formData);
+        await apiRequest<void>('delete', `/recipe-ingredients/${encodeURIComponent(recipeIngredientId)}`);
+    } catch (error) {
+        throw error;
+    }
+};
+
+// DELETE /recipe-directions/{recipeDirectionId} - Delete recipe direction
+export const deleteRecipeDirection = async (recipeDirectionId: string): Promise<void> => {
+    try {
+        await apiRequest<void>('delete', `/recipe-directions/${encodeURIComponent(recipeDirectionId)}`);
+    } catch (error) {
+        throw error;
+    }
+};
+
+// POST /recipe-ingredients - Create recipe ingredient
+export const createRecipeIngredient = async (payload: CreateRecipeIngredientInput): Promise<unknown> => {
+    try {
+        const result = await apiRequest<unknown>('post', '/recipe-ingredients', payload);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// POST /recipe-directions - Create recipe direction
+export const createRecipeDirection = async (payload: CreateRecipeDirectionInput): Promise<unknown> => {
+    try {
+        const result = await apiRequest<unknown>('post', '/recipe-directions', payload);
         return result;
     } catch (error) {
         throw error;

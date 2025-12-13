@@ -6,7 +6,8 @@ import {
     getFoodReferenceById,
     createFoodReference,
     updateFoodReference,
-    uploadFoodReferenceImage
+    uploadFoodReferenceImage,
+    deleteFoodReference
 } from '../services/foodReferenceService';
 import type {
     FoodReferencesQuery,
@@ -81,5 +82,17 @@ export const useUploadFoodReferenceImage = () => {
     });
 };
 
-export default useFoodReferences;
+// Hook for deleting a food reference
+export const useDeleteFoodReference = () => {
+    const queryClient = useQueryClient();
 
+    return useMutation<void, Error, string>({
+        mutationFn: (id) => deleteFoodReference(id),
+        onSuccess: () => {
+            // Invalidate food references list to refetch
+            queryClient.invalidateQueries({ queryKey: ['foodReferences'] });
+        },
+    });
+};
+
+export default useFoodReferences;

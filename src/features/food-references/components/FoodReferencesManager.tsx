@@ -71,7 +71,6 @@ export default function FoodReferencesManager() {
                     key={refreshKey}
                     onSelect={handleView}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
                 />
             </div>
 

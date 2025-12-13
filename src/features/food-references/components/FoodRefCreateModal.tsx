@@ -3,30 +3,39 @@
 import React, { useState } from 'react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
+import { Combobox } from '@/components/ui/Combobox';
+import ElasticSlider from '@/components/decoration/ElasticSlider';
 import { toast } from 'sonner';
 import { useCreateFoodReference } from '../hooks/useFoodReferences';
 import type { CreateFoodReferenceInput } from '../schema/foodReferenceSchema';
+import '@/styles/img-preview.css';
+import { CircleMinus, CirclePlus } from 'lucide-react';
 
 type Props = {
     onClose: () => void;
     onSuccess?: () => void;
 };
 
-const foodGroups = [
-    { id: 1, name: 'Meat' },
-    { id: 2, name: 'Seafood' },
-    { id: 3, name: 'Fruits & Vegetables' },
-    { id: 4, name: 'Dairy' },
-    { id: 5, name: 'Cereal, Grains & Pasta' },
-    { id: 6, name: 'Legumes, Nuts & Seeds' },
-    { id: 7, name: 'Fats & Oils' },
-    { id: 8, name: 'Confectionery' },
-    { id: 9, name: 'Beverages' },
-    { id: 10, name: 'Condiments' },
-    { id: 11, name: 'Mixed Dishes' },
+const foodGroupOptions = [
+    { value: 'Meat', label: 'Meat' },
+    { value: 'Seafood', label: 'Seafood' },
+    { value: 'FruitsVegetables', label: 'Fruits & Vegetables' },
+    { value: 'Dairy', label: 'Dairy' },
+    { value: 'CerealGrainsPasta', label: 'Cereal, Grains & Pasta' },
+    { value: 'LegumesNutsSeeds', label: 'Legumes, Nuts & Seeds' },
+    { value: 'FatsOils', label: 'Fats & Oils' },
+    { value: 'Confectionery', label: 'Confectionery' },
+    { value: 'Beverages', label: 'Beverages' },
+    { value: 'Condiments', label: 'Condiments' },
+    { value: 'MixedDishes', label: 'Mixed Dishes' },
 ];
 
-const unitTypes = ['Weight', 'Volume', 'Count', 'Length'];
+const unitTypeOptions = [
+    { value: 'Weight', label: 'Weight' },
+    { value: 'Volume', label: 'Volume' },
+    { value: 'Count', label: 'Count' },
+    { value: 'Length', label: 'Length' },
+];
 
 export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
     const createMutation = useCreateFoodReference();
@@ -38,7 +47,7 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
         foodCategoryId: null,
         brand: null,
         barcode: null,
-        usdaId: null,
+        usdaId: '',
         typicalShelfLifeDays_Pantry: null,
         typicalShelfLifeDays_Fridge: null,
         typicalShelfLifeDays_Freezer: null,
@@ -49,7 +58,6 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
     const isLoading = createMutation.isPending;
 
     const inputClass = 'neomorphic-input w-full';
-    const selectClass = 'neomorphic-select w-full';
     const textareaClass = 'neomorphic-textarea w-full min-h-[80px]';
 
     const handleChange = (field: keyof CreateFoodReferenceInput, value: string | number | null) => {
@@ -67,8 +75,18 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
             return;
         }
 
+        // Clean up empty strings to null for optional fields, except usdaId which accepts empty string
+        const payload = {
+            ...formData,
+            usdaId: formData.usdaId?.trim() || 'N/A',
+            brand: formData.brand?.trim() || null,
+            barcode: formData.barcode?.trim() || null,
+            notes: formData.notes?.trim() || null,
+            imageUrl: formData.imageUrl?.trim() || null,
+        };
+
         try {
-            await createMutation.mutateAsync(formData);
+            await createMutation.mutateAsync(payload);
 
             toast.success('Food reference created successfully');
             onSuccess?.();
@@ -83,8 +101,8 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <WhiteCard className="w-full max-w-2xl bg-white/95" width="100%" height="auto">
-                <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            <WhiteCard className="w-full max-w-4xl bg-white/95" width="100%" height="auto">
+                <div className="space-y-6 max-h-[85vh] overflow-y-auto">
                     {/* Header */}
                     <div className="flex items-center justify-between">
                         <h2 className="text-2xl font-semibold" style={{ color: '#113F67' }}>
@@ -99,161 +117,339 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
                         </button>
                     </div>
 
-                    {/* Form */}
-                    <div className="space-y-4">
-                        {/* Name */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Name *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.name || ''}
-                                onChange={(e) => handleChange('name', e.target.value)}
-                                className={inputClass}
-                                placeholder="Food name"
-                                disabled={isLoading}
-                            />
-                        </div>
+                    {/* Form - 2 Column Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-6">
+                            {/* SECTION: Basic Info */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#226597' }}>
+                                        Basic Info
+                                    </h3>
+                                    <div className="flex-1 h-px bg-gradient-to-r from-[#D6E6F2] to-transparent"></div>
+                                </div>
 
-                        {/* Food Group & Unit Type */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Food Group
-                                </label>
-                                <select
-                                    value={formData.foodGroup || ''}
-                                    onChange={(e) => handleChange('foodGroup', e.target.value || null)}
-                                    className={selectClass}
-                                    disabled={isLoading}
-                                >
-                                    <option value="">Select...</option>
-                                    {foodGroups.map((group) => (
-                                        <option key={group.id} value={group.name}>{group.name}</option>
-                                    ))}
-                                </select>
+                                {/* Name */}
+                                <div>
+                                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                        Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.name || ''}
+                                        onChange={(e) => handleChange('name', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Food name"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                {/* Food Group & Unit Type */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                            Food Group
+                                        </label>
+                                        <Combobox
+                                            options={foodGroupOptions}
+                                            value={formData.foodGroup}
+                                            onChange={(value) => handleChange('foodGroup', value)}
+                                            placeholder="Select food group..."
+                                            searchPlaceholder="Search food groups..."
+                                            emptyText="No food group found."
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                            Unit Type
+                                        </label>
+                                        <Combobox
+                                            options={unitTypeOptions}
+                                            value={formData.unitType}
+                                            onChange={(value) => handleChange('unitType', value)}
+                                            placeholder="Select unit type..."
+                                            searchPlaceholder="Search unit types..."
+                                            emptyText="No unit type found."
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Unit Type
-                                </label>
-                                <select
-                                    value={formData.unitType || ''}
-                                    onChange={(e) => handleChange('unitType', e.target.value || null)}
-                                    className={selectClass}
-                                    disabled={isLoading}
-                                >
-                                    <option value="">Select...</option>
-                                    {unitTypes.map((type) => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
+
+                            {/* SECTION: Details */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#226597' }}>
+                                        Details
+                                    </h3>
+                                    <div className="flex-1 h-px bg-gradient-to-r from-[#D6E6F2] to-transparent"></div>
+                                </div>
+
+                                {/* Brand */}
+                                <div>
+                                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                        Brand
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.brand || ''}
+                                        onChange={(e) => handleChange('brand', e.target.value || null)}
+                                        className={inputClass}
+                                        placeholder="Brand name"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+
+                                {/* Barcode & USDA ID */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                            Barcode
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.barcode || ''}
+                                            onChange={(e) => handleChange('barcode', e.target.value || null)}
+                                            className={inputClass}
+                                            placeholder="Barcode"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                                            USDA ID
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.usdaId || ''}
+                                            onChange={(e) => handleChange('usdaId', e.target.value || null)}
+                                            className={inputClass}
+                                            placeholder="USDA ID"
+                                            disabled={isLoading}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Notes */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Notes
-                            </label>
-                            <textarea
-                                value={formData.notes || ''}
-                                onChange={(e) => handleChange('notes', e.target.value || null)}
-                                className={textareaClass}
-                                placeholder="Additional notes..."
-                                disabled={isLoading}
-                            />
-                        </div>
+                        <div className="space-y-6">
+                            {/* SECTION: Image */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#226597' }}>
+                                        Image
+                                    </h3>
+                                    <div className="flex-1 h-px bg-gradient-to-r from-[#D6E6F2] to-transparent"></div>
+                                </div>
 
-                        {/* Brand & Barcode */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Brand
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.brand || ''}
-                                    onChange={(e) => handleChange('brand', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="Brand name"
+                                <div className="card" style={{ height: "240px" }}>
+                                    <div className="tools" style={{ padding: "8px 10px" }}>
+                                        <div className="circle">
+                                            <span className="red box"></span>
+                                        </div>
+                                        <div className="circle">
+                                            <span className="yellow box"></span>
+                                        </div>
+                                        <div className="circle">
+                                            <span className="green box"></span>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            className="address-bar"
+                                            placeholder="https://example.com/image.jpg"
+                                            value={formData.imageUrl || ''}
+                                            onChange={(e) => handleChange('imageUrl', e.target.value || null)}
+                                            autoComplete="off"
+                                            disabled={isLoading}
+                                            style={{ fontSize: "12px", padding: "4px 8px" }}
+                                        />
+                                    </div>
+                                    <div
+                                        style={{
+                                            height: "130px",
+                                            overflow: "hidden",
+                                            borderRadius: "8px",
+                                            position: "relative",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            margin: "0 10px",
+                                        }}
+                                    >
+                                        {formData.imageUrl && formData.imageUrl.trim() !== "" ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={formData.imageUrl}
+                                                alt="Food preview"
+                                                style={{
+                                                    maxWidth: "100%",
+                                                    maxHeight: "100%",
+                                                    objectFit: "contain",
+                                                    borderRadius: "8px",
+                                                }}
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                        ) : (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src="/assets/img/placeholder.jpg"
+                                                alt="Placeholder"
+                                                style={{
+                                                    maxWidth: "100%",
+                                                    maxHeight: "100%",
+                                                    objectFit: "contain",
+                                                    borderRadius: "8px",
+                                                    opacity: 0.5,
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="flex justify-center items-center text-xs text-gray-500 italic" style={{ padding: "6px 0" }}>
+                                        Food Reference Image
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Notes */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#226597' }}>
+                                        Notes
+                                    </h3>
+                                    <div className="flex-1 h-px bg-gradient-to-r from-[#D6E6F2] to-transparent"></div>
+                                </div>
+                                <textarea
+                                    value={formData.notes || ''}
+                                    onChange={(e) => handleChange('notes', e.target.value || null)}
+                                    className={textareaClass}
+                                    placeholder="Additional notes..."
                                     disabled={isLoading}
                                 />
                             </div>
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Barcode
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.barcode || ''}
-                                    onChange={(e) => handleChange('barcode', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="Barcode"
-                                    disabled={isLoading}
-                                />
-                            </div>
                         </div>
 
-                        {/* Shelf Life */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Shelf Life (days)
-                            </label>
-                            <div className="grid grid-cols-3 gap-4">
+                        {/* ═══════════════════════════════════════════════════════════════════ */}
+                        {/* FULL WIDTH - Shelf Life */}
+                        {/* ═══════════════════════════════════════════════════════════════════ */}
+                        <div className="md:col-span-2 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ color: '#226597' }}>
+                                    Shelf Life
+                                </h3>
+                                <div className="flex-1 h-px bg-gradient-to-r from-[#D6E6F2] to-transparent"></div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-8">
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Pantry</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Pantry ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Pantry', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
+                                    <label className="text-sm font-semibold mb-3 block" style={{ color: '#113F67' }}>
+                                        Pantry
+                                    </label>
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Pantry', Math.max(0, (formData.typicalShelfLifeDays_Pantry ?? 0) - 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CircleMinus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                        <div className="flex-1">
+                                            <ElasticSlider
+                                                defaultValue={formData.typicalShelfLifeDays_Pantry ?? 0}
+                                                startingValue={0}
+                                                maxValue={365}
+                                                isStepped={true}
+                                                stepSize={1}
+                                                leftIcon={<span />}
+                                                rightIcon={<span />}
+                                                valueSuffix=" days"
+                                                onChange={(value) => handleChange('typicalShelfLifeDays_Pantry', value)}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Pantry', Math.min(365, (formData.typicalShelfLifeDays_Pantry ?? 0) + 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CirclePlus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Fridge</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Fridge ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Fridge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
+                                    <label className="text-sm font-semibold mb-3 block" style={{ color: '#113F67' }}>
+                                        Fridge
+                                    </label>
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Fridge', Math.max(0, (formData.typicalShelfLifeDays_Fridge ?? 0) - 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CircleMinus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                        <div className="flex-1">
+                                            <ElasticSlider
+                                                defaultValue={formData.typicalShelfLifeDays_Fridge ?? 0}
+                                                startingValue={0}
+                                                maxValue={90}
+                                                isStepped={true}
+                                                stepSize={1}
+                                                leftIcon={<span />}
+                                                rightIcon={<span />}
+                                                valueSuffix=" days"
+                                                onChange={(value) => handleChange('typicalShelfLifeDays_Fridge', value)}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Fridge', Math.min(90, (formData.typicalShelfLifeDays_Fridge ?? 0) + 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CirclePlus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Freezer</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Freezer ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Freezer', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
+                                    <label className="text-sm font-semibold mb-3 block" style={{ color: '#113F67' }}>
+                                        Freezer
+                                    </label>
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Freezer', Math.max(0, (formData.typicalShelfLifeDays_Freezer ?? 0) - 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CircleMinus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                        <div className="flex-1">
+                                            <ElasticSlider
+                                                defaultValue={formData.typicalShelfLifeDays_Freezer ?? 0}
+                                                startingValue={0}
+                                                maxValue={365}
+                                                isStepped={true}
+                                                stepSize={1}
+                                                leftIcon={<span />}
+                                                rightIcon={<span />}
+                                                valueSuffix=" days"
+                                                onChange={(value) => handleChange('typicalShelfLifeDays_Freezer', value)}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleChange('typicalShelfLifeDays_Freezer', Math.min(365, (formData.typicalShelfLifeDays_Freezer ?? 0) + 1))}
+                                            className="p-1 hover:scale-110 transition-transform flex-shrink-0"
+                                            disabled={isLoading}
+                                        >
+                                            <CirclePlus className="w-4 h-4" style={{ color: '#113F67' }} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Image URL */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Image URL
-                            </label>
-                            <input
-                                type="url"
-                                value={formData.imageUrl || ''}
-                                onChange={(e) => handleChange('imageUrl', e.target.value || null)}
-                                className={inputClass}
-                                placeholder="https://..."
-                                disabled={isLoading}
-                            />
                         </div>
                     </div>
 

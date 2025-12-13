@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useFoodReferences } from '../hooks/useFoodReferences';
+import { useFoodReferences, useDeleteFoodReference } from '../hooks/useFoodReferences';
 import { FoodRef } from '../schema/foodReferenceSchema';
 import {
     Table,
@@ -25,17 +25,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { CusButton } from '@/components/ui/cusButton';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { ConfirmModal } from '@/components/decoration/ConfirmModal';
 import { Search, SquarePen, Trash2, RotateCcw, ImagePlus } from 'lucide-react';
 import { ColorTheme } from '@/constants/color';
 import FoodRefImgModal from './FoodRefImgModal';
+import { toast } from 'sonner';
 
 type Props = {
     onSelect?: (foodRef: FoodRef) => void;
     onEdit?: (foodRef: FoodRef) => void;
-    onDelete?: (foodRef: FoodRef) => void;
 };
 
-export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props) {
+export default function FoodReferencesList({ onSelect, onEdit }: Props) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchInput, setSearchInput] = useState('');
@@ -45,6 +46,7 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
     const [sortBy, setSortBy] = useState<'Name' | 'FoodGroup' | 'Brand' | 'CreatedAt' | undefined>();
     const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC' | undefined>();
     const [imageEditItem, setImageEditItem] = useState<FoodRef | null>(null);
+    const [deleteItem, setDeleteItem] = useState<FoodRef | null>(null);
 
     const { data, isLoading, isFetching, refetch } = useFoodReferences({
         page,
@@ -55,6 +57,8 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
         sortBy,
         sortOrder,
     });
+
+    const deleteMutation = useDeleteFoodReference();
 
     const items = data?.items ?? [];
     const totalCount = data?.totalCount ?? 0;
@@ -79,6 +83,21 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
         setSortBy(undefined);
         setSortOrder(undefined);
         setPage(1);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteItem) return;
+
+        try {
+            await deleteMutation.mutateAsync(deleteItem.id);
+            toast.success(`"${deleteItem.name}" has been deleted successfully`);
+            setDeleteItem(null);
+        } catch (err) {
+            console.error('Failed to delete food reference', err);
+            const error = err as Record<string, unknown>;
+            const errorData = (error?.response as Record<string, unknown>)?.data as Record<string, unknown>;
+            toast.error((errorData?.detail as string) || 'Failed to delete food reference');
+        }
     };
 
     const renderPageNumbers = () => {
@@ -347,18 +366,16 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                                                 >
                                                     <ImagePlus className="w-4 h-4" />
                                                 </button>
-                                                {onDelete && (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            onDelete(item);
-                                                        }}
-                                                        className="p-2 rounded-full hover:bg-red-100 text-red-600 transition-colors"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setDeleteItem(item);
+                                                    }}
+                                                    className="p-2 rounded-full hover:bg-red-100 text-red-600 transition-colors"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -431,6 +448,18 @@ export default function FoodReferencesList({ onSelect, onEdit, onDelete }: Props
                     }}
                 />
             )}
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                open={!!deleteItem}
+                title="Delete Food Reference"
+                message={`Are you sure you want to delete "${deleteItem?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setDeleteItem(null)}
+                loading={deleteMutation.isPending}
+            />
         </WhiteCard>
     );
 }

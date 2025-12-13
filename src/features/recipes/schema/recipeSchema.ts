@@ -80,6 +80,22 @@ export const updateRecipeDirectionSchema = z.object({
     description: z.string().min(1, { message: 'Description is required' }),
 });
 
+// POST /recipe-ingredients payload
+export const createRecipeIngredientSchema = z.object({
+    recipeId: z.string().uuid({ message: 'Invalid recipeId (must be UUID)' }),
+    foodRefId: z.string().uuid({ message: 'Invalid foodRefId (must be UUID)' }),
+    quantity: z.number().positive({ message: 'Quantity must be > 0' }),
+    unitId: z.string().uuid({ message: 'Invalid unitId (must be UUID)' }),
+});
+
+// POST /recipe-directions payload
+export const createRecipeDirectionSchema = z.object({
+    recipeId: z.string().uuid({ message: 'Invalid recipeId (must be UUID)' }),
+    stepNumber: z.number().int().positive({ message: 'stepNumber must be a positive integer' }),
+    description: z.string().min(1, { message: 'Description is required' }),
+    imageUrl: z.string().url().optional().nullable(),
+});
+
 // Inferred types from schemas
 export type IngredientInput = z.infer<typeof ingredientSchema>;
 export type DirectionInput = z.infer<typeof directionSchema>;
@@ -88,3 +104,5 @@ export type RecipeSummary = z.infer<typeof recipeSummarySchema>;
 export type UpdateRecipeInput = z.infer<typeof updateRecipeSchema>;
 export type UpdateRecipeIngredientInput = z.infer<typeof updateRecipeIngredientSchema>;
 export type UpdateRecipeDirectionInput = z.infer<typeof updateRecipeDirectionSchema>;
+export type CreateRecipeIngredientInput = z.infer<typeof createRecipeIngredientSchema>;
+export type CreateRecipeDirectionInput = z.infer<typeof createRecipeDirectionSchema>;
