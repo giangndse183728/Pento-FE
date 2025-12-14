@@ -6,7 +6,6 @@ import { CusButton } from '@/components/ui/cusButton';
 import { toast } from 'sonner';
 import { useFoodReferenceById, useUpdateFoodReference } from '../hooks/useFoodReferences';
 import type { UpdateFoodReferenceInput } from '../schema/foodReferenceSchema';
-import '@/styles/toggle.css';
 
 type Props = {
     foodRefId: string;

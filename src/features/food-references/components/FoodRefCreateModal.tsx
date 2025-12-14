@@ -8,7 +8,6 @@ import ElasticSlider from '@/components/decoration/ElasticSlider';
 import { toast } from 'sonner';
 import { useCreateFoodReference } from '../hooks/useFoodReferences';
 import type { CreateFoodReferenceInput } from '../schema/foodReferenceSchema';
-import '@/styles/img-preview.css';
 import { CircleMinus, CirclePlus } from 'lucide-react';
 
 type Props = {

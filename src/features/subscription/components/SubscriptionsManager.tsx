@@ -11,7 +11,6 @@ import AddPlansStep from './plans/AddPlansStep';
 import AddFeaturesStep from './features/AddFeaturesStep';
 import SubscriptionList from './SubscriptionList';
 import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema } from '../schema/subscriptionSchema';
-import '@/styles/tab-bar.css';
 
 
 const createInitialSubscriptionForm = (): typeof createSubscriptionSchema._type => ({

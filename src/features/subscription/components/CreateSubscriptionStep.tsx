@@ -1,5 +1,4 @@
 import React from 'react';
-import '@/styles/toggle.css';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import { createSubscriptionSchema } from '../schema/subscriptionSchema';

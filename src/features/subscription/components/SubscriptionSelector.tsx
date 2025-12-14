@@ -1,7 +1,6 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Subscription } from '../services/subscriptionService';
-import '@/styles/visa-card.css';
 
 export type SubscriptionSelectorProps = {
     subscriptions: Subscription[];

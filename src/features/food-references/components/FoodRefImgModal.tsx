@@ -6,7 +6,6 @@ import { CusButton } from '@/components/ui/cusButton';
 import { toast } from 'sonner';
 import { useUploadFoodReferenceImage, useFoodReferenceById } from '../hooks/useFoodReferences';
 import { ImagePlus } from 'lucide-react';
-import '@/styles/toggle.css';
 
 type Props = {
     foodRefId: string;
