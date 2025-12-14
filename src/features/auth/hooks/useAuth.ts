@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { login, logout } from '../services';
 import { LoginFormData } from '../schema';
 import { toast } from 'sonner';
+import { getUserProfile } from '@/features/users/services/userServices';
 
 export const useLogin = () => {
     const router = useRouter();
@@ -12,11 +13,25 @@ export const useLogin = () => {
 
     return useMutation({
         mutationFn: (credentials: LoginFormData) => login(credentials),
-        onSuccess: () => {
+        onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: ['user'] });
 
-            toast.success('Login successful!');
-            router.push('/'); // Redirect to home or dashboard after login
+            try {
+                // Fetch user profile to check role
+                const user = await getUserProfile();
+                toast.success('Login successful!');
+
+                // Redirect based on role
+                if (user.roles === 'ADMIN') {
+                    router.push('/admin/dashboard/subscriptions-payment');
+                } else {
+                    router.push('/');
+                }
+            } catch {
+                // If profile fetch fails, redirect to home
+                toast.success('Login successful!');
+                router.push('/');
+            }
         },
         onError: (error: Error) => {
             toast.error(error.message || 'Login failed');

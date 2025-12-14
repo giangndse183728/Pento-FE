@@ -59,15 +59,18 @@ export default function RecipesTableCards({ items }: RecipesTableCardsProps) {
                             justifyContent: 'center',
                             borderRadius: '50%',
                             backgroundColor: getDifficultyBadgeColor(recipe.difficultyLevel),
-                            color: 'aliceblue',
-                            fontWeight: '800',
-                            fontSize: '0.9rem',
                             transition: 'all 0.5s ease',
                             zIndex: 10,
-                            pointerEvents: 'none'
+                            pointerEvents: 'none',
+                            padding: '10px'
                         }}
                     >
-                        {recipe.difficultyLevel || 'N/A'}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={`/assets/img/${(recipe.difficultyLevel || 'easy').toLowerCase()}.png`}
+                            alt={recipe.difficultyLevel || 'N/A'}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                     {/* Hero Image */}
                     <div className="card__image ">
@@ -86,7 +89,7 @@ export default function RecipesTableCards({ items }: RecipesTableCardsProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="card__content flex flex-col gap-3 mt-3">
+                    <div className="card__content flex flex-col gap-3 mt-3 flex-1">
                         {/* Title */}
                         <div>
                             <p
@@ -103,8 +106,8 @@ export default function RecipesTableCards({ items }: RecipesTableCardsProps) {
                             )} */}
                         </div>
 
-                        {/* Body */}
-                        <div className="flex flex-wrap gap-2">
+                        {/* Body - Chips always at bottom */}
+                        <div className="flex flex-wrap gap-2 mt-auto">
                             {recipe.servings && (
                                 <span
                                     className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
@@ -128,6 +131,18 @@ export default function RecipesTableCards({ items }: RecipesTableCardsProps) {
                                 >
                                     <Clock className="w-3 h-3" />
                                     {recipe.totalTimes}m
+                                </span>
+                            )}
+
+                            {recipe.difficultyLevel && (
+                                <span
+                                    className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                                    style={{
+                                        backgroundColor: getDifficultyBadgeColor(recipe.difficultyLevel) + '33',
+                                        color: difficultyColors[recipe.difficultyLevel]?.text ?? '#6b7280'
+                                    }}
+                                >
+                                    {recipe.difficultyLevel}
                                 </span>
                             )}
                         </div>
