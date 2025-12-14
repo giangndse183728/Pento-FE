@@ -3,15 +3,16 @@
 import { useQuery } from '@tanstack/react-query';
 import {
     getAdminPayments,
+    GetPaymentsParams,
 } from '../services/paymentService';
 
-export function usePaymentsForCards() {
+export function usePaymentsForCards(params: GetPaymentsParams = {}) {
     const { data, isLoading, error } = useQuery({
-        queryKey: ['admin-payments-cards'],
+        queryKey: ['admin-payments-cards', params],
         queryFn: async () => {
-            return getAdminPayments();
+            return getAdminPayments(params);
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 0,
     });
 
     return {

@@ -12,7 +12,7 @@ export function useSummaryForCharts(params?: GetPaymentSummaryParams) {
         queryFn: async () => {
             return getAdminPaymentSummary(params);
         },
-        staleTime: 0, // Always refetch when params change
+        staleTime: 0, 
         refetchOnWindowFocus: false,
     });
 

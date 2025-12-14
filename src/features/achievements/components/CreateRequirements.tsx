@@ -11,7 +11,6 @@ import { ColorTheme } from '@/constants/color';
 import { toast } from 'sonner';
 import ElasticSlider from '@/components/decoration/ElasticSlider';
 import { CirclePlus, CircleMinus, Check, ChevronsUpDown } from 'lucide-react';
-import '@/styles/toggle.css';
 import { Button } from '@/components/ui/button';
 import {
     Command,
