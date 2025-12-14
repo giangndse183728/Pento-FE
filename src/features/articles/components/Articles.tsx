@@ -5,6 +5,7 @@ import { fetchRSS } from "../services/rssService";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import HeroSection from "./HeroSection";
 
 interface Article {
     title: string;
@@ -107,68 +108,20 @@ export default function Articles() {
         );
     }
 
-    // Separate hero article from the rest
+    // Separate hero articles from the rest
     const heroArticle = articles[0];
-    const gridArticles = articles.slice(1, displayCount);
+    const sideArticles = articles.slice(1, 5);
+    const gridArticles = articles.slice(5, displayCount);
     const hasMore = displayCount < articles.length;
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-            {/* Hero Article - Featured */}
+            {/* Hero Section - Featured + Side Articles */}
             {heroArticle && (
-                <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                        {/* Hero Image */}
-                        {heroArticle.image && (
-                            <div className="relative h-72 lg:h-96">
-                                <Image
-                                    src={heroArticle.image}
-                                    alt={heroArticle.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 50vw"
-                                    priority
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden" />
-                            </div>
-                        )}
-
-                        {/* Hero Content */}
-                        <div className="p-6 lg:p-8 flex flex-col justify-center">
-                            <span className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full w-fit mb-4">
-                                ✨ Featured • {heroArticle.source}
-                            </span>
-                            <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-3 leading-tight">
-                                <Link
-                                    href={heroArticle.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="hover:text-orange-600 transition-colors"
-                                >
-                                    {heroArticle.title}
-                                </Link>
-                            </h2>
-                            {heroArticle.description && (
-                                <p className="text-gray-600 mb-4 line-clamp-3">{heroArticle.description}</p>
-                            )}
-                            <div className="flex items-center justify-between pt-4 border-t border-orange-200">
-                                <Link
-                                    href={heroArticle.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-orange-600 font-medium hover:underline"
-                                >
-                                    Read Full Article →
-                                </Link>
-                                {heroArticle.pubDate && (
-                                    <time className="text-sm text-gray-500">
-                                        {new Date(heroArticle.pubDate).toLocaleDateString()}
-                                    </time>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <HeroSection
+                    featuredArticle={heroArticle}
+                    sideArticles={sideArticles}
+                />
             )}
 
             {/* Section Title */}

@@ -7,7 +7,12 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
+// The login response - note: refresh token is set as httpOnly cookie by the backend
 export interface LoginResponse {
+    accessToken: string;
+}
+
+export interface RefreshTokenResponse {
     accessToken: string;
 }
 
