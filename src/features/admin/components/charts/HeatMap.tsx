@@ -1,86 +1,281 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
-import * as echarts from 'echarts';
 import type { EChartsOption } from 'echarts';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { useActivityStats } from '@/features/achievements/hooks/useActivities';
+import { Loader2 } from 'lucide-react';
+import FilterSection, { FilterField } from '@/components/decoration/FilterSection';
 
 interface Props {
-    year?: string;
     title?: string;
 }
 
-const HeatMap = ({ year = '2024', title = 'Daily Activity' }: Props) => {
-    // Generate virtual data for the heatmap
-    const getVirtualData = (targetYear: string): [string, number][] => {
-        const date = +echarts.time.parse(targetYear + '-01-01');
-        const end = +echarts.time.parse(+targetYear + 1 + '-01-01');
-        const dayTime = 3600 * 24 * 1000;
-        const data: [string, number][] = [];
-        for (let time = date; time < end; time += dayTime) {
-            data.push([
-                echarts.time.format(time, '{yyyy}-{MM}-{dd}', false),
-                Math.floor(Math.random() * 10000)
-            ]);
+const TIME_WINDOW_OPTIONS = [
+    { value: '', label: '--' },
+    { value: 'Weekly', label: 'Weekly' },
+    { value: 'Monthly', label: 'Monthly' },
+    { value: 'Quarterly', label: 'Quarterly' },
+    { value: 'Yearly', label: 'Yearly' },
+];
+
+const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
+    const [fromDate, setFromDate] = useState<string | undefined>();
+    const [toDate, setToDate] = useState<string | undefined>();
+    const [timeWindow, setTimeWindow] = useState<string>(''); 
+
+    const apiParams = useMemo(() => {
+        const params: {
+            fromDate?: string;
+            toDate?: string;
+            timeWindow?: string;
+        } = {};
+
+        if (fromDate) {
+            params.fromDate = fromDate;
         }
-        return data;
+        if (toDate) {
+            params.toDate = toDate;
+        }
+        if (timeWindow) {
+            params.timeWindow = timeWindow;
+        }
+
+        return params;
+    }, [fromDate, toDate, timeWindow]);
+
+    // Fetch activity stats
+    const { data, isLoading, error } = useActivityStats(apiParams);
+
+    // Reset filters
+    const handleReset = () => {
+        setFromDate(undefined);
+        setToDate(undefined);
+        setTimeWindow('');
     };
 
-    const chartData = useMemo(() => getVirtualData(year), [year]);
+    const filterFields: FilterField[] = [
+        {
+            type: 'date',
+            name: 'fromDate',
+            label: 'From Date',
+            placeholder: 'Select start date',
+            value: fromDate,
+            onChange: (val) => setFromDate(val as string | undefined),
+        },
+        {
+            type: 'date',
+            name: 'toDate',
+            label: 'To Date',
+            placeholder: 'Select end date',
+            value: toDate,
+            onChange: (val) => setToDate(val as string | undefined),
+        },
+        {
+            type: 'select',
+            name: 'timeWindow',
+            label: 'Time Window',
+            value: timeWindow,
+            options: TIME_WINDOW_OPTIONS,
+            onChange: (val) => setTimeWindow(val as string),
+        },
+    ];
+
+    const { chartData, xAxisData, yAxisData, maxValue } = useMemo(() => {
+        const activities = Array.isArray(data) ? data : [];
+
+        if (activities.length === 0) {
+            return { chartData: [], xAxisData: [], yAxisData: [], maxValue: 10 };
+        }
+
+        const dateSet = new Set<string>();
+        const activityNames: string[] = [];
+
+        activities.forEach(activity => {
+            activityNames.push(activity.name);
+            if (activity.countByDate) {
+                activity.countByDate.forEach(item => {
+                    if (item.date) dateSet.add(item.date);
+                });
+            }
+        });
+
+        const sortedDates = Array.from(dateSet).sort();
+        const heatmapData: [number, number, number][] = [];
+        let max = 0;
+
+        activities.forEach((activity, activityIndex) => {
+            if (activity.countByDate) {
+                activity.countByDate.forEach(item => {
+                    const dateIndex = sortedDates.indexOf(item.date);
+                    if (dateIndex >= 0) {
+                        heatmapData.push([dateIndex, activityIndex, item.count]);
+                        if (item.count > max) max = item.count;
+                    }
+                });
+            }
+        });
+
+        return {
+            chartData: heatmapData,
+            xAxisData: sortedDates,
+            yAxisData: activityNames,
+            maxValue: max || 10,
+        };
+    }, [data]);
+
+    // Calculate dynamic height based on number of activities
+    const chartHeight = useMemo(() => {
+        const minHeight = 250;
+        const heightPerActivity = 40;
+        const baseHeight = 100;
+        return Math.max(minHeight, baseHeight + (yAxisData.length * heightPerActivity));
+    }, [yAxisData.length]);
 
     const option: EChartsOption = {
         title: {
-            top: 30,
+            top: 10,
             left: 'center',
             text: title,
             textStyle: {
-                color: '#113F67'
+                color: '#113F67',
+                fontSize: 16,
             }
         },
         tooltip: {
-            formatter: (params: any) => {
-                return `${params.value[0]}: ${params.value[1].toLocaleString()} steps`;
+            position: 'top',
+            formatter: (params: unknown) => {
+                const p = params as { value: [number, number, number] };
+                const date = xAxisData[p.value[0]];
+                const activity = yAxisData[p.value[1]];
+                const count = p.value[2];
+                return `<strong>${activity}</strong><br/>${date}: ${count} ${count === 1 ? 'activity' : 'activities'}`;
+            }
+        },
+        grid: {
+            top: 60,
+            left: 150,
+            right: 60,
+            bottom: 80,
+        },
+        xAxis: {
+            type: 'category',
+            data: xAxisData,
+            splitArea: { show: true },
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: '#e6e6e6ff',
+                    width: 0.5,
+                }
+            },
+            axisLabel: {
+                color: '#113F67',
+                rotate: 45,
+                fontSize: 10,
+                formatter: (value: string) => {
+                    const parts = value.split('-');
+                    return parts.length >= 3 ? `${parts[1]}-${parts[2]}` : value;
+                }
+            }
+        },
+        yAxis: {
+            type: 'category',
+            data: yAxisData,
+            splitArea: { show: true },
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: '#ccc',
+                    width: 1,
+                }
+            },
+            axisLabel: {
+                color: '#113F67',
+                fontSize: 12,
+                align: 'right',
             }
         },
         visualMap: {
-            min: 0,
-            max: 10000,
             type: 'piecewise',
+            min: 0,
+            max: maxValue,
             orient: 'horizontal',
             left: 'center',
-            top: 65,
-            textStyle: {
-                color: '#113F67'
-            }
+            bottom: 10,
+            textStyle: { color: '#113F67', fontSize: 12 },
+            itemWidth: 20,
+            itemHeight: 14,
+            itemGap: 10,
+            pieces: [
+                { min: 0, max: Math.ceil(maxValue * 0.2), label: `0 - ${Math.ceil(maxValue * 0.2)}`, color: '#cedfeeff' },
+                { min: Math.ceil(maxValue * 0.2) + 1, max: Math.ceil(maxValue * 0.4), label: `${Math.ceil(maxValue * 0.2) + 1} - ${Math.ceil(maxValue * 0.4)}`, color: '#B5D8F0' },
+                { min: Math.ceil(maxValue * 0.4) + 1, max: Math.ceil(maxValue * 0.6), label: `${Math.ceil(maxValue * 0.4) + 1} - ${Math.ceil(maxValue * 0.6)}`, color: '#6BB3DA' },
+                { min: Math.ceil(maxValue * 0.6) + 1, max: Math.ceil(maxValue * 0.8), label: `${Math.ceil(maxValue * 0.6) + 1} - ${Math.ceil(maxValue * 0.8)}`, color: '#2E86C1' },
+                { min: Math.ceil(maxValue * 0.8) + 1, max: maxValue, label: `${Math.ceil(maxValue * 0.8) + 1} - ${maxValue}`, color: '#113F67' },
+            ],
         },
-        calendar: {
-            top: 120,
-            left: 30,
-            right: 30,
-            cellSize: ['auto', 13],
-            range: year,
-            itemStyle: {
-                borderWidth: 0.5
-            },
-            yearLabel: { show: false }
-        },
-        series: {
+        series: [{
             type: 'heatmap',
-            coordinateSystem: 'calendar',
-            data: chartData
-        }
+            data: chartData,
+            itemStyle: {
+                borderColor: '#fff',
+                borderWidth: 1,
+            },
+            label: {
+                show: chartData.length < 50,
+                fontSize: 10,
+                color: '#333',
+            },
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
     };
 
     return (
-        <WhiteCard
-            className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg"
-        >
-            <ReactECharts
-                option={option}
-                style={{ height: '300px', width: '100%' }}
+        <div className="space-y-4">
+            {/* Filter Section */}
+            <FilterSection
+                title="Activity Filters"
+                fields={filterFields}
+                onReset={handleReset}
+                resetButtonText="Reset"
             />
-        </WhiteCard>
+
+
+            {/* HeatMap Chart */}
+            {isLoading ? (
+                <WhiteCard className="w-full rounded-2xl p-2 bg-white/90 border border-white/30 backdrop-blur-lg">
+                    <div className="flex items-center justify-center h-[300px]">
+                        <Loader2 className="w-8 h-8 animate-spin text-[#113F67]" />
+                    </div>
+                </WhiteCard>
+            ) : error ? (
+                <WhiteCard className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg">
+                    <div className="flex items-center justify-center h-[300px] text-red-500">
+                        Failed to load activity data
+                    </div>
+                </WhiteCard>
+            ) : chartData.length === 0 ? (
+                <WhiteCard className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg">
+                    <div className="flex items-center justify-center h-[200px] text-gray-500">
+                        No activity data available for the selected filters
+                    </div>
+                </WhiteCard>
+            ) : (
+                <WhiteCard className="w-full rounded-2xl p-4 bg-white/80 border border-white/30 backdrop-blur-lg">
+                    <ReactECharts
+                        option={option}
+                        style={{ height: `${chartHeight}px`, width: '100%' }}
+                    />
+                </WhiteCard>
+            )}
+        </div>
     );
 };
 

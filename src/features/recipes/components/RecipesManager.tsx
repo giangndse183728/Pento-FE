@@ -6,7 +6,6 @@ import { useRecipes } from '../hooks';
 import RecipesCreateForm from './RecipesCreateForm';
 import RecipesList from './recipes-details/RecipesList';
 import RecipesTable from './recipes-details/RecipesTable';
-import '@/styles/tab-bar.css';
 
 export default function RecipesManager() {
     const [activeTab, setActiveTab] = useState<'create' | 'list'>('list');

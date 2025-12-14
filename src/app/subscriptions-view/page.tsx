@@ -126,7 +126,7 @@ function SubscriptionCard({ subscription, isRecommended = false }: { subscriptio
 
 
             {/* Features */}
-            <ul className="lists mt-4 space-y-2" style={{ color: textPrimary }}>
+            <ul className="subscription-lists mt-4 space-y-2" style={{ color: textPrimary }}>
                 {features.length > 0 ? (
                     features.map((feature, idx) => (
                         <li
@@ -285,7 +285,7 @@ function SubscriptionCard({ subscription, isRecommended = false }: { subscriptio
                     glareOpacity={0.3}
                     glareAngle={-45}
                     transitionDuration={1200}
-                    className="card cursor-pointer"
+                    className="subscription-card cursor-pointer"
                     style={{
                         boxShadow: '0 30px 60px rgba(17, 63, 103, 0.35)',
                         padding: '1.5rem',
@@ -295,7 +295,7 @@ function SubscriptionCard({ subscription, isRecommended = false }: { subscriptio
                 </GlareHover>
             ) : (
                 <div
-                    className="card cursor-pointer"
+                    className="subscription-card cursor-pointer"
                     style={{
                         background: 'rgba(255, 255, 255, 0.3)',
                         border: '1px solid rgba(214, 230, 242, 0.5)',

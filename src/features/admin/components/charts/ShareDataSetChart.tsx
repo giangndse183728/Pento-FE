@@ -169,7 +169,7 @@ const ShareDataSetChart = ({ params }: Props) => {
             `}
         >
             <h2 className="text-xl font-semibold text-gray-800 mb-2 text-center" style={{ color: '#113F67' }}>
-                Subscriptions Payment Overview
+                Subscription Payments Overview
             </h2>
             <ReactECharts
                 option={option}

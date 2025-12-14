@@ -12,6 +12,8 @@ export type GetPaymentsParams = {
     fromDate?: string; // ISO date-time
     toDate?: string;   // ISO date-time
     status?: PaymentStatus;
+    sortBy?: 'OrderCode' | 'Description' | 'AmountDue' | 'AmountPaid' | 'CreatedAt';
+    sortOrder?: 'ASC' | 'DESC';
     isDeleted?: boolean;
     pageNumber?: number;
     pageSize?: number;
@@ -42,7 +44,8 @@ export type PaymentItem = {
     userId: string;
     orderCode: number;
     description: string;
-    amount: string; // e.g., "5000 VND"
+    amountDue: string;   // e.g., "5000 VND"
+    amountPaid: string;  // e.g., "5000 VND"
     status: 'Pending' | 'Paid' | 'Failed' | 'Cancelled' | 'Expired' | 'Processing';
     createdAt: string; // ISO date-time
     isDeleted: boolean;
@@ -109,12 +112,22 @@ export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<
     if (params.fromDate) query.set('fromDate', params.fromDate);
     if (params.toDate) query.set('toDate', params.toDate);
     if (params.status) query.set('status', params.status);
+    if (params.sortBy) query.set('sortBy', params.sortBy);
+    if (params.sortOrder) query.set('sortOrder', params.sortOrder);
     if (typeof params.isDeleted === 'boolean') query.set('isDeleted', String(params.isDeleted));
     if (typeof params.pageNumber === 'number') query.set('pageNumber', String(params.pageNumber));
     if (typeof params.pageSize === 'number') query.set('pageSize', String(params.pageSize));
 
     const url = query.toString() ? `/admin/payments?${query.toString()}` : '/admin/payments';
-    return apiRequest<PaginatedPayments>('get', url);
+    console.log('getAdminPayments URL:', url);
+    const response = await apiRequest<PaginatedPayments | { payments: PaginatedPayments }>('get', url);
+    console.log('getAdminPayments response:', response);
+
+    // Handle wrapped response (API returns { payments: {...} })
+    if (response && 'payments' in response) {
+        return response.payments;
+    }
+    return response as PaginatedPayments;
 }
 
 export async function getAdminFoodItemLog(): Promise<FoodItemLog[]> {
