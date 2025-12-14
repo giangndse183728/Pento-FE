@@ -46,13 +46,17 @@ export const useLogout = () => {
     return useMutation({
         mutationFn: () => logout(),
         onSuccess: () => {
+            // Ensure token is cleared
+            localStorage.removeItem('accessToken');
             queryClient.clear();
             toast.success('Logged out successfully');
             router.push('/login');
         },
         onError: () => {
-            toast.error('Logout failed');
+            // Still clear everything even on error
+            localStorage.removeItem('accessToken');
             queryClient.clear();
+            toast.error('Logout failed');
             router.push('/login');
         },
     });

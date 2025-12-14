@@ -44,9 +44,13 @@ api.interceptors.response.use(
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+        // Skip refresh if no access token exists (user logged out)
+        const hasAccessToken = localStorage.getItem('accessToken');
+
         if (
             (error.response?.status === 401 || error.response?.status === 403) &&
-            !originalRequest._retry
+            !originalRequest._retry &&
+            hasAccessToken // Only attempt refresh if user was logged in
         ) {
             originalRequest._retry = true;
 
@@ -62,6 +66,7 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
+                // The refresh token is sent automatically via httpOnly cookie (withCredentials: true)
                 const refreshResponse = await axios.post(
                     `${process.env.NEXT_PUBLIC_APP_API_URL ||
                     "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io"
@@ -73,7 +78,16 @@ api.interceptors.response.use(
                     }
                 );
 
-                if (refreshResponse.status === 200) {
+                // Handle response - check for accessToken in response or data.accessToken (wrapped response)
+                const accessToken = refreshResponse.data?.accessToken || refreshResponse.data?.data?.accessToken;
+
+                if (refreshResponse.status === 200 && accessToken) {
+                    // Save new access token to localStorage
+                    localStorage.setItem('accessToken', accessToken);
+
+                    // Update the original request with new token
+                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
                     processQueue(null, true, refreshResponse);
                     return api(originalRequest);
                 }
@@ -82,17 +96,8 @@ api.interceptors.response.use(
             } catch (err) {
                 processQueue(err, false);
 
-                try {
-                    await axios.post(
-                        `${process.env.NEXT_PUBLIC_APP_API_URL ||
-                        "https://pento-api.wonderfulrock-2a6b94b0.koreacentral.azurecontainerapps.io"
-                        }/users/sign-out`,
-                        {},
-                        { withCredentials: true }
-                    );
-                } catch {
-                    /* ignore logout errors */
-                }
+                // Clear access token on refresh failure
+                localStorage.removeItem('accessToken');
 
                 return Promise.reject(err);
             } finally {
