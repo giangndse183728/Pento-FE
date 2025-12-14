@@ -6,7 +6,6 @@ import AchievementsList from './AchievementsList';
 import CreateAchievements from './CreateAchievements';
 import ActivitiesList from './ActivitiesList';
 import CreateRequirements from './CreateRequirements';
-import '@/styles/tab-bar.css';
 
 export default function AchievementsManager() {
     const [currentStep, setCurrentStep] = useState<'create' | 'list' | 'activities' | 'requirements'>('create');

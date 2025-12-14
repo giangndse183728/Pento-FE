@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import AdminLayout from '@/features/admin/components/AdminLayout';
 import ShareDataSetChart from '@/features/admin/components/charts/ShareDataSetChart';
+import PaymentTable from '@/features/admin/components/PaymentTable';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
 import type { TimeWindow } from '@/features/admin/services/paymentService';
 import { getSubscriptions } from '@/features/subscription/services/subscriptionService';
@@ -130,6 +131,7 @@ export default function SubscriptionsPaymentPage() {
                     defaultCollapsed={true}
                 />
                 <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
+                <PaymentTable />
             </div>
         </AdminLayout>
     );

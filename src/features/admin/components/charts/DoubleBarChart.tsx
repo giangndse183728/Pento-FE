@@ -15,7 +15,8 @@ const DoubleBarChart = ({ params }: Props) => {
     const { data, loading } = useFoodItemLogSummary(params);
 
     const chartData = useMemo(() => {
-        if (!data) {
+        // Early return with defaults if data or required nested objects are missing
+        if (!data || !data.logSummary || !data.foodItemSummary) {
             return {
                 logCategories: ['Intake', 'Consumption', 'Discard'],
                 logByWeight: [0, 0, 0],
@@ -23,8 +24,8 @@ const DoubleBarChart = ({ params }: Props) => {
                 conditionCategories: ['Fresh', 'Expiring', 'Expired'],
                 conditionCounts: [0, 0, 0],
                 conditionByWeight: [0, 0, 0],
-                weightUnit: 'Kg',
-                volumeUnit: 'mL'
+                weightUnit: data?.weightUnit ?? 'Kg',
+                volumeUnit: data?.volumeUnit ?? 'mL'
             };
         }
 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ROUTES } from '@/constants/routes';
 import { ColorTheme } from '@/constants/color';
+import { LogOut } from 'lucide-react';
 import {
     Accordion,
     AccordionContent,
@@ -15,6 +16,7 @@ import { useUserProfile, useUpdateUserProfile, useUpdateUserAvatar } from '@/fea
 import UpdateDetailsModal, { type ModalField } from '@/components/decoration/UpdateDetailsModal';
 import ImageEditModal from '@/components/decoration/ImageEditModal';
 import type { UpdateProfileInput } from '@/features/users/schema/userSchema';
+import { useLogout } from '@/features/auth/hooks/useAuth';
 
 // Dashboard sub-items for accordion
 const dashboardSubItems = [
@@ -35,9 +37,13 @@ const ACCORDION_STATE_KEY = 'admin-sidebar-accordion';
 
 const AdminSidebar = () => {
     const pathname = usePathname();
+    const router = useRouter();
     const [hovered, setHovered] = useState<string | null>(null);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const [isEditAvatarOpen, setIsEditAvatarOpen] = useState(false);
+
+    // Logout mutation
+    const logoutMutation = useLogout();
 
     // Fetch user profile
     const { data: userProfile } = useUserProfile();
@@ -328,6 +334,34 @@ const AdminSidebar = () => {
                                 </div>
                             );
                         })}
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={() => logoutMutation.mutate()}
+                            disabled={logoutMutation.isPending}
+                            onMouseEnter={() => setHovered('logout')}
+                            onMouseLeave={() => setHovered(null)}
+                            className="w-full flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer mt-4"
+                            style={{
+                                backgroundColor: hovered === 'logout' ? '#FEE2E2' : 'transparent',
+                                opacity: logoutMutation.isPending ? 0.5 : 1,
+                            }}
+                        >
+                            <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+                                <LogOut
+                                    className="w-5 h-5"
+                                    style={{ color: hovered === 'logout' ? '#DC2626' : ColorTheme.blueGray }}
+                                />
+                            </div>
+                            <span
+                                className="truncate font-medium transition-colors"
+                                style={{
+                                    color: hovered === 'logout' ? '#DC2626' : ColorTheme.darkBlue,
+                                }}
+                            >
+                                {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+                            </span>
+                        </button>
                     </nav>
                 </div>
             </WhiteCard>

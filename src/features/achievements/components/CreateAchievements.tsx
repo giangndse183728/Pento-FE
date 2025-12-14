@@ -6,7 +6,6 @@ import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
 import { ColorTheme } from '@/constants/color';
 import { toast } from 'sonner';
-import '@/styles/toggle.css';
 import type { CreateMilestone } from '../schema/milestonesSchema';
 
 type CreateAchievementProps = {

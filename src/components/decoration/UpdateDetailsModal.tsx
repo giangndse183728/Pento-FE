@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { CusButton } from '@/components/ui/cusButton';
-import '@/styles/toggle.css';
 
 // Field types for the modal
 export type FieldType = 'text' | 'textarea' | 'toggle' | 'select' | 'number' | 'email' | 'password';
