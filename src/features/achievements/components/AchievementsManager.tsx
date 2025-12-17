@@ -8,7 +8,7 @@ import ActivitiesList from './ActivitiesList';
 import CreateRequirements from './CreateRequirements';
 
 export default function AchievementsManager() {
-    const [currentStep, setCurrentStep] = useState<'create' | 'list' | 'activities' | 'requirements'>('create');
+    const [currentStep, setCurrentStep] = useState<'create' | 'list' | 'activities' | 'requirements'>('list');
 
     return (
         <AdminLayout>
@@ -26,19 +26,28 @@ export default function AchievementsManager() {
                             <input
                                 type="radio"
                                 name="achievement-tab"
-                                checked={currentStep === 'create'}
-                                onChange={() => setCurrentStep('create')}
+                                checked={currentStep === 'list'}
+                                onChange={() => setCurrentStep('list')}
                             />
-                            Create Achievement
+                            Achievements List
                         </label>
                         <label className="segmented-button">
                             <input
                                 type="radio"
                                 name="achievement-tab"
-                                checked={currentStep === 'list'}
-                                onChange={() => setCurrentStep('list')}
+                                checked={currentStep === 'activities'}
+                                onChange={() => setCurrentStep('activities')}
                             />
-                            Achievements List
+                            Activities List
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="achievement-tab"
+                                checked={currentStep === 'create'}
+                                onChange={() => setCurrentStep('create')}
+                            />
+                            Create Achievement
                         </label>
 
                         <label className="segmented-button">
@@ -50,15 +59,7 @@ export default function AchievementsManager() {
                             />
                             Create Requirements
                         </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="achievement-tab"
-                                checked={currentStep === 'activities'}
-                                onChange={() => setCurrentStep('activities')}
-                            />
-                            Activities List
-                        </label>
+
                     </div>
                 </div>
 
