@@ -8,9 +8,15 @@ import { WhiteCard } from "@/components/decoration/WhiteCard";
 import { ColorTheme } from "@/constants/color";
 import { CusButton } from '@/components/ui/cusButton';
 import { useArticles } from '@/features/articles/hooks/useRss';
+import RouteLoadingScreen from '@/components/decoration/RouteLoadingScreen';
 
 export default function HomePage() {
-    const { refetch, refetching } = useArticles();
+    const { loading, refetch, refetching } = useArticles();
+
+    // Show loading screen while RSS is being fetched
+    if (loading) {
+        return <RouteLoadingScreen />;
+    }
 
     return (
         <main className="p-8">
