@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Article } from "../services/rssService";
+import { Article } from "../schema/RssSchema";
 
 interface HeroSectionProps {
     featuredArticle: Article;
