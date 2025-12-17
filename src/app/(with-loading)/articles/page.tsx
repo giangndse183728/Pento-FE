@@ -1,17 +1,23 @@
+'use client';
+
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import Articles from "@/features/articles/components/Articles";
+import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import ArticlesPage from "@/features/articles/components/ArticlesPage";
 import { WhiteCard } from "@/components/decoration/WhiteCard";
 import { ColorTheme } from "@/constants/color";
 import { CusButton } from '@/components/ui/cusButton';
+import { useArticles } from '@/features/articles/hooks/useRss';
 
 export default function HomePage() {
+    const { refetch, refetching } = useArticles();
+
     return (
         <main className="p-8">
             <div className="sticky top-0 z-20 w-screen -mx-8 -mt-8">
                 {/* Header Section */}
                 <div className="relative">
-                    {/* Back to Homepage Button */}
+                    {/* Back to Home Button */}
                     <div className="absolute top-4 left-8 z-20">
                         <Link href="/">
                             <CusButton
@@ -37,7 +43,8 @@ export default function HomePage() {
                     </WhiteCard>
                 </div>
             </div>
-            <Articles />
+
+            <ArticlesPage />
         </main>
     );
 }

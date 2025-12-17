@@ -26,4 +26,5 @@ export const RSS_SOURCES: RSSSource[] = [
     { key: "nononsense", label: "No Nonsense Cooking" },
 ];
 
-export const ITEMS_PER_PAGE = 9;
+// Pagination
+export const ITEMS_PER_PAGE = 20; // Increased to show full pattern: Hero(5) + 3Cards + Banner + 3Cards + Banner + 3Cards + Banner
