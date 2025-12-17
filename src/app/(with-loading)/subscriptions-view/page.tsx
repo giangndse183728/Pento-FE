@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useSubscription } from '@/features/subscription/hooks/useSubscription';
 import { Subscription } from '@/features/subscription/services/subscriptionService';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import GlareHover from '@/components/decoration/GlareHover';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CreditCard, Check } from 'lucide-react';
+import { CreditCard, Check, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { ColorTheme } from '@/constants/color';
 import RollToTopButton from '@/features/recipes-view/RollToTopButton';
+import { CusButton } from '@/components/ui/cusButton';
 import '@/styles/subscriptions-card.css';
 
 // Subscription card component with hover pop-up effect
@@ -323,16 +325,19 @@ export default function SubscriptionsViewPage() {
         <div className="min-h-screen">
             <div className="w-full sticky top-0 z-20">
                 {/* Header Section */}
-                <WhiteCard
-                    className="w-full py-12 flex flex-col items-center justify-center text-center rounded-b-[80px] !bg-white/20 pt-0"
-                >
-                    <h1 className="text-4xl md:text-5xl font-bold" style={{ color: ColorTheme.darkBlue }}>
-                        Available Subscriptions
-                    </h1>
-                    <h2 className="text-lg md:text-xl mt-2" style={{ color: ColorTheme.blueGray }}>
-                        We have all the perfect plans for your needs
-                    </h2>
-                </WhiteCard>
+                <div className="relative">
+
+                    <WhiteCard
+                        className="w-full py-12 flex flex-col items-center justify-center text-center rounded-b-[80px] !bg-white/20 pt-0"
+                    >
+                        <h1 className="text-4xl font-bold" style={{ color: ColorTheme.darkBlue }}>
+                            Available Subscriptions
+                        </h1>
+                        <h2 className="text-lg md:text-xl mt-2" style={{ color: ColorTheme.blueGray }}>
+                            We have all the perfect plans for your needs
+                        </h2>
+                    </WhiteCard>
+                </div>
             </div>
 
             <div className="p-6 md:p-12 pb-32">

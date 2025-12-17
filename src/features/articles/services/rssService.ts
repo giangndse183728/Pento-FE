@@ -1,11 +1,6 @@
-export type Article = {
-    title: string;
-    link: string;
-    source: string;
-    description: string;
-    image?: string | null;
-    pubDate: string;
-};
+import { Article } from "../schema/RssSchema";
+
+export type { Article };
 
 export async function fetchRSS(source: string): Promise<Article[]> {
     const res = await fetch(`/api/articles?source=${source}`);

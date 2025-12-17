@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ROUTES } from '@/constants/routes';
 import { ColorTheme } from '@/constants/color';
-import { LogOut } from 'lucide-react';
 import {
     Accordion,
     AccordionContent,
@@ -335,6 +334,8 @@ const AdminSidebar = () => {
                             );
                         })}
 
+                        <div className="w-full border-t border-gray-300 mb-6" />
+
                         {/* Logout Button */}
                         <button
                             onClick={() => logoutMutation.mutate()}
@@ -348,9 +349,12 @@ const AdminSidebar = () => {
                             }}
                         >
                             <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
-                                <LogOut
-                                    className="w-5 h-5"
-                                    style={{ color: hovered === 'logout' ? '#DC2626' : ColorTheme.blueGray }}
+                                <Image
+                                    src="/assets/img/log-out.png"
+                                    alt="Logout"
+                                    width={28}
+                                    height={28}
+                                    className="w-7 h-7"
                                 />
                             </div>
                             <span
