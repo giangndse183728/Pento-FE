@@ -8,14 +8,35 @@ import { WhiteCard } from "@/components/decoration/WhiteCard";
 import { ColorTheme } from "@/constants/color";
 import { CusButton } from '@/components/ui/cusButton';
 import { useArticles } from '@/features/articles/hooks/useRss';
-import RouteLoadingScreen from '@/components/decoration/RouteLoadingScreen';
+import '@/styles/loading-screen.css';
 
 export default function HomePage() {
     const { loading, refetch, refetching } = useArticles();
 
     // Show loading screen while RSS is being fetched
     if (loading) {
-        return <RouteLoadingScreen />;
+        return (
+            <div
+                className="fixed inset-0 z-[1000] flex items-center justify-center bg-white"
+                aria-live="polite"
+                aria-busy={true}
+            >
+                <div className="flex flex-col items-center gap-4">
+                    <div className="loader">
+                        <div className="bar1"></div>
+                        <div className="bar2"></div>
+                        <div className="bar3"></div>
+                        <div className="bar4"></div>
+                        <div className="bar5"></div>
+                        <div className="bar6"></div>
+                        <div className="bar7"></div>
+                        <div className="bar8"></div>
+                        <div className="bar9"></div>
+                    </div>
+                    <span className="text-black/90 text-sm font-primary">Loading articles...</span>
+                </div>
+            </div>
+        );
     }
 
     return (
