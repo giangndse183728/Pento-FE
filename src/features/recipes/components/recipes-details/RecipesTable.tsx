@@ -17,9 +17,12 @@ type Props = {
     pageNumber: number;
     setPageNumber: (page: number) => void;
     pageSize?: number;
+    difficulty?: string;
+    search?: string;
+    sort?: string;
 };
 
-export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12 }: Props) {
+export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12, difficulty, search, sort }: Props) {
     const router = useRouter();
     const deleteMutation = useDeleteRecipe();
     const [modalOpen, setModalOpen] = useState(false);
@@ -125,7 +128,7 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
                                             <TableHead className='text-lg font-semibold w-[100px]' style={{ color: '#113F67' }}>Difficulty</TableHead>
                                             <TableHead className='text-lg font-semibold w-[130px]' style={{ color: '#113F67' }}>
                                                 <div className="flex items-center gap-1">
-                                                    <Clock className="w-4 h-4" />
+
                                                     Prep / Cook
                                                 </div>
                                             </TableHead>

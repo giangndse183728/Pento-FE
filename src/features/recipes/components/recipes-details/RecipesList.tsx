@@ -24,9 +24,12 @@ type Props = {
     pageNumber: number;
     setPageNumber: (page: number) => void;
     pageSize?: number;
+    difficulty?: string;
+    search?: string;
+    sort?: string;
 };
 
-export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12 }: Props) {
+export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12, difficulty, search, sort }: Props) {
     const [deleteMode, setDeleteMode] = useState(false);
     const items = list.data?.items ?? [];
     const totalCount = list.data?.totalCount ?? 0;

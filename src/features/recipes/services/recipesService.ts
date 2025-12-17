@@ -18,6 +18,8 @@ export type RecipesQuery = {
     pageNumber: number;
     pageSize: number;
     difficulty?: string;
+    search?: string;
+    sort?: string;
 };
 
 export type PaginatedResponse<T> = {
