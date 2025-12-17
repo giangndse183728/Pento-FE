@@ -1,25 +1,61 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import RecipesCards from '@/features/recipes-view/RecipesCards';
 import { useRecipesList } from '@/features/recipes/hooks/useRecipes';
 import { RecipeSummary } from '@/features/recipes/services/recipesService';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChefHat, Loader2, Search } from 'lucide-react';
+import { ChefHat, Loader2, Search, ArrowLeft } from 'lucide-react';
 import { ColorTheme } from '@/constants/color';
 import RollToTopButton from '@/features/recipes-view/RollToTopButton';
+import { CusButton } from '@/components/ui/cusButton';
 
 export default function RecipesViewPage() {
     const [pageNumber, setPageNumber] = useState(1);
     const [allItems, setAllItems] = useState<RecipeSummary[]>([]);
-    const [search, setSearch] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [search, setSearch] = useState<string | undefined>(undefined);
+    const [difficulty, setDifficulty] = useState<string | undefined>(undefined);
+    const [sort, setSort] = useState<string | undefined>(undefined);
     const pageSize = 6;
     const observerTarget = useRef<HTMLDivElement>(null);
 
-    const list = useRecipesList({ pageNumber, pageSize });
+    const list = useRecipesList({ pageNumber, pageSize, search, difficulty, sort });
     const totalCount = list.data?.totalCount ?? 0;
     const hasMore = allItems.length < totalCount;
+
+    // Handle search submit
+    const handleSearch = () => {
+        setSearch(searchInput.trim() || undefined);
+        setPageNumber(1);
+        setAllItems([]); // Reset items when searching
+    };
+
+    // Handle difficulty change
+    const handleDifficultyChange = (newDifficulty: string) => {
+        setDifficulty(newDifficulty || undefined);
+        setPageNumber(1);
+        setAllItems([]); // Reset items when filtering
+    };
+
+    // Handle sort change
+    const handleSortChange = (newSort: string) => {
+        setSort(newSort || undefined);
+        setPageNumber(1);
+        setAllItems([]); // Reset items when sorting
+    };
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSearchInput('');
+        setSearch(undefined);
+        setDifficulty(undefined);
+        setSort(undefined);
+        setPageNumber(1);
+        setAllItems([]);
+    };
 
     // Accumulate items when new page loads
     useEffect(() => {
@@ -61,14 +97,14 @@ export default function RecipesViewPage() {
             <div className="w-full sticky top-0 z-20">
                 {/* Header Section */}
                 <div
-                    className="w-full h-64 md:h-80 rounded-b-[80px] flex flex-col items-center justify-center text-center px-4 bg-cover bg-center bg-no-repeat relative opacity-70"
+                    className="w-full h-50 md:h-50 rounded-b-[80px] flex flex-col items-center justify-center text-center px-4 bg-cover bg-center bg-no-repeat relative opacity-70"
                     style={{
 
                         backgroundImage: 'url(/assets/img/header2.jpg)'
                     }}
                 >
                     {/* overlay */}
-                    <div className="absolute inset-0 bg-black/20 rounded-b-[80px]"></div>
+                    <div className="absolute inset-0 bg-black/10 rounded-b-[80px]"></div>
 
                     {/* Content with higher z-index */}
                     <div className="relative z-10">
@@ -83,28 +119,64 @@ export default function RecipesViewPage() {
                         <div className="relative max-w-lg mx-auto mt-6">
                             <input
                                 type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
                                 placeholder="Know what you want? Search it!"
                                 className="w-full pl-6 pr-16 py-4 bg-white rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#769FCD]/30 focus:border-[#769FCD] text-gray-700 placeholder-gray-400 text-base"
                             />
                             <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-                                <div className="bg-[#769FCD] rounded-full p-3 cursor-pointer hover:bg-[#5a7ba8] transition-colors">
+                                <button
+                                    onClick={handleSearch}
+                                    className="bg-[#769FCD] rounded-full p-3 cursor-pointer hover:bg-[#5a7ba8] transition-colors"
+                                >
                                     <Search className="h-5 w-5 text-white" />
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Count aligned right */}
-                {/* <p className="text-sm text-gray-600 text-right mt-2 pr-2">
-                    {totalCount} {totalCount === 1 ? 'recipe' : 'recipes'} available
-                </p> */}
             </div>
 
-            <div className="p-6 md:p-12">
+            <div className="p-2 md:p-2">
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Filter Section - Outside Header */}
+                    <div className="flex flex-row gap-3 justify-end items-center">
+                        {/* Difficulty Filter */}
+                        <select
+                            className="px-4 py-2 bg-white rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#769FCD]/30 focus:border-[#769FCD] text-gray-700 text-sm cursor-pointer shadow-sm"
+                            value={difficulty ?? ''}
+                            onChange={(e) => handleDifficultyChange(e.target.value)}
+                        >
+                            <option value="">All Difficulties</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+
+                        {/* Sort Dropdown */}
+                        <select
+                            className="px-4 py-2 bg-white rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#769FCD]/30 focus:border-[#769FCD] text-gray-700 text-sm cursor-pointer shadow-sm"
+                            value={sort ?? ''}
+                            onChange={(e) => handleSortChange(e.target.value)}
+                        >
+                            <option value="">Default Sort</option>
+                            <option value="title">Title (A-Z)</option>
+                            <option value="-title">Title (Z-A)</option>
+                            <option value="createdDate">Oldest First</option>
+                            <option value="-createdDate">Newest First</option>
+                        </select>
+
+                        {/* Clear Filters Button */}
+                        <CusButton
+                            type="button"
+                            onClick={clearFilters}
+                            variant="blueGray"
+                            size="lg"
+                        >
+                            Clear Filters
+                        </CusButton>
+                    </div>
 
 
 
@@ -162,8 +234,7 @@ export default function RecipesViewPage() {
 
                     {/* End of Results */}
                     {!hasMore && allItems.length > 0 && (
-                        <div className="text-center py-8 text-gray-500 text-sm">
-                            You&apos;ve reached the end of the recipes
+                        <div className="py-12">
                         </div>
                     )}
                 </div>

@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "@/features/auth/schema";
-import { login } from "@/features/auth/services";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -18,36 +16,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ColorTheme } from "@/constants/color";
 import { ShinyButton } from "@/components/decoration/ShinyButton";
-import { toast } from "sonner"; // or use any toast lib you have
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { login, isLoggingIn } = useAuth();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const [loading, setLoading] = useState(false);
-
   const onSubmit = async (data: LoginFormData) => {
-    try {
-      setLoading(true);
-      await login(data);
-      toast.success("Login successful!");
-      // Use redirect param from URL, or default to subscriptions payment dashboard
-      const redirectTo = searchParams.get("redirect") || "/admin/dashboard/subscriptions-payment";
-      router.refresh();
-      router.replace(redirectTo);
-    } catch (error) {
-      console.error(error);
-      toast.error("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
-    }
+    await login(data);
   };
 
   return (
@@ -79,7 +60,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   type="email"
                   placeholder="m@example.com"
                   {...register("email")}
-                  disabled={isSubmitting}
+                  disabled={isLoggingIn}
                 />
                 {errors.email && (
                   <p className="text-red-400 text-sm">
@@ -99,7 +80,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   id="password"
                   type="password"
                   {...register("password")}
-                  disabled={isSubmitting}
+                  disabled={isLoggingIn}
                 />
                 {errors.password && (
                   <p className="text-red-400 text-sm">
@@ -118,8 +99,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 <ShinyButton
                   type="submit"
                   className="w-full"
-                  text={loading ? "Logging in..." : "Login"}
-                  disabled={loading}
+                  text={isLoggingIn ? "Logging in..." : "Login"}
+                  disabled={isLoggingIn}
                 />
               </div>
             </div>

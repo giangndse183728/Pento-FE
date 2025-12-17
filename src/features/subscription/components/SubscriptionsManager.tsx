@@ -51,7 +51,7 @@ const selectClass = 'neomorphic-select w-full';
 export default function SubscriptionsManager() {
     const pathname = usePathname();
     const [mountKey, setMountKey] = useState(0);
-    const [currentStep, setCurrentStep] = useState<'create-subscription' | 'add-plans' | 'add-features' | 'list'>('create-subscription');
+    const [currentStep, setCurrentStep] = useState<'create-subscription' | 'add-plans' | 'add-features' | 'list'>('list');
 
     const { createSubscription, addSubscriptionPlan, addSubscriptionFeature, subscriptions } = useSubscription();
     const { data: features, isLoading: featuresLoading, isFetching: featuresFetching } = useFeatures({
@@ -352,6 +352,15 @@ export default function SubscriptionsManager() {
                             <input
                                 type="radio"
                                 name="subscription-tab"
+                                checked={currentStep === 'list'}
+                                onChange={() => setCurrentStep('list')}
+                            />
+                            Subscriptions List
+                        </label>
+                        <label className="segmented-button">
+                            <input
+                                type="radio"
+                                name="subscription-tab"
                                 checked={currentStep === 'create-subscription'}
                                 onChange={() => setCurrentStep('create-subscription')}
                             />
@@ -374,15 +383,6 @@ export default function SubscriptionsManager() {
                                 onChange={() => setCurrentStep('add-features')}
                             />
                             Add Features
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'list'}
-                                onChange={() => setCurrentStep('list')}
-                            />
-                            Subscriptions List
                         </label>
                     </div>
                 </div>

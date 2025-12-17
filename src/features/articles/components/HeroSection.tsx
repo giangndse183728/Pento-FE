@@ -3,7 +3,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Article } from "../services/rssService";
+import { Article } from "../schema/RssSchema";
+
+// Helper to detect if URL is a video
+function isVideoUrl(url: string): boolean {
+    return /\.(mp4|webm|ogg|mov)$/i.test(url);
+}
 
 interface HeroSectionProps {
     featuredArticle: Article;
@@ -13,31 +18,43 @@ interface HeroSectionProps {
 export default function HeroSection({ featuredArticle, sideArticles }: HeroSectionProps) {
     return (
         <section className="w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Left - Featured Article with Image */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left - Featured Article */}
                 <div className="relative h-[500px] lg:h-[600px] overflow-hidden group rounded-lg">
                     {featuredArticle.image ? (
-                        <Image
-                            src={featuredArticle.image}
-                            alt={featuredArticle.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 1024px) 100vw, 50vw"
-                            priority
-                        />
+                        isVideoUrl(featuredArticle.image) ? (
+                            <video
+                                src={featuredArticle.image}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                            />
+                        ) : (
+                            <Image
+                                src={featuredArticle.image}
+                                alt={featuredArticle.title}
+                                fill
+                                unoptimized
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                priority
+                            />
+                        )
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                             <span className="text-8xl">🍳</span>
                         </div>
                     )}
 
                     {/* Overlay Card at Bottom */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-6 shadow-xl max-w-xl">
+                        <div className="bg-white rounded-lg p-6 shadow-xl w-xl">
                             {/* Category Label */}
                             <span
                                 className="text-xs font-bold tracking-wider uppercase"
-                                style={{ color: '#e53e3e' }}
+                                style={{ color: '#769FCD' }}
                             >
                                 {featuredArticle.source}
                             </span>
@@ -48,7 +65,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                                     href={featuredArticle.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="hover:text-orange-600 transition-colors"
+                                    className="hover:text-[#769FCD] transition-colors"
                                 >
                                     {featuredArticle.title}
                                 </Link>
@@ -85,16 +102,28 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                             rel="noopener noreferrer"
                             className="group flex flex-col"
                         >
-                            {/* Article Image */}
-                            <div className="relative h-36 lg:h-40 overflow-hidden rounded-lg">
+                            {/* Article Image/Video */}
+                            <div className="relative min-h-40 overflow-hidden rounded-lg">
                                 {article.image ? (
-                                    <Image
-                                        src={article.image}
-                                        alt={article.title}
-                                        fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                    />
+                                    isVideoUrl(article.image) ? (
+                                        <video
+                                            src={article.image}
+                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={article.image}
+                                            alt={article.title}
+                                            fill
+                                            unoptimized
+                                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                            sizes="(max-width: 768px) 50vw, 25vw"
+                                        />
+                                    )
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                         <span className="text-4xl">📰</span>
@@ -103,17 +132,17 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                             </div>
 
                             {/* Article Info - White Card */}
-                            <div className="mt-3 p-3 bg-white rounded-lg shadow-sm flex flex-col">
+                            <div className="mt-3 p-3 bg-white rounded-lg shadow-sm flex flex-col min-h-30">
                                 {/* Category */}
                                 <span
                                     className="text-xs font-bold tracking-wider uppercase"
-                                    style={{ color: '#e53e3e' }}
+                                    style={{ color: '#769FCD' }}
                                 >
                                     {article.source}
                                 </span>
 
                                 {/* Title */}
-                                <h3 className="text-sm lg:text-base font-bold text-gray-900 mt-1 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                                <h3 className="text-sm lg:text-base font-bold text-gray-900 mt-1 line-clamp-2 group-hover:text-[#769FCD] transition-colors">
                                     {article.title}
                                 </h3>
 

@@ -14,26 +14,34 @@ export const useLogin = () => {
     return useMutation({
         mutationFn: (credentials: LoginFormData) => login(credentials),
         onSuccess: async () => {
+            console.log('[useAuth] Login successful, invalidating queries');
             queryClient.invalidateQueries({ queryKey: ['user'] });
 
             try {
+                console.log('[useAuth] Fetching user profile...');
                 // Fetch user profile to check role
                 const user = await getUserProfile();
+                console.log('[useAuth] User profile fetched:', { roles: user.roles, email: user.email });
+
                 toast.success('Login successful!');
 
                 // Redirect based on role
-                if (user.roles === 'ADMIN') {
+                if (user.roles === 'Administrator') {
+                    console.log('[useAuth] Redirecting to admin dashboard');
                     router.push('/admin/dashboard/subscriptions-payment');
                 } else {
+                    console.log('[useAuth] Redirecting to home');
                     router.push('/');
                 }
-            } catch {
+            } catch (error) {
                 // If profile fetch fails, redirect to home
+                console.error('[useAuth] Profile fetch failed:', error);
                 toast.success('Login successful!');
                 router.push('/');
             }
         },
         onError: (error: Error) => {
+            console.error('[useAuth] Login failed:', error);
             toast.error(error.message || 'Login failed');
         },
     });
