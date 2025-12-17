@@ -50,7 +50,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
 
                     {/* Overlay Card at Bottom */}
                     <div className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-center">
-                        <div className="bg-white rounded-lg p-6 shadow-xl max-w-xl">
+                        <div className="bg-white rounded-lg p-6 shadow-xl w-xl">
                             {/* Category Label */}
                             <span
                                 className="text-xs font-bold tracking-wider uppercase"
@@ -103,7 +103,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                             className="group flex flex-col"
                         >
                             {/* Article Image/Video */}
-                            <div className="relative h-36 lg:h-42 overflow-hidden rounded-lg">
+                            <div className="relative min-h-40 overflow-hidden rounded-lg">
                                 {article.image ? (
                                     isVideoUrl(article.image) ? (
                                         <video
@@ -132,7 +132,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                             </div>
 
                             {/* Article Info - White Card */}
-                            <div className="mt-3 p-3 bg-white rounded-lg shadow-sm flex flex-col">
+                            <div className="mt-3 p-3 bg-white rounded-lg shadow-sm flex flex-col min-h-30">
                                 {/* Category */}
                                 <span
                                     className="text-xs font-bold tracking-wider uppercase"

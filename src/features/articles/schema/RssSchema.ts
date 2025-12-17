@@ -27,4 +27,4 @@ export const RSS_SOURCES: RSSSource[] = [
 ];
 
 // Pagination
-export const ITEMS_PER_PAGE = 20; // Increased to show full pattern: Hero(5) + 3Cards + Banner + 3Cards + Banner + 3Cards + Banner
+export const ITEMS_PER_PAGE = 30; 

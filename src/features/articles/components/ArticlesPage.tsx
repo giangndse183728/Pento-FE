@@ -4,6 +4,7 @@ import HeroSection from "./HeroSection";
 import BannerSection from "./BannerSection";
 import ArticlesSection from "./ArticlesSection";
 import { useArticles } from "../hooks/useRss";
+import { ColorTheme } from "@/constants/color";
 
 export default function ArticlesPage() {
     const {
@@ -72,7 +73,7 @@ export default function ArticlesPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
+        <div className="max-w-7xl mx-auto px-4 py-12 space-y-16 ">
             {/* FIRST Hero Section - Featured + Side Articles */}
             {heroArticle && sideArticles.length > 0 ? (
                 <HeroSection
@@ -89,10 +90,14 @@ export default function ArticlesPage() {
             {groups.map((group, idx) => {
                 console.log(`🎯 Rendering group ${idx}:`, group);
                 return (
-                    <div key={idx}>
+                    <div key={idx} className="space-y-8">
                         {group.type === 'cards' ? (
                             <>
-                                {console.log(`   → Cards group ${idx}, articles ${group.startIndex} to ${group.startIndex + group.count - 1}`)}
+                                {/* Section Title for Articles */}
+                                <div className="flex justify-center">
+                                    <h2 className="text-3xl font-bold uppercase" style={{ color: ColorTheme.darkBlue }}>What to read</h2>
+                                </div>
+
                                 <ArticlesSection
                                     articles={articles.slice(group.startIndex, group.startIndex + group.count)}
                                     startIndex={group.startIndex}
@@ -100,12 +105,21 @@ export default function ArticlesPage() {
                             </>
                         ) : group.type === 'banner' ? (
                             <>
+                                {/* Section Title for Banner */}
+                                <div className="flex justify-center">
+                                    <h2 className="text-3xl font-bold uppercase" style={{ color: ColorTheme.darkBlue }}>Trending now</h2>
+                                </div>
+
                                 {console.log(`   → Banner group ${idx}, article ${group.startIndex}`)}
                                 <BannerSection article={articles[group.startIndex]} />
                             </>
                         ) : (
                             <>
-                                {console.log(`   → Hero group ${idx}, articles ${group.startIndex} to ${group.startIndex + 4}`)}
+                                {/* Section Title for Repeating Hero */}
+                                <div className="flex justify-center">
+                                    <h2 className="text-3xl font-bold uppercase" style={{ color: ColorTheme.darkBlue }}>Editor's Pick</h2>
+                                </div>
+
                                 <HeroSection
                                     featuredArticle={articles[group.startIndex]}
                                     sideArticles={articles.slice(group.startIndex + 1, group.startIndex + 5)}

@@ -15,7 +15,6 @@ interface ArticlesSectionProps {
 }
 
 export default function ArticlesSection({ articles, startIndex = 0 }: ArticlesSectionProps) {
-    // Take only 3 articles
     const displayArticles = articles.slice(0, 3);
 
     if (displayArticles.length === 0) {
@@ -78,7 +77,7 @@ export default function ArticlesSection({ articles, startIndex = 0 }: ArticlesSe
 
                         {/* Date */}
                         {article.pubDate && (
-                            <time className="text-xs text-gray-500 mt-">
+                            <time className="text-xs text-gray-500 mt-auto">
                                 {new Date(article.pubDate).toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric'

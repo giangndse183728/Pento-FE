@@ -46,15 +46,42 @@ export function useArticles() {
                     new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
             );
 
-            // Prioritize videos for the hero section - videos come first, then by date
-            const sorted = sortedByDate.sort((a, b) => {
-                const aHasVideo = isVideoUrl(a.image);
-                const bHasVideo = isVideoUrl(b.image);
+            // Separate by video/non-video
+            const withVideos = sortedByDate.filter(article => isVideoUrl(article.image));
+            const withoutVideos = sortedByDate.filter(article => !isVideoUrl(article.image));
 
-                if (aHasVideo && !bHasVideo) return -1;
-                if (!aHasVideo && bHasVideo) return 1;
-                return 0; // Keep date order for same type
-            });
+            // Interleave sources to ensure mixing
+            const interleaveBySource = (articles: Article[]) => {
+                const bySource: { [key: string]: Article[] } = {};
+
+                // Group by source
+                articles.forEach(article => {
+                    if (!bySource[article.source]) {
+                        bySource[article.source] = [];
+                    }
+                    bySource[article.source].push(article);
+                });
+
+                const sources = Object.keys(bySource);
+                const interleaved: Article[] = [];
+                let maxLength = Math.max(...sources.map(s => bySource[s].length));
+
+                // Interleave: take one from each source in rotation
+                for (let i = 0; i < maxLength; i++) {
+                    sources.forEach(source => {
+                        if (bySource[source][i]) {
+                            interleaved.push(bySource[source][i]);
+                        }
+                    });
+                }
+
+                return interleaved;
+            };
+
+            // Interleave both groups separately, then combine (videos first)
+            const interleavedVideos = interleaveBySource(withVideos);
+            const interleavedNonVideos = interleaveBySource(withoutVideos);
+            const sorted = [...interleavedVideos, ...interleavedNonVideos];
 
             setArticles(sorted);
 

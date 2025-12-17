@@ -106,20 +106,6 @@ export default function RecipesViewPage() {
                     {/* overlay */}
                     <div className="absolute inset-0 bg-black/10 rounded-b-[80px]"></div>
 
-                    {/* Back to Homepage Button */}
-                    <div className="absolute top-4 left-4 z-20">
-                        <Link href="/">
-                            <CusButton
-                                type="button"
-                                variant="blueGray"
-                                size="sm"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                Back to Home
-                            </CusButton>
-                        </Link>
-                    </div>
-
                     {/* Content with higher z-index */}
                     <div className="relative z-10">
                         <h1 className="text-3xl md:text-4xl font-bold" style={{ color: ColorTheme.darkBlue }}>
