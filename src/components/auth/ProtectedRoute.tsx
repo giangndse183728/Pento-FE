@@ -52,7 +52,7 @@ export default function ProtectedRoute({
         }
 
         // Check admin requirement
-        if (requireAdmin && isAuthenticated && userRole !== 'ADMIN') {
+        if (requireAdmin && isAuthenticated && userRole !== 'Administrator') {
             router.push('/');
             return;
         }
@@ -78,7 +78,7 @@ export default function ProtectedRoute({
         return null;
     }
 
-    if (requireAdmin && userRole !== 'ADMIN') {
+    if (requireAdmin && userRole !== 'Administrator') {
         return null;
     }
 
