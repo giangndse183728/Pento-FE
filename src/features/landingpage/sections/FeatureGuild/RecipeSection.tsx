@@ -118,15 +118,29 @@ function RecipeSection() {
           }}
       >
         <div className="space-y-6 mt-20 px-14">
-          <div className="inline-block px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-semibold">
-            Smart Recipe
+          <div 
+            className="inline-block px-4 py-2 rounded-full text-sm font-semibold animate-pulse"
+            style={{
+              background: `linear-gradient(135deg, ${ColorTheme.powderBlue}40, ${ColorTheme.babyBlue}40, ${ColorTheme.iceberg}40)`,
+              color: ColorTheme.blueGray,
+            }}
+          >
+            🎨 Creative Recipes
           </div>
-          <h3 className="text-5xl font-bold text-white">
-            AI-Powered Recipe Suggestions
+          <h3 
+            className="text-5xl font-bold"
+            style={{
+              background: `linear-gradient(135deg, ${ColorTheme.powderBlue}, ${ColorTheme.babyBlue}, ${ColorTheme.blueGray})`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Discover Your Perfect Meal Match!
           </h3>
           <p className="text-xl text-gray-300 leading-relaxed">
-            Get personalized recipe recommendations based on your available ingredients. 
-            Our AI understands your pantry and suggests delicious meals you can make right now.
+            Turn your pantry into a treasure trove of possibilities! 
+            Get personalized recipe recommendations based on what you have, and whip up something amazing right now. 🎉
           </p>
           
           <div className="space-y-4 mt-8">
@@ -183,9 +197,8 @@ function RecipeSection() {
 
         <div className="relative w-full h-full flex items-center justify-center ">
           <div 
-            className="w-full h-full backdrop-blur-xl bg-black/20  border-l-4 border-white/80 shadow-2xl"
+            className="w-full h-full backdrop-blur-xl border-white/80"
             style={{
-              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%)',
               backdropFilter: 'blur(21px)',
               WebkitBackdropFilter: 'blur(21px)',
             }}
@@ -194,7 +207,7 @@ function RecipeSection() {
               <div className="relative  w-full h-[45%]  border-b-4 border-white/80 overflow-hidden">
                 <Image 
                   src="/assets/img/giveaway.png" 
-                  alt="Food Giveaway Feature" 
+                  alt="Trade Food Items Feature" 
                   fill
                   className="object-cover"
                   priority
@@ -202,15 +215,21 @@ function RecipeSection() {
               </div>
             
               <div className="space-y-4 px-32 mt-6">
-                <div className="inline-block px-4 py-2 bg-blue-500/20 text-blue-400 rounded-full text-sm font-semibold">
-                  Food Giveaway
+                <div 
+                  className="inline-block px-4 py-2 rounded-full text-sm font-semibold"
+                  style={{
+                    backgroundColor: `${ColorTheme.blueGray}33`,
+                    color: ColorTheme.blueGray,
+                  }}
+                >
+                  Trade Food Items
                 </div>
                 <h3 className="text-4xl font-bold text-white">
-                  Share Food, Reduce Waste
+                  Swap & Share, Build Community
                 </h3>
                 <p className="text-lg text-gray-300 leading-relaxed">
-                  Connect with your community to share excess food. 
-                  Give away items you won't use and help others while reducing waste.
+                  Connect with your community to trade food items. 
+                  Exchange what you have for what you need and reduce waste.
                 </p>
 
                 <div className="space-y-4 mt-6">
