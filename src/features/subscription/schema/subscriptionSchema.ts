@@ -54,3 +54,114 @@ export const createSubscriptionFeatureSchema = subscriptionFeatureSchema.omit({
     updatedOnUtc: true,
 });
 
+// TypeScript Types
+export type Subscription = {
+    id?: string;
+    subscriptionId?: string;
+    name: string;
+    description?: string | null;
+    isActive: boolean;
+    createdOnUtc?: string;
+    updatedOnUtc?: string;
+    plans?: Array<{
+        subscriptionPlanId: string;
+        price: string;
+        duration: string;
+    }>;
+    features?: Array<{
+        subscriptionFeatureId: string;
+        featureName: string;
+        entitlement: string;
+    }>;
+};
+
+export type SubscriptionPlan = {
+    id: string;
+    subscriptionId: string;
+    amount: number;
+    currency: string;
+    durationInDays: number;
+    createdOnUtc?: string;
+    updatedOnUtc?: string;
+};
+
+export type SubscriptionFeature = {
+    id: string;
+    subscriptionId: string;
+    featureCode: string;
+    entitlementQuota: number;
+    entitlementResetPer?: 'Day' | 'Week' | 'Month' | 'Year';
+    createdOnUtc?: string;
+    updatedOnUtc?: string;
+};
+
+export type CreateSubscriptionPayload = {
+    name: string;
+    description?: string;
+    isActive: boolean;
+};
+
+export type CreateSubscriptionPlanPayload = {
+    amount: number;
+    currency: string;
+    durationInDays?: number;
+};
+
+export type CreateSubscriptionFeaturePayload = {
+    featureCode: string;
+    quota?: number;
+    resetPeriod?: 'Day' | 'Week' | 'Month' | 'Year';
+};
+
+export type FeatureDefinition = {
+    featureCode: string;
+    name: string;
+    description: string;
+    defaultEntitlement: string;
+};
+
+export type SubscriptionListResponse =
+    | Subscription[]
+    | {
+        items: Subscription[];
+    };
+
+export type UpdateSubscriptionFeatureInput = {
+    featureCode?: string;
+    entitlementQuota?: number;
+    entitlementResetPer?: string;
+};
+
+export type UpdateSubscriptionPlanInput = {
+    amount?: number;
+    currency?: string;
+    durationInDays?: number;
+};
+
+export type UpdateSubscriptionInput = {
+    name?: string;
+    description?: string;
+    isActive?: boolean;
+};
+
+// Edit form types 
+export type EditSubForm = {
+    name: string;
+    description: string;
+    isActive: boolean;
+};
+
+export type EditPlanForm = {
+    planId: string;
+    amount: number;
+    currency: string;
+    durationInDays: number;
+};
+
+export type EditFeatureForm = {
+    featureId: string;
+    featureCode: string;
+    quota: number;
+    resetPeriod: string;
+};
+
