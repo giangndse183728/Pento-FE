@@ -37,10 +37,29 @@ export interface GetReportsParams {
     status?: ReportStatus;
     severity?: ReportSeverity;
     reason?: ReportReason;
-    fromDate?: string;
-    toDate?: string;
-    reporterUserId?: string;
-    tradeSessionId?: string;
+    sort?: 'Newest' | 'Oldest';
     pageNumber?: number;
     pageSize?: number;
+}
+
+export interface PaginatedReportsData {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalCount: number;
+    hasPrevious: boolean;
+    hasNext: boolean;
+    items: TradeReport[];
+}
+
+export interface ReportsSummary {
+    totalReports: number;
+    pendingReports: number;
+    urgentReports: number;
+    resolvedReports: number;
+}
+
+export interface GetReportsResponse {
+    reports: PaginatedReportsData;
+    summary: ReportsSummary;
 }

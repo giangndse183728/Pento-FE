@@ -4,26 +4,28 @@ import React, { useState, useMemo } from 'react';
 import { useReports } from '@/features/reports/hooks/useReport';
 import { Loader2 } from 'lucide-react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import FilterSection from '@/components/decoration/FilterSection';
 import ReportsSummaryCards from './ReportsSummaryCards';
 import ReportsSideDrawer from './ReportsSideDrawer';
 import type { TradeReport } from '@/features/reports/schema/reportSchema';
 
 export default function ReportsDashboard() {
-    const { reports, loading, error, refetch } = useReports();
+    const { reports, summary, loading, error, refetch } = useReports();
     const [selectedReport, setSelectedReport] = useState<TradeReport | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Filter states
-    const [statusFilter, setStatusFilter] = useState('All');
-    const [severityFilter, setSeverityFilter] = useState('All');
-    const [reasonFilter, setReasonFilter] = useState('All');
+    const [statusFilter, setStatusFilter] = useState('');
+    const [severityFilter, setSeverityFilter] = useState('');
+    const [reasonFilter, setReasonFilter] = useState('');
+    const [sortFilter, setSortFilter] = useState('Newest');
 
     // Filtered reports
     const filteredReports = useMemo(() => {
         return reports.filter(report => {
-            if (statusFilter !== 'All' && report.status !== statusFilter) return false;
-            if (severityFilter !== 'All' && report.severity !== severityFilter) return false;
-            if (reasonFilter !== 'All' && report.reason !== reasonFilter) return false;
+            if (statusFilter && report.status !== statusFilter) return false;
+            if (severityFilter && report.severity !== severityFilter) return false;
+            if (reasonFilter && report.reason !== reasonFilter) return false;
             return true;
         });
     }, [reports, statusFilter, severityFilter, reasonFilter]);
@@ -75,66 +77,77 @@ export default function ReportsDashboard() {
             </h1>
 
             {/* Summary Cards */}
-            <ReportsSummaryCards reports={reports} />
+            <ReportsSummaryCards summary={summary} />
+
+            {/* Filter Section */}
+            <FilterSection
+                title="Filter Reports"
+                fields={[
+                    {
+                        type: 'select',
+                        name: 'status',
+                        label: 'Status',
+                        value: statusFilter,
+                        onChange: (value) => setStatusFilter(value as string),
+                        options: [
+                            { value: '', label: 'All' },
+                            { value: 'Pending', label: 'Pending' },
+                            { value: 'UnderReview', label: 'Under Review' },
+                            { value: 'Resolved', label: 'Resolved' },
+                            { value: 'Dismissed', label: 'Dismissed' },
+                        ]
+                    },
+                    {
+                        type: 'select',
+                        name: 'severity',
+                        label: 'Severity',
+                        value: severityFilter,
+                        onChange: (value) => setSeverityFilter(value as string),
+                        options: [
+                            { value: '', label: 'All' },
+                            { value: 'Minor', label: 'Minor' },
+                            { value: 'Serious', label: 'Serious' },
+                            { value: 'Critical', label: 'Critical' },
+                        ]
+                    },
+                    {
+                        type: 'select',
+                        name: 'reason',
+                        label: 'Reason',
+                        value: reasonFilter,
+                        onChange: (value) => setReasonFilter(value as string),
+                        options: [
+                            { value: '', label: 'All' },
+                            { value: 'FoodSafetyConcern', label: 'Food Safety Concern' },
+                            { value: 'ExpiredFood', label: 'Expired Food' },
+                            { value: 'PoorHygiene', label: 'Poor Hygiene' },
+                            { value: 'MisleadingInformation', label: 'Misleading Information' },
+                            { value: 'InappropriateBehavior', label: 'Inappropriate Behavior' },
+                            { value: 'Other', label: 'Other' },
+                        ]
+                    },
+                    {
+                        type: 'select',
+                        name: 'sort',
+                        label: 'Sort By',
+                        value: sortFilter,
+                        onChange: (value) => setSortFilter(value as string),
+                        options: [
+                            { value: 'Newest', label: 'Newest' },
+                            { value: 'Oldest', label: 'Oldest' },
+                        ]
+                    },
+                ]}
+                onReset={() => {
+                    setStatusFilter('');
+                    setSeverityFilter('');
+                    setReasonFilter('');
+                    setSortFilter('Newest');
+                }}
+            />
 
             {/* Main Table Card */}
-            <WhiteCard className="rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg">
-                {/* Filters */}
-                <div className="flex flex-wrap gap-4 mb-6">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Status:</label>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="All">All</option>
-                            <option value="Pending">Pending</option>
-                            <option value="UnderReview">Under Review</option>
-                            <option value="Resolved">Resolved</option>
-                            <option value="Dismissed">Dismissed</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Severity:</label>
-                        <select
-                            value={severityFilter}
-                            onChange={(e) => setSeverityFilter(e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="All">All</option>
-                            <option value="Minor">Minor</option>
-                            <option value="Serious">Serious</option>
-                            <option value="Critical">Critical</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Reason:</label>
-                        <select
-                            value={reasonFilter}
-                            onChange={(e) => setReasonFilter(e.target.value)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="All">All</option>
-                            <option value="FoodSafetyConcern">Food Safety Concern</option>
-                            <option value="ExpiredFood">Expired Food</option>
-                            <option value="PoorHygiene">Poor Hygiene</option>
-                            <option value="MisleadingInformation">Misleading Information</option>
-                            <option value="InappropriateBehavior">Inappropriate Behavior</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Date Range</label>
-                        <input
-                            type="date"
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
-                </div>
+            <WhiteCard className="rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg mt-6">
 
                 {/* Table */}
                 {filteredReports.length === 0 ? (

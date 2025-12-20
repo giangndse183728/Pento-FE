@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, CheckCircle, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import {
     Drawer,
     DrawerContent,
@@ -9,7 +10,8 @@ import {
     DrawerTitle,
     DrawerClose,
 } from '@/components/ui/drawer';
-import { rejectReport, resolveReport } from '@/features/reports/services/reportService';
+import { CusButton } from '@/components/ui/cusButton';
+import { useRejectReport, useResolveReport } from '@/features/reports/hooks/useReport';
 import type { TradeReport } from '@/features/reports/schema/reportSchema';
 
 interface ReportsSideDrawerProps {
@@ -20,50 +22,34 @@ interface ReportsSideDrawerProps {
 }
 
 export default function ReportsSideDrawer({ report, isOpen, onClose, onActionComplete }: ReportsSideDrawerProps) {
-    const [adminNote, setAdminNote] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const rejectMutation = useRejectReport();
+    const resolveMutation = useResolveReport();
+
+    const isSubmitting = rejectMutation.isPending || resolveMutation.isPending;
 
     if (!report) return null;
 
     const handleResolve = async () => {
-        if (!adminNote.trim()) {
-            alert('Please enter an admin note');
-            return;
-        }
-
         try {
-            setIsSubmitting(true);
-            await resolveReport(report.reportId, adminNote);
-            alert('Report resolved successfully');
-            setAdminNote('');
+            await resolveMutation.mutate(report.reportId, 'Resolved by admin');
+            toast.success('Report resolved successfully');
             onClose();
             onActionComplete?.();
         } catch (error) {
             console.error('Error resolving report:', error);
-            alert('Failed to resolve report');
-        } finally {
-            setIsSubmitting(false);
+            toast.error('Failed to resolve report');
         }
     };
 
     const handleReject = async () => {
-        if (!adminNote.trim()) {
-            alert('Please enter an admin note');
-            return;
-        }
-
         try {
-            setIsSubmitting(true);
-            await rejectReport(report.reportId, adminNote);
-            alert('Report rejected successfully');
-            setAdminNote('');
+            await rejectMutation.mutate(report.reportId, 'Rejected by admin');
+            toast.success('Report rejected successfully');
             onClose();
             onActionComplete?.();
         } catch (error) {
             console.error('Error rejecting report:', error);
-            alert('Failed to reject report');
-        } finally {
-            setIsSubmitting(false);
+            toast.error('Failed to reject report');
         }
     };
 
@@ -209,27 +195,27 @@ export default function ReportsSideDrawer({ report, isOpen, onClose, onActionCom
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2 mb-6">
-                        <button
+                    <div className="flex gap-3 mb-6">
+                        <CusButton
                             onClick={handleResolve}
                             disabled={isSubmitting}
-                            className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                            variant="green"
+                            size="lg"
+                            className="flex-1"
                         >
+                            <CheckCircle size={20} />
                             {isSubmitting ? 'Processing...' : 'Resolve'}
-                        </button>
-                        <button
+                        </CusButton>
+                        <CusButton
                             onClick={handleReject}
                             disabled={isSubmitting}
-                            className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                            variant="red"
+                            size="lg"
+                            className="flex-1"
                         >
+                            <XCircle size={20} />
                             {isSubmitting ? 'Processing...' : 'Reject'}
-                        </button>
-                        <button
-                            disabled
-                            className="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors opacity-50 cursor-not-allowed"
-                        >
-                            Suspend Listing
-                        </button>
+                        </CusButton>
                     </div>
                 </div>
             </DrawerContent>
