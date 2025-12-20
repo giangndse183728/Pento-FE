@@ -84,7 +84,7 @@ export default function WeatherCard({ width = 500, height = 300, className = "",
 
     return (
         <WhiteCard width={width} height={height} className={className} style={style}>
-            <div className="h-full flex flex-col justify-center space-y-3 mb-3">
+            <div className="h-full flex flex-col justify-center space-y-3 mb-3 font-primary">
                 {/* Weather Info */}
                 {weather ? (
                     <>

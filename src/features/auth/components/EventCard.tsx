@@ -55,7 +55,7 @@ export function EventCard({ width = 500, height = 250, className = "", style = {
 
     return (
         <div className={className} style={resolvedStyle}>
-            <BlurCard className="relative w-full h-full flex items-center justify-center">
+            <BlurCard className="relative w-full h-full flex items-center justify-center font-primary">
 
                 {/* Centered Content */}
                 <div className="flex flex-col items-center text-center gap-3 p-6">

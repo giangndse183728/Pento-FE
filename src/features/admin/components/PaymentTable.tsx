@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { usePaymentsForCards } from '../hooks/usePaymentsforCards';
+import TopDataCards from './TopDataCards';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import {
     Table,
@@ -221,6 +222,9 @@ export default function PaymentTable() {
                 defaultCollapsed={true}
             />
 
+            {/* Payment Summary Cards */}
+            <TopDataCards summary={summary?.summary ?? null} />
+
             <WhiteCard className="w-full rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -251,6 +255,7 @@ export default function PaymentTable() {
                                     <TableRow className="bg-[#113F67]/5">
                                         <TableHead style={{ color: '#113F67' }}>Order Code</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Description</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Email</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Amount Due</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Amount Paid</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Status</TableHead>
@@ -265,6 +270,9 @@ export default function PaymentTable() {
                                             </TableCell>
                                             <TableCell className="max-w-[300px] whitespace-normal py-3">
                                                 {payment.description}
+                                            </TableCell>
+                                            <TableCell className="py-3">
+                                                {payment.email}
                                             </TableCell>
                                             <TableCell className="font-medium">
                                                 {payment.amountDue}

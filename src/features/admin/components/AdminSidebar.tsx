@@ -30,6 +30,7 @@ const navItems = [
     { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
+    { href: ROUTES.REPORTS, label: 'Trade Reports', icon: '/assets/img/report.png' },
 ];
 
 const ACCORDION_STATE_KEY = 'admin-sidebar-accordion';

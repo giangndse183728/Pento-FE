@@ -10,7 +10,7 @@ import CreateSubscriptionStep from './CreateSubscriptionStep';
 import AddPlansStep from './plans/AddPlansStep';
 import AddFeaturesStep from './features/AddFeaturesStep';
 import SubscriptionList from './SubscriptionList';
-import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema } from '../schema/subscriptionSchema';
+import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema, CreateSubscriptionFeaturePayload } from '../schema/subscriptionSchema';
 
 
 const createInitialSubscriptionForm = (): typeof createSubscriptionSchema._type => ({
@@ -196,38 +196,45 @@ export default function SubscriptionsManager() {
             return;
         }
 
-        // Validate: if reset period is chosen (not "No Reset"), quota must be >0 and <101 (not Unlimited)
+        // Validate: if reset period is chosen (not "No Reset"), quota cannot be Unlimited (101)
         const invalidRows = rowsToSubmit.filter(row =>
-            row.entitlementResetPer && (row.entitlementQuota === 0 || row.entitlementQuota === 101)
+            row.entitlementResetPer && row.entitlementQuota === 101
         );
         if (invalidRows.length > 0) {
-            toast.error('When a reset period is set, quota must be between 1-100 (not 0 or Unlimited)');
+            toast.error('Unlimited quota cannot have a reset period. Select "No Reset" for unlimited features.');
             return;
         }
 
         try {
             for (const row of rowsToSubmit) {
-                // If quota is 101 (Unlimited in UI), send 0 to backend (which means unlocked/unlimited)
-                // Don't send reset period for unlimited features
-                if (row.entitlementQuota === 101) {
-                    await addSubscriptionFeature.mutateAsync({
-                        subscriptionId: featureForm.subscriptionId.trim(),
-                        payload: {
-                            featureCode: row.featureCode.trim(),
-                            quota: 0,
-                        },
-                    });
+                // Build the payload based on quota and reset period settings
+                let payload: CreateSubscriptionFeaturePayload;
+
+                if (row.entitlementQuota === 101 && !row.entitlementResetPer) {
+                    // Unlimited quota with no reset: fully unlocked for lifetime
+                    // Send only featureCode, no quota field
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                    } as CreateSubscriptionFeaturePayload;
+                } else if (!row.entitlementResetPer) {
+                    // Limited quota with no reset period: lifetime entitlement with specified quota
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                        quota: row.entitlementQuota,
+                    };
                 } else {
-                    // For quota 1-100, send the actual quota and optional reset period
-                    await addSubscriptionFeature.mutateAsync({
-                        subscriptionId: featureForm.subscriptionId.trim(),
-                        payload: {
-                            featureCode: row.featureCode.trim(),
-                            quota: row.entitlementQuota,
-                            ...(row.entitlementResetPer && { resetPeriod: row.entitlementResetPer }),
-                        },
-                    });
+                    // Regular quota with reset period
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                        quota: row.entitlementQuota,
+                        resetPeriod: row.entitlementResetPer as 'Day' | 'Week' | 'Month' | 'Year',
+                    };
                 }
+
+                await addSubscriptionFeature.mutateAsync({
+                    subscriptionId: featureForm.subscriptionId.trim(),
+                    payload,
+                });
             }
             toast.success(rowsToSubmit.length > 1 ? 'Features added' : 'Feature added');
             setFeatureRows([createFeatureRow()]);

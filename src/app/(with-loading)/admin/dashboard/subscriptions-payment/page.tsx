@@ -2,11 +2,13 @@
 
 import React, { useState, useCallback } from 'react';
 import AdminLayout from '@/features/admin/components/AdminLayout';
+import TopDataCards from '@/features/admin/components/TopDataCards';
 import ShareDataSetChart from '@/features/admin/components/charts/ShareDataSetChart';
 import PaymentTable from '@/features/admin/components/PaymentTable';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
 import type { TimeWindow } from '@/features/admin/services/paymentService';
 import { getSubscriptions } from '@/features/subscription/services/subscriptionService';
+import { usePaymentsForCards } from '@/features/admin/hooks/usePaymentsforCards';
 
 export default function SubscriptionsPaymentPage() {
     // Subscription Payment Filters
@@ -52,6 +54,10 @@ export default function SubscriptionsPaymentPage() {
             label: sub.name,
         }));
     }, []);
+
+    // Fetch payment summary for cards
+    const { summary: paymentsData } = usePaymentsForCards(paymentApiParams);
+    const paymentSummary = paymentsData?.summary ?? null;
 
     const paymentFilterFields: FilterField[] = [
         {
@@ -123,6 +129,7 @@ export default function SubscriptionsPaymentPage() {
                 <h1 className="text-2xl font-bold" style={{ color: '#113F67' }}>
                     Subscriptions Payment
                 </h1>
+
                 <FilterSection
                     title="Payment Filters"
                     fields={paymentFilterFields}
