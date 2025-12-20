@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import RecipesCards from '@/features/recipes-view/RecipesCards';
-import { useRecipesList } from '@/features/recipes/hooks/useRecipes';
+import { usePublicRecipesList } from '@/features/recipes/hooks/useRecipes';
 import { RecipeSummary } from '@/features/recipes/services/recipesService';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +22,7 @@ export default function RecipesViewPage() {
     const pageSize = 6;
     const observerTarget = useRef<HTMLDivElement>(null);
 
-    const list = useRecipesList({ pageNumber, pageSize, search, difficulty, sort });
+    const list = usePublicRecipesList({ pageNumber, pageSize, search, difficulty, sort });
     const totalCount = list.data?.totalCount ?? 0;
     const hasMore = allItems.length < totalCount;
 

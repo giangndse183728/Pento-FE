@@ -14,6 +14,14 @@ import {
     Subscription,
     SubscriptionFeature,
     SubscriptionPlan,
+    updateSubscriptionAdmin,
+    updateSubscriptionPlanAdmin,
+    updateSubscriptionFeatureAdmin,
+    deleteSubscriptionPlanAdmin,
+    deleteSubscriptionFeatureAdmin,
+    UpdateSubscriptionInput,
+    UpdateSubscriptionPlanInput,
+    UpdateSubscriptionFeatureInput,
 } from '../services/subscriptionService';
 
 type PlanMutationVariables = {
@@ -24,6 +32,21 @@ type PlanMutationVariables = {
 type FeatureMutationVariables = {
     subscriptionId: string;
     payload: CreateSubscriptionFeaturePayload;
+};
+
+type UpdateSubscriptionVariables = {
+    subscriptionId: string;
+    payload: UpdateSubscriptionInput;
+};
+
+type UpdatePlanVariables = {
+    subscriptionPlanId: string;
+    payload: UpdateSubscriptionPlanInput;
+};
+
+type UpdateFeatureVariables = {
+    subscriptionFeatureId: string;
+    payload: UpdateSubscriptionFeatureInput;
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -74,10 +97,75 @@ export const useSubscription = () => {
         },
     });
 
+    const updateSubscriptionMutation = useMutation<void, unknown, UpdateSubscriptionVariables>({
+        mutationFn: ({ subscriptionId, payload }) => updateSubscriptionAdmin(subscriptionId, payload),
+        onSuccess: () => {
+            toast.success('Subscription updated');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
+    const updatePlanMutation = useMutation<void, unknown, UpdatePlanVariables>({
+        mutationFn: ({ subscriptionPlanId, payload }) => updateSubscriptionPlanAdmin(subscriptionPlanId, payload),
+        onSuccess: () => {
+            toast.success('Plan updated');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
+    const updateFeatureMutation = useMutation<void, unknown, UpdateFeatureVariables>({
+        mutationFn: ({ subscriptionFeatureId, payload }) => updateSubscriptionFeatureAdmin(subscriptionFeatureId, payload),
+        onSuccess: () => {
+            toast.success('Feature updated');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
+    const deletePlanMutation = useMutation<void, unknown, string>({
+        mutationFn: (subscriptionPlanId: string) => deleteSubscriptionPlanAdmin(subscriptionPlanId),
+        onSuccess: () => {
+            toast.success('Plan deleted');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
+    const deleteFeatureMutation = useMutation<void, unknown, string>({
+        mutationFn: (subscriptionFeatureId: string) => deleteSubscriptionFeatureAdmin(subscriptionFeatureId),
+        onSuccess: () => {
+            toast.success('Feature deleted');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
     return {
         createSubscription: createSubscriptionMutation,
         addSubscriptionPlan: addPlanMutation,
         addSubscriptionFeature: addFeatureMutation,
+        updateSubscription: updateSubscriptionMutation,
+        updatePlan: updatePlanMutation,
+        updateFeature: updateFeatureMutation,
+        deletePlan: deletePlanMutation,
+        deleteFeature: deleteFeatureMutation,
         subscriptions,
     };
 };

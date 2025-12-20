@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import ConfirmModal from "@/components/decoration/ConfirmModal";
 import { CusButton } from "@/components/ui/cusButton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Subscription, deleteSubscriptionAdmin } from "../services/subscriptionService";
-import { useSubscriptionById } from "../hooks/useSubscription";
+import SubscriptionDetails from "./SubscriptionDetails";
 import "@/styles/visa-card.css";
 
 type Props = {
@@ -22,8 +22,6 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [expandedId, setExpandedId] = useState<string | null>(null);
-
-    const { data: expandedSubscription, isLoading: isLoadingExpanded } = useSubscriptionById(expandedId);
 
     const handleDeleteClick = (id: string, e?: React.MouseEvent) => {
         e?.stopPropagation();
@@ -55,7 +53,6 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
             setSelectedId(null);
             console.error("Failed to delete subscription", err);
 
-            // Handle API error response
             const errorMessage = (err as { response?: { data?: { detail?: string; title?: string } }; message?: string })?.response?.data?.detail ||
                 (err as { response?: { data?: { detail?: string; title?: string } }; message?: string })?.response?.data?.title ||
                 (err as { response?: { data?: { detail?: string; title?: string } }; message?: string })?.message ||
@@ -107,7 +104,7 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
                 </CusButton>
             </div>
 
-            {/* Confirm modal */}
+            {/* Confirm delete modal */}
             <ConfirmModal
                 open={modalOpen}
                 title="Delete Subscription"
@@ -122,7 +119,7 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
                 loading={isDeleting}
             />
 
-            {/* Grid of subscription cards using visa-card.css with overlay delete */}
+            {/* Grid of subscription cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {subscriptions.map((sub) => (
                     <div key={sub.id ?? sub.subscriptionId} className="card-container relative">
@@ -162,103 +159,12 @@ export default function SubscriptionList({ subscriptions, loading = false, onDel
                 ))}
             </div>
 
-            {/* Expanded Details Modal */}
+            {/* Subscription Details Modal */}
             {expandedId && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 pt-12 pb-12 overflow-y-auto" onClick={() => setExpandedId(null)}>
-                    <div className="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold" style={{ color: '#113F67' }}>Subscription Details</h2>
-                            <button
-                                onClick={() => setExpandedId(null)}
-                                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        {isLoadingExpanded ? (
-                            <div className="space-y-4">
-                                <Skeleton className="h-8 w-1/2" />
-                                <Skeleton className="h-20 w-full" />
-                                <Skeleton className="h-40 w-full" />
-                            </div>
-                        ) : expandedSubscription ? (
-                            <div className="space-y-6">
-                                {/* Basic Info */}
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-2" style={{ color: '#113F67' }}>Basic Information</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-sm text-gray-500">Name</label>
-                                            <p className="font-medium">{expandedSubscription.name}</p>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm text-gray-500">Status</label>
-                                            <p className="font-medium">{expandedSubscription.isActive ? "Active" : "Inactive"}</p>
-                                        </div>
-                                        <div className="col-span-2">
-                                            <label className="text-sm text-gray-500">Description</label>
-                                            <p className="font-medium">{expandedSubscription.description || "No description"}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Plans */}
-                                {expandedSubscription.plans && expandedSubscription.plans.length > 0 && (
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-2" style={{ color: '#113F67' }}>Plans</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {expandedSubscription.plans.map((plan) => (
-                                                <div key={plan.subscriptionPlanId} className="border rounded-lg p-4" style={{ borderColor: '#D6E6F2' }}>
-                                                    <div className="flex justify-between items-start">
-                                                        <div>
-                                                            <p className="font-semibold text-lg">
-                                                                {plan.price}
-                                                            </p>
-                                                            <p className="text-sm text-gray-500">
-                                                                {plan.duration}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Features */}
-                                {expandedSubscription.features && expandedSubscription.features.length > 0 && (
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-2" style={{ color: '#113F67' }}>Features</h3>
-                                        <div className="space-y-2">
-                                            {expandedSubscription.features.map((feature) => (
-                                                <div key={feature.subscriptionFeatureId} className="border rounded-lg p-4" style={{ borderColor: '#D6E6F2' }}>
-                                                    <div className="flex justify-between items-center">
-                                                        <div>
-                                                            <p className="font-medium">{feature.featureName}</p>
-                                                            <p className="text-sm text-gray-500">{feature.entitlement}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {(!expandedSubscription.plans || expandedSubscription.plans.length === 0) &&
-                                    (!expandedSubscription.features || expandedSubscription.features.length === 0) && (
-                                        <div className="text-center py-8 text-gray-500">
-                                            No plans or features added yet
-                                        </div>
-                                    )}
-                            </div>
-                        ) : (
-                            <div className="text-center py-8 text-gray-500">
-                                Failed to load subscription details
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <SubscriptionDetails
+                    subscriptionId={expandedId}
+                    onClose={() => setExpandedId(null)}
+                />
             )}
         </div>
     );
