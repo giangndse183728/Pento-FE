@@ -17,6 +17,8 @@ import {
     updateSubscriptionAdmin,
     updateSubscriptionPlanAdmin,
     updateSubscriptionFeatureAdmin,
+    deleteSubscriptionPlanAdmin,
+    deleteSubscriptionFeatureAdmin,
     UpdateSubscriptionInput,
     UpdateSubscriptionPlanInput,
     UpdateSubscriptionFeatureInput,
@@ -131,6 +133,30 @@ export const useSubscription = () => {
         },
     });
 
+    const deletePlanMutation = useMutation<void, unknown, string>({
+        mutationFn: (subscriptionPlanId: string) => deleteSubscriptionPlanAdmin(subscriptionPlanId),
+        onSuccess: () => {
+            toast.success('Plan deleted');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
+    const deleteFeatureMutation = useMutation<void, unknown, string>({
+        mutationFn: (subscriptionFeatureId: string) => deleteSubscriptionFeatureAdmin(subscriptionFeatureId),
+        onSuccess: () => {
+            toast.success('Feature deleted');
+            queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+            queryClient.invalidateQueries({ queryKey: ['subscription'] });
+        },
+        onError: (error) => {
+            toast.error(getErrorMessage(error));
+        },
+    });
+
     return {
         createSubscription: createSubscriptionMutation,
         addSubscriptionPlan: addPlanMutation,
@@ -138,6 +164,8 @@ export const useSubscription = () => {
         updateSubscription: updateSubscriptionMutation,
         updatePlan: updatePlanMutation,
         updateFeature: updateFeatureMutation,
+        deletePlan: deletePlanMutation,
+        deleteFeature: deleteFeatureMutation,
         subscriptions,
     };
 };

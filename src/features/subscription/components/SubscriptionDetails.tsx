@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CusButton } from "@/components/ui/cusButton";
 import { useSubscriptionById, useSubscription } from "../hooks/useSubscription";
 import { EditSubForm, EditPlanForm, EditFeatureForm } from "../schema/subscriptionSchema";
+import PlansEdit from "./PlansEdit";
+import FeaturesEdit from "./FeaturesEdit";
 import "@/styles/toggle.css";
 
 type Props = {
@@ -17,7 +19,7 @@ type EditMode = 'none' | 'subscription' | 'plan' | 'feature';
 
 export default function SubscriptionDetails({ subscriptionId, onClose }: Props) {
     const { data: subscription, isLoading } = useSubscriptionById(subscriptionId);
-    const { updateSubscription, updatePlan, updateFeature } = useSubscription();
+    const { updateSubscription, updatePlan, updateFeature, deletePlan, deleteFeature } = useSubscription();
 
     // Edit mode state
     const [editMode, setEditMode] = useState<EditMode>('none');
@@ -105,6 +107,26 @@ export default function SubscriptionDetails({ subscriptionId, onClose }: Props) 
         });
         setEditMode('none');
         setEditingFeatureId(null);
+    };
+
+    const handleDeletePlan = async (planId: string) => {
+        deletePlan.mutate(planId, {
+            onSuccess: () => {
+                if (editingPlanId === planId) {
+                    handleCancelEdit();
+                }
+            }
+        });
+    };
+
+    const handleDeleteFeature = async (featureId: string) => {
+        deleteFeature.mutate(featureId, {
+            onSuccess: () => {
+                if (editingFeatureId === featureId) {
+                    handleCancelEdit();
+                }
+            }
+        });
     };
 
     const isEditing = editMode !== 'none';
@@ -232,184 +254,38 @@ export default function SubscriptionDetails({ subscriptionId, onClose }: Props) 
                             {/* Plans Section */}
                             {subscription.plans && subscription.plans.length > 0 && (
                                 <div className={`transition-all duration-300 ${isEditing && !isEditingPlan ? 'opacity-40 pointer-events-none' : ''}`}>
-                                    <h3 className="text-xl font-bold flex items-center gap-2 mb-4" style={{ color: '#113F67' }}>
-                                        <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#113F67' }}></div>
-                                        Plans
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {subscription.plans.map((plan: any) => {
-                                            const isThisPlanEditing = isEditingPlan && editingPlanId === plan.subscriptionPlanId;
-
-                                            return (
-                                                <div
-                                                    key={plan.subscriptionPlanId}
-                                                    className={`border-2 rounded-2xl p-5 transition-all shadow-md hover:shadow-lg ${isThisPlanEditing ? 'shadow-xl' : ''}`}
-                                                    style={{
-                                                        borderColor: isThisPlanEditing ? '#3B82F6' : '#D6E6F2',
-                                                        backgroundColor: isThisPlanEditing ? '#F8FBFE' : 'white'
-                                                    }}
-                                                >
-                                                    {isThisPlanEditing ? (
-                                                        <div className="space-y-3">
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>
-                                                                    Amount <span className="text-red-500">*</span>
-                                                                </label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={editPlanForm.amount}
-                                                                    onChange={(e) => setEditPlanForm({ ...editPlanForm, amount: parseInt(e.target.value) || 0 })}
-                                                                    className="neomorphic-input w-full"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>
-                                                                    Currency <span className="text-red-500">*</span>
-                                                                </label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={editPlanForm.currency}
-                                                                    onChange={(e) => setEditPlanForm({ ...editPlanForm, currency: e.target.value })}
-                                                                    className="neomorphic-input w-full"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>
-                                                                    Duration (days) <span className="text-red-500">*</span>
-                                                                </label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={editPlanForm.durationInDays}
-                                                                    onChange={(e) => setEditPlanForm({ ...editPlanForm, durationInDays: parseInt(e.target.value) || 0 })}
-                                                                    className="neomorphic-input w-full"
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div className="flex gap-2 justify-end pt-2 border-t" style={{ borderColor: '#D6E6F2' }}>
-                                                                <CusButton variant="pastelRed" size="sm" onClick={handleCancelEdit}>
-                                                                    <XIcon className="w-3 h-3 mr-1" />
-                                                                    Cancel
-                                                                </CusButton>
-                                                                <CusButton variant="blueGray" size="sm" onClick={handleSavePlan} disabled={updatePlan.isPending}>
-                                                                    <Check className="w-3 h-3 mr-1" />
-                                                                    {updatePlan.isPending ? 'Saving...' : 'Save'}
-                                                                </CusButton>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex justify-between items-start">
-                                                            <div>
-                                                                <p className="font-semibold text-lg">{plan.price}</p>
-                                                                <p className="text-sm text-gray-500">{plan.duration}</p>
-                                                            </div>
-                                                            {!isEditing && (
-                                                                <button
-                                                                    onClick={() => handleEditPlan(plan.subscriptionPlanId, plan.price, plan.duration)}
-                                                                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                                                    style={{ color: '#113F67' }}
-                                                                >
-                                                                    <SquarePen className="w-4 h-4" />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                    <PlansEdit
+                                        plans={subscription.plans}
+                                        isEditing={isEditing}
+                                        editingPlanId={editingPlanId}
+                                        editPlanForm={editPlanForm}
+                                        onEditPlan={handleEditPlan}
+                                        onCancelEdit={handleCancelEdit}
+                                        onSavePlan={handleSavePlan}
+                                        onDeletePlan={handleDeletePlan}
+                                        onFormChange={setEditPlanForm}
+                                        isPending={updatePlan.isPending}
+                                        isDeleting={deletePlan.isPending}
+                                    />
                                 </div>
                             )}
 
                             {/* Features Section */}
                             {subscription.features && subscription.features.length > 0 && (
                                 <div className={`transition-all duration-300 ${isEditing && !isEditingFeature ? 'opacity-40 pointer-events-none' : ''}`}>
-                                    <h3 className="text-xl font-bold flex items-center gap-2 mb-4" style={{ color: '#113F67' }}>
-                                        <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#113F67' }}></div>
-                                        Features
-                                    </h3>
-                                    <div className="space-y-3">
-                                        {subscription.features.map((feature: any) => {
-                                            const isThisFeatureEditing = isEditingFeature && editingFeatureId === feature.subscriptionFeatureId;
-
-                                            return (
-                                                <div
-                                                    key={feature.subscriptionFeatureId}
-                                                    className={`border-2 rounded-2xl p-5 transition-all shadow-md hover:shadow-lg ${isThisFeatureEditing ? 'shadow-xl' : ''}`}
-                                                    style={{
-                                                        borderColor: isThisFeatureEditing ? '#3B82F6' : '#D6E6F2',
-                                                        backgroundColor: isThisFeatureEditing ? '#F8FBFE' : 'white'
-                                                    }}
-                                                >
-                                                    {isThisFeatureEditing ? (
-                                                        <div className="space-y-3">
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>Feature Code</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={editFeatureForm.featureCode}
-                                                                    onChange={(e) => setEditFeatureForm({ ...editFeatureForm, featureCode: e.target.value })}
-                                                                    className="neomorphic-input w-full"
-                                                                    placeholder="Leave empty to keep current"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>Quota</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={editFeatureForm.quota}
-                                                                    onChange={(e) => setEditFeatureForm({ ...editFeatureForm, quota: parseInt(e.target.value) || 0 })}
-                                                                    className="neomorphic-input w-full"
-                                                                    placeholder="0 for unlimited"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label className="block text-sm font-semibold mb-2" style={{ color: '#113F67' }}>Reset Period</label>
-                                                                <select
-                                                                    value={editFeatureForm.resetPeriod}
-                                                                    onChange={(e) => setEditFeatureForm({ ...editFeatureForm, resetPeriod: e.target.value })}
-                                                                    className="neomorphic-input w-full"
-                                                                >
-                                                                    <option value="">No Reset</option>
-                                                                    <option value="Day">Day</option>
-                                                                    <option value="Week">Week</option>
-                                                                    <option value="Month">Month</option>
-                                                                    <option value="Year">Year</option>
-                                                                </select>
-                                                            </div>
-                                                            <div className="flex gap-2 justify-end pt-2 border-t" style={{ borderColor: '#D6E6F2' }}>
-                                                                <CusButton variant="pastelRed" size="sm" onClick={handleCancelEdit}>
-                                                                    <XIcon className="w-3 h-3 mr-1" />
-                                                                    Cancel
-                                                                </CusButton>
-                                                                <CusButton variant="blueGray" size="sm" onClick={handleSaveFeature} disabled={updateFeature.isPending}>
-                                                                    <Check className="w-3 h-3 mr-1" />
-                                                                    {updateFeature.isPending ? 'Saving...' : 'Save'}
-                                                                </CusButton>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex justify-between items-center">
-                                                            <div>
-                                                                <p className="font-medium">{feature.featureName}</p>
-                                                                <p className="text-sm text-gray-500">{feature.entitlement}</p>
-                                                            </div>
-                                                            {!isEditing && (
-                                                                <button
-                                                                    onClick={() => handleEditFeature(feature.subscriptionFeatureId, feature.entitlement)}
-                                                                    className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                                                    style={{ color: '#113F67' }}
-                                                                >
-                                                                    <SquarePen className="w-4 h-4" />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                    <FeaturesEdit
+                                        features={subscription.features}
+                                        isEditing={isEditing}
+                                        editingFeatureId={editingFeatureId}
+                                        editFeatureForm={editFeatureForm}
+                                        onEditFeature={handleEditFeature}
+                                        onCancelEdit={handleCancelEdit}
+                                        onSaveFeature={handleSaveFeature}
+                                        onDeleteFeature={handleDeleteFeature}
+                                        onFormChange={setEditFeatureForm}
+                                        isPending={updateFeature.isPending}
+                                        isDeleting={deleteFeature.isPending}
+                                    />
                                 </div>
                             )}
 

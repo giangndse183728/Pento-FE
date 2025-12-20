@@ -1,85 +1,27 @@
 import { apiRequest } from '@/lib/apiRequest';
+import type {
+    PaymentStatus,
+    TimeWindow,
+    GetPaymentsParams,
+    GetPaymentSummaryParams,
+    PaymentSummary,
+    PaymentItem,
+    PaginatedPayments,
+    FoodItemLog,
+    SubscriptionPaymentSummary,
+} from '../schema/paymentSchema';
 
-export type PaymentStatus = 'pending' | 'cancelled' | 'paid' | 'expired' | 'processing' | 'failed';
-
-export type TimeWindow = 'weekly' | 'monthly' | 'quarterly' | 'yearly';
-
-export type GetPaymentsParams = {
-    userId?: string;
-    searchText?: string;
-    fromAmount?: number;
-    toAmount?: number;
-    fromDate?: string; // ISO date-time
-    toDate?: string;   // ISO date-time
-    status?: PaymentStatus;
-    sortBy?: 'OrderCode' | 'Description' | 'AmountDue' | 'AmountPaid' | 'CreatedAt';
-    sortOrder?: 'ASC' | 'DESC';
-    isDeleted?: boolean;
-    pageNumber?: number;
-    pageSize?: number;
-};
-
-export type GetPaymentSummaryParams = {
-    subscriptionIds?: string[];
-    fromDate?: string; // ISO date
-    toDate?: string;   // ISO date
-    isActive?: boolean;
-    isDeleted?: boolean;
-    timeWindow?: TimeWindow;
-};
-
-// Response models based on provided body
-export type PaymentSummary = {
-    totalDue: string;
-    totalPaid: string;
-    pending: number;
-    paid: number;
-    failed: number;
-    cancelled: number;
-    expired: number;
-};
-
-export type PaymentItem = {
-    paymentId: string;
-    userId: string;
-    orderCode: number;
-    description: string;
-    amountDue: string;   // e.g., "5000 VND"
-    amountPaid: string;  // e.g., "5000 VND"
-    status: 'Pending' | 'Paid' | 'Failed' | 'Cancelled' | 'Expired' | 'Processing';
-    createdAt: string; // ISO date-time
-    isDeleted: boolean;
-};
-
-export type PaginatedPayments = {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalCount: number;
-    hasPrevious: boolean;
-    hasNext: boolean;
-    items: PaymentItem[];
-    summary: PaymentSummary;
-};
-
-export type FoodItemLog = {
-    id: string;
-    userId: string;
-    itemName: string;
-    action: 'created' | 'updated' | 'deleted';
-    quantity?: number;
-    createdAt: string;
-};
-
-export type SubscriptionPaymentSummary = {
-    subscriptionId: string;
-    name: string;
-    totalPaidAmount: number;
-    payments: {
-        date: string;
-        amount: number;
-        currency: string;
-    }[];
+// Re-export types for backward compatibility
+export type {
+    PaymentStatus,
+    TimeWindow,
+    GetPaymentsParams,
+    GetPaymentSummaryParams,
+    PaymentSummary,
+    PaymentItem,
+    PaginatedPayments,
+    FoodItemLog,
+    SubscriptionPaymentSummary,
 };
 
 export async function getAdminPaymentSummary(params: GetPaymentSummaryParams = {}): Promise<SubscriptionPaymentSummary[]> {
@@ -120,15 +62,22 @@ export async function getAdminPayments(params: GetPaymentsParams = {}): Promise<
 
     const url = query.toString() ? `/admin/payments?${query.toString()}` : '/admin/payments';
     console.log('getAdminPayments URL:', url);
-    const response = await apiRequest<PaginatedPayments | { payments: PaginatedPayments }>('get', url);
+    const response = await apiRequest<{ summary: PaymentSummary; payments: PaginatedPayments }>('get', url);
     console.log('getAdminPayments response:', response);
 
-    // Handle wrapped response (API returns { payments: {...} })
-    if (response && 'payments' in response) {
-        return response.payments;
+    // API returns { summary: {...}, payments: {...} }
+    // Merge summary into payments object to match PaginatedPayments type
+    if (response && 'payments' in response && 'summary' in response) {
+        return {
+            ...response.payments,
+            summary: response.summary,
+        };
     }
-    return response as PaginatedPayments;
+
+    // Fallback for unexpected structure
+    return response as unknown as PaginatedPayments;
 }
+
 
 export async function getAdminFoodItemLog(): Promise<FoodItemLog[]> {
     return apiRequest<FoodItemLog[]>('get', '/admin/food-item-log');
