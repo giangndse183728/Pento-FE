@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { usePaymentsForCards } from '../hooks/usePaymentsforCards';
+import TopDataCards from './TopDataCards';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import {
     Table,
@@ -220,6 +221,9 @@ export default function PaymentTable() {
                 resetButtonText="Clear"
                 defaultCollapsed={true}
             />
+
+            {/* Payment Summary Cards */}
+            <TopDataCards summary={summary?.summary ?? null} />
 
             <WhiteCard className="w-full rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg">
                 <div className="space-y-4">
