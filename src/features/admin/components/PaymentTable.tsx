@@ -255,6 +255,7 @@ export default function PaymentTable() {
                                     <TableRow className="bg-[#113F67]/5">
                                         <TableHead style={{ color: '#113F67' }}>Order Code</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Description</TableHead>
+                                        <TableHead style={{ color: '#113F67' }}>Email</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Amount Due</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Amount Paid</TableHead>
                                         <TableHead style={{ color: '#113F67' }}>Status</TableHead>
@@ -269,6 +270,9 @@ export default function PaymentTable() {
                                             </TableCell>
                                             <TableCell className="max-w-[300px] whitespace-normal py-3">
                                                 {payment.description}
+                                            </TableCell>
+                                            <TableCell className="py-3">
+                                                {payment.email}
                                             </TableCell>
                                             <TableCell className="font-medium">
                                                 {payment.amountDue}

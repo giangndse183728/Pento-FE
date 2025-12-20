@@ -42,6 +42,7 @@ export type PaymentItem = {
     userId: string;
     orderCode: number;
     description: string;
+    email: string;
     amountDue: string;   // e.g., "5000 VND"
     amountPaid: string;  // e.g., "5000 VND"
     status: 'Pending' | 'Paid' | 'Failed' | 'Cancelled' | 'Expired' | 'Processing';
