@@ -11,7 +11,6 @@ import type {
     CreateRecipeDirectionInput,
 } from '../schema/recipeSchema';
 
-// Re-export types for convenience
 export type { IngredientInput, DirectionInput, RecipeDetailedInput, RecipeSummary, UpdateRecipeInput, UpdateRecipeIngredientInput, UpdateRecipeDirectionInput, CreateRecipeIngredientInput, CreateRecipeDirectionInput };
 
 export type RecipesQuery = {
@@ -39,6 +38,29 @@ export const getRecipes = async (params: RecipesQuery): Promise<PaginatedRespons
             })
             .join('&');
         const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/recipes${qs}`);
+        // Return full paginated response
+        return response;
+    } catch (err) {
+        // Return empty paginated response on error
+        return {
+            items: [],
+            totalCount: 0,
+            pageNumber: params.pageNumber,
+            pageSize: params.pageSize
+        };
+    }
+};
+
+export const getPublicRecipes = async (params: RecipesQuery): Promise<PaginatedResponse<RecipeSummary>> => {
+    try {
+        const qs = '?' + Object.entries(params)
+            .filter(([, v]) => v !== undefined && v !== null && v !== '')
+            .map(([k, v]) => {
+                const val = typeof v === 'string' ? v.trim() : v;
+                return `${encodeURIComponent(k)}=${encodeURIComponent(String(val))}`;
+            })
+            .join('&');
+        const response = await apiRequest<PaginatedResponse<RecipeSummary>>('get', `/public/recipes${qs}`);
         // Return full paginated response
         return response;
     } catch (err) {
@@ -103,6 +125,16 @@ export const getRecipeDetails = async (recipeId: string): Promise<RecipeDetailsR
     try {
         const qs = `?include=all`;
         const res = await apiRequest<RecipeDetailsResponse>('get', `/recipes/${encodeURIComponent(recipeId)}${qs}`);
+        return res;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getPublicRecipeDetails = async (recipeId: string): Promise<RecipeDetailsResponse> => {
+    try {
+        const qs = `?include=all`;
+        const res = await apiRequest<RecipeDetailsResponse>('get', `/public/recipes/${encodeURIComponent(recipeId)}${qs}`);
         return res;
     } catch (error) {
         throw error;

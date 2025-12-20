@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
     getRecipes,
+    getPublicRecipes,
     postRecipeDetailed,
     deleteRecipe,
     getRecipeDetails,
+    getPublicRecipeDetails,
     updateRecipe,
     uploadRecipeImage,
     updateRecipeIngredient,
@@ -35,6 +37,14 @@ export const useRecipesList = (params: RecipesQuery) => {
     return useQuery<PaginatedResponse<RecipeSummary>>({
         queryKey: ['recipes', params],
         queryFn: () => getRecipes(params),
+        staleTime: 1000 * 60 * 2,
+    });
+};
+
+export const usePublicRecipesList = (params: RecipesQuery) => {
+    return useQuery<PaginatedResponse<RecipeSummary>>({
+        queryKey: ['public-recipes', params],
+        queryFn: () => getPublicRecipes(params),
         staleTime: 1000 * 60 * 2,
     });
 };
@@ -90,6 +100,18 @@ export const useRecipeDetails = (recipeId?: string) => {
         queryFn: () => {
             if (!recipeId) throw new Error('recipeId is required');
             return getRecipeDetails(recipeId);
+        },
+        enabled: !!recipeId,
+        staleTime: 1000 * 60,
+    });
+};
+
+export const usePublicRecipeDetails = (recipeId?: string) => {
+    return useQuery<RecipeDetailsResponse>({
+        queryKey: ['public-recipe-details', recipeId],
+        queryFn: () => {
+            if (!recipeId) throw new Error('recipeId is required');
+            return getPublicRecipeDetails(recipeId);
         },
         enabled: !!recipeId,
         staleTime: 1000 * 60,
