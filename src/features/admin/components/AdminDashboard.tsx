@@ -3,6 +3,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ShareDataSetChart from './charts/ShareDataSetChart';
 import DoubleBarChart from './charts/DoubleBarChart';
+import HeatMap from './charts/HeatMap';
+import PaymentTable from './PaymentTable';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
 import type { TimeWindow } from '../services/paymentService';
 import type { GetFoodItemLogSummaryParams } from '../services/foodItemsLogServices';
@@ -254,33 +256,48 @@ const Dashboard = () => {
     ];
 
     return (
-        <div className="grid grid-cols-1 gap-6 w-full">
+        <div className="flex flex-col gap-12 w-full pb-10">
             {/* Subscription Payment Section */}
-            <FilterSection
-                title="Subscription Payment Filters"
-                fields={paymentFilterFields}
-                onReset={handleResetPaymentFilters}
-                resetButtonText="Clear All"
-                defaultCollapsed={true}
-            />
-            <div className="w-full">
-                <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
-            </div>
+            <section id="payments" className="scroll-mt-6 space-y-8 w-full">
+                <div className="space-y-4">
+                    <h2 className="text-xl font-semibold opacity-80" style={{ color: '#113F67' }}>Subscription Payments</h2>
+                    <FilterSection
+                        title="Payment Filters"
+                        fields={paymentFilterFields}
+                        onReset={handleResetPaymentFilters}
+                        resetButtonText="Clear All"
+                        defaultCollapsed={true}
+                    />
+                    <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
+                </div>
+
+                <div className="space-y-4">
+                    <h2 className="text-xl font-semibold opacity-80" style={{ color: '#113F67' }}>Payment Transactions</h2>
+                    <PaymentTable />
+                </div>
+            </section>
 
             {/* Food Item Log Section */}
-            <FilterSection
-                title="Food Item Log Filters"
-                fields={foodFilterFields}
-                onReset={handleResetFoodFilters}
-                resetButtonText="Clear All"
-                defaultCollapsed={true}
-            />
-            <div className="w-full">
+            <section id="food-log" className="scroll-mt-6 space-y-4 w-full">
+                <h2 className="text-xl font-semibold opacity-80" style={{ color: '#113F67' }}>Food Item Log</h2>
+                <FilterSection
+                    title="Food Item Filters"
+                    fields={foodFilterFields}
+                    onReset={handleResetFoodFilters}
+                    resetButtonText="Clear All"
+                    defaultCollapsed={true}
+                />
                 <DoubleBarChart params={foodApiParams} />
-            </div>
+            </section>
+
+            {/* Achievement Activities Section */}
+            <section id="activities" className="scroll-mt-6 space-y-4 w-full">
+                <h2 className="text-xl font-semibold opacity-80" style={{ color: '#113F67' }}>Achievement Activities</h2>
+                <HeatMap title="Daily Activity Heatmap" />
+            </section>
         </div>
     );
-}
-    ;
+};
+;
 
 export default Dashboard;

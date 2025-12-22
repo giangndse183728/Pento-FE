@@ -10,7 +10,7 @@ interface WhiteCardProps {
     onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
-export function WhiteCard({ children, className = "", width = 500, height = 250, style = {}, contentClassName = "", onClick }: WhiteCardProps) {
+export function WhiteCard({ children, className = "", width = '100%', height = '100%', style = {}, contentClassName = "", onClick }: WhiteCardProps) {
     const resolvedStyle: React.CSSProperties = {
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,
@@ -20,6 +20,7 @@ export function WhiteCard({ children, className = "", width = 500, height = 250,
     return (
         <div
             className={`relative rounded-2xl bg-white/50 backdrop-blur-sm shadow-lg border border-white/60 overflow-hidden ${className}`}
+            style={resolvedStyle}
             onClick={onClick}
         >
             {/* Noise Overlay - preparing to add onClick support */}

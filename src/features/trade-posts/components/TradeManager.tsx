@@ -5,6 +5,8 @@ import TradeOffersList from './TradeOffersList';
 import TradeRequestsList from './TradeRequestsList';
 import TradeSessionsList from './TradeSessionsList';
 
+import '@/styles/tab-bar.css';
+
 type Tab = 'offers' | 'requests' | 'sessions';
 
 export default function TradeManager() {
@@ -24,37 +26,36 @@ export default function TradeManager() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 border-b" style={{ borderColor: '#D6E6F2' }}>
-                <button
-                    onClick={() => setActiveTab('offers')}
-                    className={`px-4 py-2 font-semibold transition-colors ${activeTab === 'offers'
-                        ? 'border-b-2 text-[#113F67]'
-                        : 'text-gray-500 hover:text-[#113F67]'
-                        }`}
-                    style={{ borderColor: activeTab === 'offers' ? '#113F67' : 'transparent' }}
-                >
-                    Offers
-                </button>
-                <button
-                    onClick={() => setActiveTab('requests')}
-                    className={`px-4 py-2 font-semibold transition-colors ${activeTab === 'requests'
-                        ? 'border-b-2 text-[#113F67]'
-                        : 'text-gray-500 hover:text-[#113F67]'
-                        }`}
-                    style={{ borderColor: activeTab === 'requests' ? '#113F67' : 'transparent' }}
-                >
-                    Requests
-                </button>
-                <button
-                    onClick={() => setActiveTab('sessions')}
-                    className={`px-4 py-2 font-semibold transition-colors ${activeTab === 'sessions'
-                        ? 'border-b-2 text-[#113F67]'
-                        : 'text-gray-500 hover:text-[#113F67]'
-                        }`}
-                    style={{ borderColor: activeTab === 'sessions' ? '#113F67' : 'transparent' }}
-                >
-                    Sessions
-                </button>
+            <div className="mb-6 flex justify-start">
+                <div className="segmented">
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="trade-tab"
+                            checked={activeTab === 'offers'}
+                            onChange={() => setActiveTab('offers')}
+                        />
+                        Offers
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="trade-tab"
+                            checked={activeTab === 'requests'}
+                            onChange={() => setActiveTab('requests')}
+                        />
+                        Requests
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="trade-tab"
+                            checked={activeTab === 'sessions'}
+                            onChange={() => setActiveTab('sessions')}
+                        />
+                        Sessions
+                    </label>
+                </div>
             </div>
 
             {/* Tab Content */}

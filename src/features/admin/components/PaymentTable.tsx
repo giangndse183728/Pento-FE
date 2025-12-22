@@ -13,9 +13,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import FilterSection, { FilterField } from '@/components/decoration/FilterSection';
 import type { GetPaymentsParams, PaymentStatus } from '../services/paymentService';
+import { format, parseISO } from 'date-fns';
 
 const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -37,18 +38,16 @@ const getStatusColor = (status: string) => {
 };
 
 const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    try {
+        const date = parseISO(dateString);
+        return format(date, 'MMM d, yyyy HH:mm');
+    } catch {
+        return dateString;
+    }
 };
 
 const STATUS_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'Pending', label: 'Pending' },
     { value: 'Cancelled', label: 'Cancelled' },
     { value: 'Paid', label: 'Paid' },
@@ -58,7 +57,7 @@ const STATUS_OPTIONS = [
 ];
 
 const SORT_BY_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'OrderCode', label: 'Order Code' },
     { value: 'Description', label: 'Description' },
     { value: 'AmountDue', label: 'Amount Due' },
@@ -67,13 +66,13 @@ const SORT_BY_OPTIONS = [
 ];
 
 const SORT_ORDER_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'ASC', label: 'Ascending' },
     { value: 'DESC', label: 'Descending' },
 ];
 
 const IS_DELETED_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'true', label: 'Deleted' },
     { value: 'false', label: 'Active' },
 ];

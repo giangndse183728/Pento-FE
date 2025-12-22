@@ -11,17 +11,18 @@ import FilterSection, { FilterField } from '@/components/decoration/FilterSectio
 
 interface Props {
     title?: string;
+    defaultCollapsed?: boolean;
 }
 
 const TIME_WINDOW_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'Weekly', label: 'Weekly' },
     { value: 'Monthly', label: 'Monthly' },
     { value: 'Quarterly', label: 'Quarterly' },
     { value: 'Yearly', label: 'Yearly' },
 ];
 
-const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
+const HeatMap = ({ title = 'Activity Heatmap', defaultCollapsed = true }: Props) => {
     const [fromDate, setFromDate] = useState<string | undefined>();
     const [toDate, setToDate] = useState<string | undefined>();
     const [timeWindow, setTimeWindow] = useState<string>('');
@@ -239,7 +240,7 @@ const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
             {/* Filter Section */}
             <FilterSection
                 title="Activity Filters"
