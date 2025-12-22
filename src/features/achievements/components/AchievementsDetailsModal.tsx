@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
+import { DetailsSkeleton } from '@/components/decoration/DetailsSkeleton';
 import { CusButton } from '@/components/ui/cusButton';
 import Image from 'next/image';
 import { useMilestoneById } from '../hooks/useMilestones';
@@ -35,11 +36,7 @@ export default function AchievementsDetailsModal({ milestoneId, onClose }: Props
     if (isLoading) {
         return (
             <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <WhiteCard className="w-full max-w-2xl" width="100%" height="auto">
-                    <div className="text-center py-12 text-gray-500">
-                        Loading achievement details...
-                    </div>
-                </WhiteCard>
+                <DetailsSkeleton />
             </div>
         );
     }

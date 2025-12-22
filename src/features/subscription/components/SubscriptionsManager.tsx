@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import { useSubscription } from '../hooks/useSubscription';
 import { useFeatures } from '../hooks/useFeatures';
 import { toast } from 'sonner';
@@ -344,129 +343,127 @@ export default function SubscriptionsManager() {
     };
 
     return (
-        <AdminLayout>
-            <div className="w-full space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Subscription Manager</h1>
-                    </div>
+        <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Subscription Manager</h1>
                 </div>
-
-                {/* Tabs */}
-                <div className="mb-6 flex justify-start">
-                    <div className="segmented">
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'list'}
-                                onChange={() => setCurrentStep('list')}
-                            />
-                            Subscriptions List
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'create-subscription'}
-                                onChange={() => setCurrentStep('create-subscription')}
-                            />
-                            Create Subscription
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'add-plans'}
-                                onChange={() => setCurrentStep('add-plans')}
-                            />
-                            Add Plans
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'add-features'}
-                                onChange={() => setCurrentStep('add-features')}
-                            />
-                            Add Features
-                        </label>
-                    </div>
-                </div>
-
-                {/* Create Subscription Tab */}
-                {currentStep === 'create-subscription' && (
-                    <CreateSubscriptionStep
-                        key={`create-${mountKey}`}
-                        form={subscriptionForm}
-                        inputClass={inputClass}
-                        textareaClass={textareaClass}
-                        onChange={updateSubscriptionForm}
-                        onSubmit={handleSubscriptionSubmit}
-                        isSubmitting={createSubscription.isPending}
-                    />
-                )}
-
-                {/* Add Plans Tab */}
-                {currentStep === 'add-plans' && (
-                    <AddPlansStep
-                        key={`plans-${mountKey}`}
-                        form={planForm}
-                        inputClass={inputClass}
-                        subscriptions={subscriptionsList}
-                        subscriptionsLoading={subscriptionsLoading}
-                        selectedSubscription={selectedPlanSubscription}
-                        resolveSubscriptionId={resolveSubscriptionId}
-                        onSelectSubscription={selectPlanSubscription}
-                        onAmountChange={handlePlanAmountChange}
-                        onAmountAdjust={adjustPlanAmount}
-                        onDurationChange={handlePlanDurationChange}
-                        onDurationAdjust={adjustPlanDuration}
-                        onSubmit={handlePlanSubmit}
-                        isSubmitting={addSubscriptionPlan.isPending}
-                    />
-                )}
-
-                {/* Add Features Tab */}
-                {currentStep === 'add-features' && (
-                    <AddFeaturesStep
-                        key={`features-${mountKey}`}
-                        form={featureForm}
-                        selectClass={selectClass}
-                        subscriptions={subscriptions.data || []}
-                        subscriptionsLoading={subscriptions.isLoading}
-                        selectedSubscription={selectedFeatureSubscription}
-                        resolveSubscriptionId={resolveSubscriptionId}
-                        onSelectSubscription={selectFeatureSubscription}
-                        featureRows={featureRows}
-                        activeFeatureRow={activeFeatureRow}
-                        onSetActiveRow={setActiveFeatureRow}
-                        onFeatureRowChange={updateFeatureRow}
-                        onRemoveFeatureRow={handleRemoveFeatureRow}
-                        onAddFeatureRow={handleAddFeatureRow}
-                        onSubmit={handleFeatureSubmit}
-                        isSubmitting={addSubscriptionFeature.isPending}
-                        featureSearchInput={featureSearchInput}
-                        onFeatureSearchInputChange={setFeatureSearchInput}
-                        onFeatureSearch={handleFeatureSearch}
-                        filteredFeatures={filteredFeatures}
-                        featuresAreLoading={featuresAreLoading}
-                        onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
-                    />
-                )}
-
-                {/* Subscriptions List Tab */}
-                {currentStep === 'list' && (
-                    <div className="space-y-6">
-                        <SubscriptionList
-                            subscriptions={subscriptionsList}
-                            loading={subscriptionsLoading}
-                            onDeleted={() => subscriptions.refetch()}
-                        />
-                    </div>
-                )}
             </div>
-        </AdminLayout>
+
+            {/* Tabs */}
+            <div className="mb-6 flex justify-start">
+                <div className="segmented">
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'list'}
+                            onChange={() => setCurrentStep('list')}
+                        />
+                        Subscriptions List
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'create-subscription'}
+                            onChange={() => setCurrentStep('create-subscription')}
+                        />
+                        Create Subscription
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'add-plans'}
+                            onChange={() => setCurrentStep('add-plans')}
+                        />
+                        Add Plans
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'add-features'}
+                            onChange={() => setCurrentStep('add-features')}
+                        />
+                        Add Features
+                    </label>
+                </div>
+            </div>
+
+            {/* Create Subscription Tab */}
+            {currentStep === 'create-subscription' && (
+                <CreateSubscriptionStep
+                    key={`create-${mountKey}`}
+                    form={subscriptionForm}
+                    inputClass={inputClass}
+                    textareaClass={textareaClass}
+                    onChange={updateSubscriptionForm}
+                    onSubmit={handleSubscriptionSubmit}
+                    isSubmitting={createSubscription.isPending}
+                />
+            )}
+
+            {/* Add Plans Tab */}
+            {currentStep === 'add-plans' && (
+                <AddPlansStep
+                    key={`plans-${mountKey}`}
+                    form={planForm}
+                    inputClass={inputClass}
+                    subscriptions={subscriptionsList}
+                    subscriptionsLoading={subscriptionsLoading}
+                    selectedSubscription={selectedPlanSubscription}
+                    resolveSubscriptionId={resolveSubscriptionId}
+                    onSelectSubscription={selectPlanSubscription}
+                    onAmountChange={handlePlanAmountChange}
+                    onAmountAdjust={adjustPlanAmount}
+                    onDurationChange={handlePlanDurationChange}
+                    onDurationAdjust={adjustPlanDuration}
+                    onSubmit={handlePlanSubmit}
+                    isSubmitting={addSubscriptionPlan.isPending}
+                />
+            )}
+
+            {/* Add Features Tab */}
+            {currentStep === 'add-features' && (
+                <AddFeaturesStep
+                    key={`features-${mountKey}`}
+                    form={featureForm}
+                    selectClass={selectClass}
+                    subscriptions={subscriptions.data || []}
+                    subscriptionsLoading={subscriptions.isLoading}
+                    selectedSubscription={selectedFeatureSubscription}
+                    resolveSubscriptionId={resolveSubscriptionId}
+                    onSelectSubscription={selectFeatureSubscription}
+                    featureRows={featureRows}
+                    activeFeatureRow={activeFeatureRow}
+                    onSetActiveRow={setActiveFeatureRow}
+                    onFeatureRowChange={updateFeatureRow}
+                    onRemoveFeatureRow={handleRemoveFeatureRow}
+                    onAddFeatureRow={handleAddFeatureRow}
+                    onSubmit={handleFeatureSubmit}
+                    isSubmitting={addSubscriptionFeature.isPending}
+                    featureSearchInput={featureSearchInput}
+                    onFeatureSearchInputChange={setFeatureSearchInput}
+                    onFeatureSearch={handleFeatureSearch}
+                    filteredFeatures={filteredFeatures}
+                    featuresAreLoading={featuresAreLoading}
+                    onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
+                />
+            )}
+
+            {/* Subscriptions List Tab */}
+            {currentStep === 'list' && (
+                <div className="space-y-6">
+                    <SubscriptionList
+                        subscriptions={subscriptionsList}
+                        loading={subscriptionsLoading}
+                        onDeleted={() => subscriptions.refetch()}
+                    />
+                </div>
+            )}
+        </div>
     );
 }
 

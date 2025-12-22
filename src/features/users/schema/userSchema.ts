@@ -28,3 +28,37 @@ export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
 export type UpdateAvatarInput = {
     file: File;
 };
+
+// Admin Users List Query Parameters
+export type GetAdminUsersParams = {
+    searchText?: string;
+    isDeleted?: boolean;
+    sortBy?: 'Id' | 'HouseholdName' | 'Email' | 'FirstName' | 'LastName' | 'CreatedAt';
+    sortOrder?: 'ASC' | 'DESC';
+    pageNumber?: number;
+    pageSize?: number;
+};
+
+// Admin User Item in List
+export const AdminUserItemSchema = z.object({
+    userId: z.string(),
+    householdName: z.string().nullable(),
+    email: z.string().email(),
+    firstName: z.string(),
+    lastName: z.string(),
+    createdAt: z.string(),
+    isDeleted: z.boolean(),
+});
+
+export type AdminUserItem = z.infer<typeof AdminUserItemSchema>;
+
+// Paginated Admin Users Response
+export type PaginatedAdminUsers = {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalCount: number;
+    hasPrevious: boolean;
+    hasNext: boolean;
+    items: AdminUserItem[];
+};

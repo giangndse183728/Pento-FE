@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { useSummaryForCharts } from '../../hooks/useSummaryForChart';
+import { ChartSkeleton } from '@/components/decoration/ChartSkeleton';
 import type { GetPaymentSummaryParams } from '../../services/paymentService';
 
 // Color palette for different subscriptions
@@ -184,11 +185,7 @@ const ShareDataSetChart = ({ params }: Props) => {
 
     if (loading) {
         return (
-            <WhiteCard className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg">
-                <div className="flex items-center justify-center h-[550px]">
-                    <span className="text-gray-500">Loading chart data...</span>
-                </div>
-            </WhiteCard>
+            <ChartSkeleton height={550} />
         );
     }
 
