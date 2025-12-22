@@ -42,15 +42,15 @@ const cardData: BentoCardProps[] = [
   },
   {
     color: '#060010',
-    description: 'Organize by type & storage',
-    label: 'Categories',
-    backgroundImage: '/assets/img/category.png'
+    description: 'Earn badges for your efforts',
+    label: 'Achievements',
+    backgroundImage: '/assets/img/achivement.jpg'
   },
   {
     color: '#060010',
     title: 'Manage Together',
-    description: 'Organize and share your household food items with family members',
-    label: 'Collaborate',
+    description: 'Easily organize your grocery list and discover nearby stores',
+    label: 'Grocery List',
     backgroundImage: '/assets/img/together.png'
   },
   {
