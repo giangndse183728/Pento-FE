@@ -62,6 +62,31 @@ export const TradeOfferItemSchema = z.object({
 
 export type TradeOfferItem = z.infer<typeof TradeOfferItemSchema>;
 
+// Detailed Trade Item
+export const TradeItemSchema = z.object({
+    tradeItemId: z.string(),
+    foodItemId: z.string(),
+    name: z.string(),
+    originalName: z.string(),
+    imageUrl: z.string().nullable(),
+    foodGroup: z.string(),
+    quantity: z.number(),
+    unitAbbreviation: z.string(),
+    unitId: z.string(),
+    expirationDate: z.string(),
+    from: z.string(),
+});
+
+export type TradeItem = z.infer<typeof TradeItemSchema>;
+
+// Detailed Trade Offer
+export const TradeOfferDetailsSchema = z.object({
+    tradeOffer: TradeOfferItemSchema,
+    items: z.array(TradeItemSchema),
+});
+
+export type TradeOfferDetails = z.infer<typeof TradeOfferDetailsSchema>;
+
 export type PaginatedTradeOffers = {
     currentPage: number;
     totalPages: number;
@@ -98,6 +123,14 @@ export type PaginatedTradeRequests = {
     hasNext: boolean;
     items: TradeRequestItem[];
 };
+
+// Detailed Trade Request
+export const TradeRequestDetailsSchema = z.object({
+    tradeRequest: TradeRequestItemSchema,
+    items: z.array(TradeItemSchema),
+});
+
+export type TradeRequestDetails = z.infer<typeof TradeRequestDetailsSchema>;
 
 // ============= Trade Sessions =============
 

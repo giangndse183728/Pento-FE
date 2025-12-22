@@ -8,6 +8,7 @@ import FilterSection, { type FilterField } from '@/components/decoration/FilterS
 import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Package } from 'lucide-react';
+import OffersDetailsModal from './OffersDetailsModal';
 
 type Props = {
     status?: string;
@@ -33,6 +34,9 @@ export default function TradeOffersList({
     const [isDeletedFilter, setIsDeletedFilter] = useState<boolean | undefined>(isDeleted);
     const [sortByFilter, setSortByFilter] = useState<string | undefined>(sortBy);
     const [sortOrderFilter, setSortOrderFilter] = useState<'ASC' | 'DESC' | undefined>(sortOrder);
+
+    // Modal State
+    const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
     const params: GetTradeOffersParams = {
         status: statusFilter,
@@ -118,6 +122,7 @@ export default function TradeOffersList({
     ];
 
     const getStatusColor = (status: string) => {
+        if (!status) return '#9CA3AF';
         switch (status.toLowerCase()) {
             case 'open': return '#F59E0B'; // Amber for open (waiting)
             case 'fulfilled': return '#10B981'; // Green for fulfilled
@@ -212,7 +217,8 @@ export default function TradeOffersList({
                                     {items.map((offer: TradeOfferItem, index) => (
                                         <TableRow
                                             key={`${offer.tradeOfferId}-${index}`}
-                                            className="hover:bg-gray-50"
+                                            className="hover:bg-gray-50 cursor-pointer transition-colors"
+                                            onClick={() => setSelectedOfferId(offer.tradeOfferId)}
                                         >
                                             {/* User */}
                                             <TableCell className="font-semibold text-base" style={{ color: '#113F67' }}>
@@ -297,6 +303,12 @@ export default function TradeOffersList({
                     )}
                 </div>
             </WhiteCard>
+
+            {/* Details Modal */}
+            <OffersDetailsModal
+                offerId={selectedOfferId}
+                onClose={() => setSelectedOfferId(null)}
+            />
         </div>
     );
 }

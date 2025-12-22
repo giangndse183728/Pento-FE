@@ -8,6 +8,7 @@ import FilterSection, { type FilterField } from '@/components/decoration/FilterS
 import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FileText } from 'lucide-react';
+import RequestsDetailsModal from './RequestsDetailsModal';
 
 type Props = {
     offerId?: string;
@@ -35,6 +36,9 @@ export default function TradeRequestsList({
     const [isDeletedFilter, setIsDeletedFilter] = useState<boolean | undefined>(isDeleted);
     const [sortByFilter, setSortByFilter] = useState<'CreatedOn' | 'TotalItems' | undefined>(sortBy);
     const [sortOrderFilter, setSortOrderFilter] = useState<'ASC' | 'DESC' | undefined>(sortOrder);
+
+    // Modal State
+    const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
 
     const params: GetTradeRequestsParams = {
         offerId,
@@ -214,7 +218,8 @@ export default function TradeRequestsList({
                                     {items.map((request: TradeRequestItem, index) => (
                                         <TableRow
                                             key={`${request.tradeRequestId}-${index}`}
-                                            className="hover:bg-gray-50"
+                                            className="hover:bg-gray-50 cursor-pointer transition-colors"
+                                            onClick={() => setSelectedRequestId(request.tradeRequestId)}
                                         >
                                             {/* Requester */}
                                             <TableCell className="font-semibold text-base" style={{ color: '#113F67' }}>
@@ -299,6 +304,12 @@ export default function TradeRequestsList({
                     )}
                 </div>
             </WhiteCard>
+
+            {/* Details Modal */}
+            <RequestsDetailsModal
+                requestId={selectedRequestId}
+                onClose={() => setSelectedRequestId(null)}
+            />
         </div>
     );
 }

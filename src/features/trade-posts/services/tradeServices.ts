@@ -34,6 +34,20 @@ export const getAdminTradeOffers = async (params: GetTradeOffersParams = {}): Pr
     }
 };
 
+/**
+ * GET /admin/trades/offers/{id}
+ * Fetches detailed info for a single trade offer
+ */
+export const getTradeOfferById = async (id: string): Promise<any> => {
+    try {
+        const response = await apiRequest<any>('get', `/admin/trades/offers/${id}`);
+        return response;
+    } catch (error) {
+        console.error(`getTradeOfferById failed for ID ${id}:`, error);
+        throw error;
+    }
+};
+
 // ============= Trade Requests =============
 
 /**
@@ -57,6 +71,20 @@ export const getAdminTradeRequests = async (params: GetTradeRequestsParams = {})
         return response;
     } catch (error) {
         console.error('getAdminTradeRequests failed:', error);
+        throw error;
+    }
+};
+
+/**
+ * GET /admin/trades/requests/{id}
+ * Fetches detailed info for a single trade request
+ */
+export const getTradeRequestById = async (id: string): Promise<any> => {
+    try {
+        const response = await apiRequest<any>('get', `/admin/trades/requests/${id}`);
+        return response;
+    } catch (error) {
+        console.error(`getTradeRequestById failed for ID ${id}:`, error);
         throw error;
     }
 };

@@ -3,6 +3,8 @@ import {
     getAdminTradeOffers,
     getAdminTradeRequests,
     getAdminTradeSessions,
+    getTradeOfferById,
+    getTradeRequestById,
 } from '../services/tradeServices';
 import type {
     GetTradeOffersParams,
@@ -45,6 +47,30 @@ export const useAdminTradeSessions = (params: GetTradeSessionsParams = {}) => {
     return useQuery({
         queryKey: ['adminTradeSessions', params],
         queryFn: () => getAdminTradeSessions(params),
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
+};
+
+/**
+ * Hook to fetch detailed info for a single trade offer
+ */
+export const useTradeOfferById = (offerId: string | null) => {
+    return useQuery({
+        queryKey: ['adminTradeOffer', offerId],
+        queryFn: () => getTradeOfferById(offerId!),
+        enabled: !!offerId,
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
+};
+
+/**
+ * Hook to fetch detailed info for a single trade request
+ */
+export const useTradeRequestById = (requestId: string | null) => {
+    return useQuery({
+        queryKey: ['adminTradeRequest', requestId],
+        queryFn: () => getTradeRequestById(requestId!),
+        enabled: !!requestId,
         staleTime: 2 * 60 * 1000, // 2 minutes
     });
 };
