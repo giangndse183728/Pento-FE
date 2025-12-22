@@ -16,6 +16,7 @@ export const ROUTES = {
   ACHIEVEMENTS: "/admin/achievements",
   FOODREFERENCES: "/admin/food-references",
   REPORTS: "/admin/reports",
+  USERS: "/admin/users",
 
 };
 
