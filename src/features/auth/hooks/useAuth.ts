@@ -6,6 +6,7 @@ import { login, logout } from '../services';
 import { LoginFormData } from '../schema';
 import { toast } from 'sonner';
 import { getUserProfile } from '@/features/users/services/userServices';
+import { ROUTES } from '@/constants/routes';
 
 export const useLogin = () => {
     const router = useRouter();
@@ -28,7 +29,7 @@ export const useLogin = () => {
                 // Redirect based on role
                 if (user.roles === 'Administrator') {
                     console.log('[useAuth] Redirecting to admin dashboard');
-                    router.push('/admin/dashboard/subscriptions-payment');
+                    router.push(ROUTES.DASHBOARD);
                 } else {
                     console.log('[useAuth] Redirecting to home');
                     router.push('/');
