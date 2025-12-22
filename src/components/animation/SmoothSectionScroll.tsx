@@ -12,16 +12,28 @@ export default function SmoothSectionScroll() {
     let currentSection = 0;
     let isScrolling = false;
 
-    const scrollToSection = (index: number) => {
+    const scrollToSection = (index: number, options?: { immediate?: boolean }) => {
       if (index < 0 || index >= sections.length || isScrolling) return;
       
       isScrolling = true;
       currentSection = index;
       
+      if (options?.immediate) {
+        const selector = sections[index];
+        const element = document.querySelector(selector) as HTMLElement | null;
+        if (element) {
+          element.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+        isScrolling = false;
+        return;
+      }
+
+      const target = sections[index];
+
       gsap.to(window, {
         duration: 1.2,
         scrollTo: {
-          y: sections[index],
+          y: target,
           offsetY: 0
         },
         ease: "power2.inOut",
@@ -102,6 +114,15 @@ export default function SmoothSectionScroll() {
           break;
       }
     };
+
+    // Always start at the first (hero) section on load
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    // Ensure we are at the top/hero when the component mounts
+    setTimeout(() => {
+      scrollToSection(0, { immediate: true });
+    }, 0);
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeyDown);

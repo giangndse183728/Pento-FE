@@ -62,32 +62,32 @@ export interface CarouselProps {
 
 const DEFAULT_ITEMS: CarouselItem[] = [
   {
-    title: 'Scan & Recognize',
-    description: 'Scan barcodes; auto-detect foods with computer vision.',
+    title: 'Manage Pantry',
+    description: 'Track everything in your pantry and keep items organized in one place.',
     id: 1,
     icon: <ScanLine className="carousel-icon" />,
     imageUrl: '/assets/img/scan.png'
   },
   {
-    title: 'AI Recipe Suggest',
-    description: 'Personalized recipes from what you already have.',
+    title: 'Manage Mealplan',
+    description: 'Plan meals for the week so you always know what to cook next.',
     id: 2,
     icon: <Bot className="carousel-icon" />,
     imageUrl: '/assets/img/recipe.png'
   },
   {
-    title: 'Food Giveaway',
-    description: 'Share surplus items with nearby communities.',
+    title: 'Recipes',
+    description: 'Browse and save recipes that work with the ingredients you already have.',
     id: 3,
     icon: <Gift className="carousel-icon" />,
-    imageUrl: '/assets/img/giveaway.png'
+    imageUrl: '/assets/img/category.png'
   },
   {
-    title: 'Smart Expiry',
-    description: 'Proactive expiry alerts to cut waste and save money.',
+    title: 'Trading',
+    description: 'Trade food items with others through live sessions and shared lists.',
     id: 4,
     icon: <AlarmClock className="carousel-icon" />,
-    imageUrl: '/assets/img/expiry.png'
+    imageUrl: 'assets/img/giveaway.png'
   }
 ];
 
