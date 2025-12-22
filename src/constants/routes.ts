@@ -17,6 +17,7 @@ export const ROUTES = {
   FOODREFERENCES: "/admin/food-references",
   REPORTS: "/admin/reports",
   USERS: "/admin/users",
+  TRADE_POSTS: "/admin/trade-posts",
 
 };
 

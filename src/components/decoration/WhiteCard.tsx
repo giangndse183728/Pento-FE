@@ -6,10 +6,11 @@ interface WhiteCardProps {
     width?: number | string
     height?: number | string
     style?: React.CSSProperties
+    contentClassName?: string
     onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
-export function WhiteCard({ children, className = "", width = 500, height = 250, style = {}, onClick }: WhiteCardProps) {
+export function WhiteCard({ children, className = "", width = 500, height = 250, style = {}, contentClassName = "", onClick }: WhiteCardProps) {
     const resolvedStyle: React.CSSProperties = {
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,
@@ -34,7 +35,7 @@ export function WhiteCard({ children, className = "", width = 500, height = 250,
             />
 
             {/* Content */}
-            <div className="relative p-6">
+            <div className={`relative p-6 ${contentClassName}`}>
                 {children}
             </div>
         </div>
