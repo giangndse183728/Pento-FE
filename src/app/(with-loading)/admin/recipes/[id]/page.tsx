@@ -3,6 +3,7 @@
 import { use } from "react";
 import RecipesDetailsPage from "@/features/recipes/components/recipes-details/RecipesDetailsPage";
 import { useRecipeDetails } from "@/features/recipes/hooks/useRecipes";
+import { DetailsSkeleton } from "@/components/decoration/DetailsSkeleton";
 
 type PageProps = {
     params: Promise<{ id: string }>;
@@ -13,11 +14,7 @@ export default function RecipeDetailPage({ params }: PageProps) {
     const { data, isLoading, error } = useRecipeDetails(id);
 
     if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-xl">Loading recipe details...</div>
-            </div>
-        );
+        return <DetailsSkeleton />;
     }
 
     if (error) {

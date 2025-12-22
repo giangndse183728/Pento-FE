@@ -17,11 +17,11 @@ import ImageEditModal from '@/components/decoration/ImageEditModal';
 import type { UpdateProfileInput } from '@/features/users/schema/userSchema';
 import { useLogout } from '@/features/auth/hooks/useAuth';
 
-// Dashboard sub-items for accordion
+// Dashboard sub-items (Bookmarks for sections in unified dashboard)
 const dashboardSubItems = [
-    { href: ROUTES.DASHBOARD_SUBSCRIPTIONS_PAYMENT, label: 'Payments', icon: '/assets/img/pie-chart.png' },
-    { href: ROUTES.DASHBOARD_FOOD_ITEM_LOG, label: 'Food Items Log', icon: '/assets/img/bar-chart.png' },
-    { href: ROUTES.DASHBOARD_ACTIVITIES, label: 'Activities', icon: '/assets/img/heat-map.png' },
+    { href: `${ROUTES.DASHBOARD}#payments`, id: 'payments', label: 'Payments', icon: '/assets/img/pie-chart.png' },
+    { href: `${ROUTES.DASHBOARD}#food-log`, id: 'food-log', label: 'Food Items Log', icon: '/assets/img/bar-chart.png' },
+    { href: `${ROUTES.DASHBOARD}#activities`, id: 'activities', label: 'Activities', icon: '/assets/img/heat-map.png' },
 ];
 
 // Regular navigation items (non-accordion)
@@ -30,6 +30,8 @@ const navItems = [
     { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
+    { href: ROUTES.USERS, label: 'Users', icon: '/assets/img/users.png' },
+    { href: ROUTES.TRADE_POSTS, label: 'Trade Posts', icon: '/assets/img/trade-posts.png' },
     { href: ROUTES.REPORTS, label: 'Trade Reports', icon: '/assets/img/report.png' },
 ];
 
@@ -81,6 +83,18 @@ const AdminSidebar = () => {
     const handleAccordionChange = (value: string | undefined) => {
         setAccordionValue(value);
         sessionStorage.setItem(ACCORDION_STATE_KEY, value ? 'open' : 'closed');
+    };
+
+    // Bookmark navigation handler
+    const handleBookmarkClick = (e: React.MouseEvent, id: string) => {
+        if (pathname === ROUTES.DASHBOARD) {
+            e.preventDefault();
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, '', `${ROUTES.DASHBOARD}#${id}`);
+            }
+        }
     };
 
     // Get user initials for avatar fallback
@@ -152,8 +166,9 @@ const AdminSidebar = () => {
                     height: '100%',
                 }}
                 className="h-full shadow-lg rounded-xl"
+                contentClassName="h-full p-0"
             >
-                <div className="p-5 h-full w-full flex flex-col items-start justify-start">
+                <div className="p-5 h-full w-full flex flex-col items-start justify-start overflow-hidden">
                     {/* Profile */}
                     <div className="flex items-center gap-4 mb-8 w-full group">
                         {userProfile?.avatarUrl ? (
@@ -194,7 +209,7 @@ const AdminSidebar = () => {
                     <div className="w-full border-t border-gray-300 mb-6" />
 
                     {/* Navigation */}
-                    <nav className="flex flex-col space-y-3 w-full relative">
+                    <nav className="flex flex-col space-y-3 w-full relative flex-1 overflow-y-auto pr-1 scrollbar-thin min-h-0">
                         {/* Dashboard Accordion */}
                         <Accordion
                             type="single"
@@ -206,7 +221,7 @@ const AdminSidebar = () => {
                             <AccordionItem value="dashboard" className="border-b-0">
                                 <div className="relative w-full">
                                     {/* Active indicator for dashboard parent */}
-                                    {pathname.startsWith(ROUTES.DASHBOARD) && (
+                                    {pathname === ROUTES.DASHBOARD && (
                                         <div
                                             className="absolute left-0 top-0 h-full w-1 rounded-tr-lg rounded-br-lg"
                                             style={{ backgroundColor: ColorTheme.powderBlue }}
@@ -215,7 +230,7 @@ const AdminSidebar = () => {
                                     <AccordionTrigger
                                         className="w-full flex items-center gap-3 p-3 rounded-lg transition-all transform cursor-pointer hover:no-underline"
                                         style={{
-                                            backgroundColor: pathname.startsWith(ROUTES.DASHBOARD)
+                                            backgroundColor: pathname === ROUTES.DASHBOARD
                                                 ? ColorTheme.babyBlue
                                                 : 'transparent',
                                         }}
@@ -231,9 +246,9 @@ const AdminSidebar = () => {
                                                 />
                                             </div>
                                             <span
-                                                className="truncate font-medium transition-colors"
+                                                className="whitespace-normal break-words font-medium text-sm transition-colors"
                                                 style={{
-                                                    color: pathname.startsWith(ROUTES.DASHBOARD)
+                                                    color: pathname === ROUTES.DASHBOARD
                                                         ? ColorTheme.blueGray
                                                         : ColorTheme.darkBlue,
                                                 }}
@@ -245,27 +260,25 @@ const AdminSidebar = () => {
                                 </div>
                                 <AccordionContent className="pl-6 pb-0">
                                     <div className="flex flex-col space-y-1 pt-1">
-                                        {dashboardSubItems.map(({ href, label, icon }) => {
-                                            const isSubActive = pathname === href;
+                                        {dashboardSubItems.map(({ href, label, icon, id }) => {
                                             const isSubHovered = hovered === href;
 
                                             return (
                                                 <Link
                                                     key={href}
                                                     href={href}
+                                                    onClick={(e) => handleBookmarkClick(e, id)}
                                                     onMouseEnter={() => setHovered(href)}
                                                     onMouseLeave={() => setHovered(null)}
-                                                    className="w-full flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer text-sm"
+                                                    className="w-full flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer text-[13px]"
                                                     style={{
-                                                        backgroundColor: isSubActive
-                                                            ? ColorTheme.powderBlue
-                                                            : isSubHovered
-                                                                ? ColorTheme.babyBlue
-                                                                : 'transparent',
-                                                        color: isSubActive || isSubHovered
+                                                        backgroundColor: isSubHovered
+                                                            ? ColorTheme.babyBlue
+                                                            : 'transparent',
+                                                        color: isSubHovered
                                                             ? ColorTheme.darkBlue
                                                             : ColorTheme.blueGray,
-                                                        fontWeight: isSubActive ? 600 : 400,
+                                                        fontWeight: 400,
                                                     }}
                                                 >
                                                     <Image
@@ -323,7 +336,7 @@ const AdminSidebar = () => {
                                             />
                                         </div>
                                         <span
-                                            className="truncate font-medium transition-colors"
+                                            className="whitespace-normal break-words font-medium text-sm transition-colors"
                                             style={{
                                                 color: isActive || isHovered ? ColorTheme.blueGray : ColorTheme.darkBlue,
                                             }}
@@ -359,7 +372,7 @@ const AdminSidebar = () => {
                                 />
                             </div>
                             <span
-                                className="truncate font-medium transition-colors"
+                                className="whitespace-normal break-words font-medium text-sm transition-colors"
                                 style={{
                                     color: hovered === 'logout' ? '#DC2626' : ColorTheme.darkBlue,
                                 }}

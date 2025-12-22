@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import { useRecipes } from '../hooks';
 import RecipesCreateForm from './RecipesCreateForm';
 import RecipesList from './recipes-details/RecipesList';
@@ -28,7 +27,7 @@ export default function RecipesManager() {
     };
 
     return (
-        <AdminLayout>
+        <>
             <div className="w-full mb-6 flex items-center justify-between">
                 <h1 className="text-3xl font-semibold">Recipes Manager</h1>
             </div>
@@ -172,6 +171,6 @@ export default function RecipesManager() {
                     )}
                 </div>
             )}
-        </AdminLayout>
+        </>
     );
 }

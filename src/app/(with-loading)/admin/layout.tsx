@@ -1,15 +1,11 @@
 "use client";
 
 import React from 'react';
-import AdminSidebar from './AdminSidebar';
+import AdminSidebar from '@/features/admin/components/AdminSidebar';
 import { BlurCard } from '@/components/decoration/BlurCard';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-type Props = {
-    children: React.ReactNode;
-};
-
-const AdminLayout = ({ children }: Props) => {
+export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
     return (
         <ProtectedRoute requireAuth={true} requireAdmin={true} redirectTo="/login">
             <div
@@ -26,9 +22,9 @@ const AdminLayout = ({ children }: Props) => {
                     <AdminSidebar />
 
                     {/* Main Content Area */}
-                    <div className="w-[80%] md:ml-0 lg:ml-[calc(20%+1.5rem)] flex flex-col items-start justify-start text-left text-[#113F67]" style={{ color: '#113F67' }}>
+                    <div className="w-full md:flex-1 md:ml-0 lg:ml-[calc(20%+3rem)] lg:w-[calc(100%-20%-4.5rem)] flex flex-col justify-start text-left text-[#113F67]" style={{ color: '#113F67' }}>
                         <BlurCard className="w-full bg-white/10 backdrop-blur-[1px] min-h-[800px]">
-                            <div className="p-6 flex flex-col items-start justify-start text-left">
+                            <div className="p-6 flex flex-col justify-start text-left w-full">
                                 {children}
                             </div>
                         </BlurCard>
@@ -37,6 +33,4 @@ const AdminLayout = ({ children }: Props) => {
             </div>
         </ProtectedRoute>
     );
-};
-
-export default AdminLayout;
+}

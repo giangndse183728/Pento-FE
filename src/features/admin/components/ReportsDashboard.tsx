@@ -2,11 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { useReports } from '@/features/admin/hooks/useReport';
-import { Loader2 } from 'lucide-react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import ReportsSummaryCards from './reports/ReportsSummaryCards';
 import ReportsSideDrawer from './reports/ReportsSideDrawer';
 import type { TradeReport } from '@/features/admin/schema/reportSchema';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 export default function ReportsDashboard() {
     const { reports, loading, error, refetch } = useReports();
@@ -54,8 +54,15 @@ export default function ReportsDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#113F67]" />
+            <div className="w-full">
+                <h1 className="text-3xl font-bold mb-6" style={{ color: '#113F67' }}>
+                    Admin Dashboard
+                </h1>
+                <TableSkeleton
+                    title="Trade Reports"
+                    rowCount={8}
+                    columnCount={6}
+                />
             </div>
         );
     }

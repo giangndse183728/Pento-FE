@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getUserProfile, updateUserProfile, updateUserAvatar } from '../services/userServices';
-import type { UpdateProfileInput } from '../schema/userSchema';
+import { getUserProfile, updateUserProfile, updateUserAvatar, getAdminUsers, deleteAdminUser } from '../services/userServices';
+import type { UpdateProfileInput, GetAdminUsersParams } from '../schema/userSchema';
 import { UpdateProfileSchema } from '../schema/userSchema';
 
 /**
@@ -51,6 +51,36 @@ export const useUpdateUserAvatar = () => {
         },
         onError: (error: unknown) => {
             const message = error instanceof Error ? error.message : 'Failed to update avatar';
+            toast.error(message);
+        },
+    });
+};
+
+/**
+ * Hook to fetch admin users list with pagination and filtering
+ */
+export const useAdminUsers = (params: GetAdminUsersParams = {}) => {
+    return useQuery({
+        queryKey: ['adminUsers', params],
+        queryFn: () => getAdminUsers(params),
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
+};
+
+/**
+ * Hook to delete a user (admin only)
+ */
+export const useDeleteAdminUser = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (userId: string) => deleteAdminUser(userId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+            toast.success('User deleted successfully');
+        },
+        onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Failed to delete user';
             toast.error(message);
         },
     });

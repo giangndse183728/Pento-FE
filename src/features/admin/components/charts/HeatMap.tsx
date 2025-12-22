@@ -5,25 +5,27 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { useActivityStats } from '@/features/achievements/hooks/useActivities';
+import { ChartSkeleton } from '@/components/decoration/ChartSkeleton';
 import { Loader2 } from 'lucide-react';
 import FilterSection, { FilterField } from '@/components/decoration/FilterSection';
 
 interface Props {
     title?: string;
+    defaultCollapsed?: boolean;
 }
 
 const TIME_WINDOW_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'Weekly', label: 'Weekly' },
     { value: 'Monthly', label: 'Monthly' },
     { value: 'Quarterly', label: 'Quarterly' },
     { value: 'Yearly', label: 'Yearly' },
 ];
 
-const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
+const HeatMap = ({ title = 'Activity Heatmap', defaultCollapsed = true }: Props) => {
     const [fromDate, setFromDate] = useState<string | undefined>();
     const [toDate, setToDate] = useState<string | undefined>();
-    const [timeWindow, setTimeWindow] = useState<string>(''); 
+    const [timeWindow, setTimeWindow] = useState<string>('');
 
     const apiParams = useMemo(() => {
         const params: {
@@ -238,7 +240,7 @@ const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
             {/* Filter Section */}
             <FilterSection
                 title="Activity Filters"
@@ -250,11 +252,10 @@ const HeatMap = ({ title = 'Activity Heatmap' }: Props) => {
 
             {/* HeatMap Chart */}
             {isLoading ? (
-                <WhiteCard className="w-full rounded-2xl p-2 bg-white/90 border border-white/30 backdrop-blur-lg">
-                    <div className="flex items-center justify-center h-[300px]">
-                        <Loader2 className="w-8 h-8 animate-spin text-[#113F67]" />
-                    </div>
-                </WhiteCard>
+                <ChartSkeleton
+                    title={title}
+                    height={300}
+                />
             ) : error ? (
                 <WhiteCard className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg">
                     <div className="flex items-center justify-center h-[300px] text-red-500">

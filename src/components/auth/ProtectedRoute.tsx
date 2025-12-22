@@ -65,7 +65,10 @@ export default function ProtectedRoute({
     }, [isLoading, requireAuth, requireAdmin, allowedRoles, isAuthenticated, userRole, router, redirectTo]);
 
     // Show loading state
-    if (isLoading) {
+    const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
+    const isAdminPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
+    if (isLoading && !isAdminPage) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
