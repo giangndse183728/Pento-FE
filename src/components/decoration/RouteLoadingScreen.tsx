@@ -37,7 +37,7 @@ export default function RouteLoadingScreen({
         };
     }, [pathname, searchParams, fadeDurationMs]);
 
-    if (!isLoading) return null;
+    if (!isLoading || pathname.startsWith('/admin')) return null;
 
     return (
         <div

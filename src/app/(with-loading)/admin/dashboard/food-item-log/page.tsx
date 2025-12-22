@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import DoubleBarChart from '@/features/admin/components/charts/DoubleBarChart';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
 import type { GetFoodItemLogSummaryParams } from '@/features/admin/services/foodItemsLogServices';
@@ -144,21 +143,19 @@ export default function FoodItemLogPage() {
     ];
 
     return (
-        <AdminLayout>
-            <div className="w-full space-y-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#113F67' }}>
-                    Food Item Log
-                </h1>
-                <FilterSection
-                    title="Food Item Filters"
-                    fields={foodFilterFields}
-                    onReset={handleResetFoodFilters}
-                    resetButtonText="Clear All"
-                    defaultCollapsed={true}
-                />
-                <DoubleBarChart params={foodApiParams} />
-            </div>
-        </AdminLayout>
+        <div className="w-full space-y-6">
+            <h1 className="text-2xl font-bold" style={{ color: '#113F67' }}>
+                Food Item Log
+            </h1>
+            <FilterSection
+                title="Food Item Filters"
+                fields={foodFilterFields}
+                onReset={handleResetFoodFilters}
+                resetButtonText="Clear All"
+                defaultCollapsed={true}
+            />
+            <DoubleBarChart params={foodApiParams} />
+        </div>
     );
 }
 

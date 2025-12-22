@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import TopDataCards from '@/features/admin/components/TopDataCards';
 import ShareDataSetChart from '@/features/admin/components/charts/ShareDataSetChart';
 import PaymentTable from '@/features/admin/components/PaymentTable';
@@ -124,23 +123,21 @@ export default function SubscriptionsPaymentPage() {
     ];
 
     return (
-        <AdminLayout>
-            <div className="w-full space-y-6">
-                <h1 className="text-2xl font-bold" style={{ color: '#113F67' }}>
-                    Subscriptions Payment
-                </h1>
+        <div className="w-full space-y-6">
+            <h1 className="text-2xl font-bold" style={{ color: '#113F67' }}>
+                Subscriptions Payment
+            </h1>
 
-                <FilterSection
-                    title="Payment Filters"
-                    fields={paymentFilterFields}
-                    onReset={handleResetPaymentFilters}
-                    resetButtonText="Clear All"
-                    defaultCollapsed={true}
-                />
-                <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
-                <PaymentTable />
-            </div>
-        </AdminLayout>
+            <FilterSection
+                title="Payment Filters"
+                fields={paymentFilterFields}
+                onReset={handleResetPaymentFilters}
+                resetButtonText="Clear All"
+                defaultCollapsed={true}
+            />
+            <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
+            <PaymentTable />
+        </div>
     );
 }
 
