@@ -9,6 +9,7 @@ import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { User, Trash } from 'lucide-react';
 import ConfirmModal from '@/components/decoration/ConfirmModal';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 type Props = {
     searchText?: string;
@@ -112,9 +113,7 @@ export default function UsersList({
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12 text-gray-500">
-                            Loading users...
-                        </div>
+                        <TableSkeleton />
                     ) : isError ? (
                         <div className="text-center py-12 text-red-500">
                             Failed to load users. Please try again.

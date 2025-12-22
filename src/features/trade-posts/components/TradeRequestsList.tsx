@@ -9,6 +9,7 @@ import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FileText } from 'lucide-react';
 import RequestsDetailsModal from './RequestsDetailsModal';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 type Props = {
     offerId?: string;
@@ -188,9 +189,7 @@ export default function TradeRequestsList({
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12 text-gray-500">
-                            Loading trade requests...
-                        </div>
+                        <TableSkeleton />
                     ) : isError ? (
                         <div className="text-center py-12 text-red-500">
                             Failed to load trade requests. Please try again.

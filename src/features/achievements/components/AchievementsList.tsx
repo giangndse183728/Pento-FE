@@ -11,6 +11,7 @@ import AchievementsDetailsModal from './AchievementsDetailsModal';
 import IconsEditModal from './IconsEditModal';
 import ConfirmModal from '@/components/decoration/ConfirmModal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Trash, ImagePlus, SquarePen } from 'lucide-react';
@@ -164,9 +165,7 @@ export default function AchievementsList() {
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12 text-gray-500">
-                            Loading achievements...
-                        </div>
+                        <TableSkeleton rowCount={10} columnCount={6} />
                     ) : achievements.length === 0 ? (
                         <div className="text-center py-12 text-gray-500">
                             No achievements found

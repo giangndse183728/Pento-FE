@@ -8,8 +8,10 @@ import { useDeleteRecipe } from '../../hooks/useRecipes';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import ConfirmModal from '@/components/decoration/ConfirmModal';
 import { ChefHat, SquarePen, Trash, Clock, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 import Link from 'next/link';
 
 type Props = {
@@ -105,9 +107,7 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
                         </div>
 
                         {list.isLoading ? (
-                            <div className="text-center py-12 text-gray-500">
-                                Loading recipes...
-                            </div>
+                            <TableSkeleton rowCount={10} columnCount={7} />
                         ) : list.isError ? (
                             <div className="text-center py-12 text-red-500">
                                 Failed to load recipes. Please try again.

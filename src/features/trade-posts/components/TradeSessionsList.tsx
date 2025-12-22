@@ -8,6 +8,7 @@ import FilterSection, { type FilterField } from '@/components/decoration/FilterS
 import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Handshake } from 'lucide-react';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 type Props = {
     offerId?: string;
@@ -141,9 +142,7 @@ export default function TradeSessionsList({
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12 text-gray-500">
-                            Loading trade sessions...
-                        </div>
+                        <TableSkeleton />
                     ) : isError ? (
                         <div className="text-center py-12 text-red-500">
                             Failed to load trade sessions. Please try again.

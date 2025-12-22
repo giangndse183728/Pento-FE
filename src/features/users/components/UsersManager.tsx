@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import UsersList from './UsersList';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
 import type { GetAdminUsersParams } from '../schema/userSchema';
@@ -104,34 +103,32 @@ export default function UsersManager() {
     ];
 
     return (
-        <AdminLayout>
-            <div className="w-full space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>
-                            Users Manager
-                        </h1>
-                    </div>
+        <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>
+                        Users Manager
+                    </h1>
                 </div>
-
-                <FilterSection
-                    title="User Filters"
-                    fields={filterFields}
-                    onReset={handleReset}
-                    resetButtonText="Clear Filters"
-                    defaultCollapsed={true}
-                />
-
-                <UsersList
-                    searchText={apiParams.searchText}
-                    isDeleted={apiParams.isDeleted}
-                    sortBy={apiParams.sortBy}
-                    sortOrder={apiParams.sortOrder}
-                    pageNumber={pageNumber}
-                    setPageNumber={setPageNumber}
-                    pageSize={pageSize}
-                />
             </div>
-        </AdminLayout>
+
+            <FilterSection
+                title="User Filters"
+                fields={filterFields}
+                onReset={handleReset}
+                resetButtonText="Clear Filters"
+                defaultCollapsed={true}
+            />
+
+            <UsersList
+                searchText={apiParams.searchText}
+                isDeleted={apiParams.isDeleted}
+                sortBy={apiParams.sortBy}
+                sortOrder={apiParams.sortOrder}
+                pageNumber={pageNumber}
+                setPageNumber={setPageNumber}
+                pageSize={pageSize}
+            />
+        </div>
     );
 }

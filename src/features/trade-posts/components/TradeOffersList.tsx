@@ -9,6 +9,7 @@ import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Package } from 'lucide-react';
 import OffersDetailsModal from './OffersDetailsModal';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 type Props = {
     status?: string;
@@ -187,9 +188,7 @@ export default function TradeOffersList({
                     </div>
 
                     {isLoading ? (
-                        <div className="text-center py-12 text-gray-500">
-                            Loading trade offers...
-                        </div>
+                        <TableSkeleton />
                     ) : isError ? (
                         <div className="text-center py-12 text-red-500">
                             Failed to load trade offers. Please try again.

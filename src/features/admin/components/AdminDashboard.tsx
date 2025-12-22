@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import AdminLayout from './AdminLayout';
 import ShareDataSetChart from './charts/ShareDataSetChart';
 import DoubleBarChart from './charts/DoubleBarChart';
 import FilterSection, { type FilterField } from '@/components/decoration/FilterSection';
@@ -255,34 +254,33 @@ const Dashboard = () => {
     ];
 
     return (
-        <AdminLayout>
-            <div className="grid grid-cols-1 gap-6 w-full">
-                {/* Subscription Payment Section */}
-                <FilterSection
-                    title="Subscription Payment Filters"
-                    fields={paymentFilterFields}
-                    onReset={handleResetPaymentFilters}
-                    resetButtonText="Clear All"
-                    defaultCollapsed={true}
-                />
-                <div className="w-full">
-                    <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
-                </div>
-
-                {/* Food Item Log Section */}
-                <FilterSection
-                    title="Food Item Log Filters"
-                    fields={foodFilterFields}
-                    onReset={handleResetFoodFilters}
-                    resetButtonText="Clear All"
-                    defaultCollapsed={true}
-                />
-                <div className="w-full">
-                    <DoubleBarChart params={foodApiParams} />
-                </div>
+        <div className="grid grid-cols-1 gap-6 w-full">
+            {/* Subscription Payment Section */}
+            <FilterSection
+                title="Subscription Payment Filters"
+                fields={paymentFilterFields}
+                onReset={handleResetPaymentFilters}
+                resetButtonText="Clear All"
+                defaultCollapsed={true}
+            />
+            <div className="w-full">
+                <ShareDataSetChart key={paymentFilters.timeWindow || 'all'} params={paymentApiParams} />
             </div>
-        </AdminLayout>
+
+            {/* Food Item Log Section */}
+            <FilterSection
+                title="Food Item Log Filters"
+                fields={foodFilterFields}
+                onReset={handleResetFoodFilters}
+                resetButtonText="Clear All"
+                defaultCollapsed={true}
+            />
+            <div className="w-full">
+                <DoubleBarChart params={foodApiParams} />
+            </div>
+        </div>
     );
-};
+}
+    ;
 
 export default Dashboard;
