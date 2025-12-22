@@ -13,14 +13,14 @@ gsap.registerPlugin(ScrollTrigger);
 
 const WALLPAPER_IMAGES = [
   '/assets/img/summary-screen.jpg', 
-  '/assets/img/compartment-screen.jpg',
+  '/assets/img/fooddetail-screen.jpg',
   '/assets/img/scan-screen.jpg',
 ];
 
 const FEATURE_WALLPAPER_IMAGES = [
-  '/assets/img/recipe-screen.jpg',
-  '/assets/img/recipe-screen.jpg',
-  '/assets/img/recipe-screen-screen.jpg',
+  '/assets/img/map.jpg',
+  '/assets/img/map.jpg',
+  '/assets/img/recipe-screen.jpg',    
 ];
 
 function CameraController({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
