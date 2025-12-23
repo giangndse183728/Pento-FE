@@ -54,7 +54,6 @@ export default function OffersDetailsModal({ offerId, onClose }: Props) {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold" style={{ color: '#113F67' }}>Offer Details</h2>
-                            <p className="text-sm text-gray-500 font-mono">{offerId}</p>
                         </div>
                     </div>
                     <button

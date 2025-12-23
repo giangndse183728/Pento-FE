@@ -17,21 +17,18 @@ import ImageEditModal from '@/components/decoration/ImageEditModal';
 import type { UpdateProfileInput } from '@/features/users/schema/userSchema';
 import { useLogout } from '@/features/auth/hooks/useAuth';
 
-// Dashboard sub-items (Bookmarks for sections in unified dashboard)
 const dashboardSubItems = [
     { href: `${ROUTES.DASHBOARD}#payments`, id: 'payments', label: 'Payments', icon: '/assets/img/pie-chart.png' },
     { href: `${ROUTES.DASHBOARD}#food-log`, id: 'food-log', label: 'Food Items Log', icon: '/assets/img/bar-chart.png' },
     { href: `${ROUTES.DASHBOARD}#activities`, id: 'activities', label: 'Activities', icon: '/assets/img/heat-map.png' },
 ];
 
-// Regular navigation items (non-accordion)
 const navItems = [
     { href: ROUTES.RECIPES, label: 'Recipes', icon: '/assets/img/recipe-book.png' },
     { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
     { href: ROUTES.USERS, label: 'Users', icon: '/assets/img/users.png' },
-    { href: ROUTES.TRADE_POSTS, label: 'Trade Posts', icon: '/assets/img/trade-posts.png' },
     { href: ROUTES.REPORTS, label: 'Trade Reports', icon: '/assets/img/report.png' },
 ];
 

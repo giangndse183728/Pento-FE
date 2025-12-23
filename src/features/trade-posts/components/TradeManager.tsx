@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import TradeOffersList from './TradeOffersList';
 import TradeRequestsList from './TradeRequestsList';
 import TradeSessionsList from './TradeSessionsList';
+import ReportsDashboard from '@/features/reports/components/ReportsDashboard';
 
 import '@/styles/tab-bar.css';
 
-type Tab = 'offers' | 'requests' | 'sessions';
+type Tab = 'dashboard' | 'offers' | 'requests' | 'sessions';
 
 export default function TradeManager() {
-    const [activeTab, setActiveTab] = useState<Tab>('offers');
+    const [activeTab, setActiveTab] = useState<Tab>('dashboard');
     const [offersPage, setOffersPage] = useState(1);
     const [requestsPage, setRequestsPage] = useState(1);
     const [sessionsPage, setSessionsPage] = useState(1);
@@ -28,6 +29,15 @@ export default function TradeManager() {
             {/* Tabs */}
             <div className="mb-6 flex justify-start">
                 <div className="segmented">
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="trade-tab"
+                            checked={activeTab === 'dashboard'}
+                            onChange={() => setActiveTab('dashboard')}
+                        />
+                        Dashboard
+                    </label>
                     <label className="segmented-button">
                         <input
                             type="radio"
@@ -59,6 +69,10 @@ export default function TradeManager() {
             </div>
 
             {/* Tab Content */}
+            {activeTab === 'dashboard' && (
+                <ReportsDashboard />
+            )}
+
             {activeTab === 'offers' && (
                 <TradeOffersList
                     pageNumber={offersPage}

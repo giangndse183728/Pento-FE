@@ -59,7 +59,7 @@ export default function SubscriptionDetails({ subscriptionId, onClose }: Props) 
         setEditFeatureForm({
             featureId,
             featureCode: "",
-            quota: unlimitedMatch ? 0 : (quotaMatch ? parseInt(quotaMatch[1]) : 0),
+            quota: unlimitedMatch ? 101 : (quotaMatch ? parseInt(quotaMatch[1]) : 1),
             resetPeriod: resetPeriodMatch ? resetPeriodMatch[1] : "",
         });
         setEditingFeatureId(featureId);
@@ -98,8 +98,24 @@ export default function SubscriptionDetails({ subscriptionId, onClose }: Props) 
     const handleSaveFeature = async () => {
         const payload: any = {};
         if (editFeatureForm.featureCode) payload.featureCode = editFeatureForm.featureCode;
-        if (editFeatureForm.quota !== undefined) payload.entitlementQuota = editFeatureForm.quota;
-        if (editFeatureForm.resetPeriod) payload.entitlementResetPer = editFeatureForm.resetPeriod;
+
+        // Handle quota: 101 means unlimited, so we don't send quota (backend interprets absence as unlimited)
+        // For other values, we send the actual quota
+        // Using 'quota' to match the Create API field naming
+        if (editFeatureForm.quota !== undefined && editFeatureForm.quota !== 101) {
+            payload.quota = editFeatureForm.quota;
+        }
+
+        // Reset period: only send if quota is not unlimited and a reset period is set
+        // Using 'resetPeriod' to match the Create API field naming
+        if (editFeatureForm.quota !== 101 && editFeatureForm.resetPeriod) {
+            payload.resetPeriod = editFeatureForm.resetPeriod;
+        }
+
+        console.log('=== DEBUG handleSaveFeature ===');
+        console.log('editFeatureForm:', editFeatureForm);
+        console.log('payload being sent:', payload);
+        console.log('featureId:', editFeatureForm.featureId);
 
         await updateFeature.mutateAsync({
             subscriptionFeatureId: editFeatureForm.featureId,
