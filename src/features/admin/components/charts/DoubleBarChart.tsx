@@ -23,8 +23,8 @@ const DoubleBarChart = ({ params }: Props) => {
                 logByWeight: [0, 0, 0],
                 logByVolume: [0, 0, 0],
                 conditionCategories: ['Fresh', 'Expiring', 'Expired'],
-                conditionCounts: [0, 0, 0],
                 conditionByWeight: [0, 0, 0],
+                conditionByVolume: [0, 0, 0],
                 weightUnit: data?.weightUnit ?? 'Kg',
                 volumeUnit: data?.volumeUnit ?? 'mL'
             };
@@ -45,15 +45,15 @@ const DoubleBarChart = ({ params }: Props) => {
                 logSummary.discardByVolume
             ],
             conditionCategories: ['Fresh', 'Expiring', 'Expired'],
-            conditionCounts: [
-                foodItemSummary.freshCount,
-                foodItemSummary.expiringCount,
-                foodItemSummary.expiredCount
-            ],
             conditionByWeight: [
                 foodItemSummary.freshByWeight,
                 foodItemSummary.expiringByWeight,
                 foodItemSummary.expiredByWeight
+            ],
+            conditionByVolume: [
+                foodItemSummary.freshByVolume,
+                foodItemSummary.expiringByVolume,
+                foodItemSummary.expiredByVolume
             ],
             weightUnit,
             volumeUnit
@@ -98,8 +98,8 @@ const DoubleBarChart = ({ params }: Props) => {
             }
         ],
         grid: [
-            { left: '5%', right: '55%', top: '15%', bottom: '15%' },
-            { left: '55%', right: '5%', top: '15%', bottom: '15%' }
+            { left: '5%', right: '58%', top: '15%', bottom: '15%' },
+            { left: '58%', right: '5%', top: '15%', bottom: '15%' }
         ],
         xAxis: [
             {
@@ -110,7 +110,7 @@ const DoubleBarChart = ({ params }: Props) => {
             },
             {
                 type: 'category',
-                data: ['Count', 'Weight'],
+                data: chartData.conditionCategories,
                 gridIndex: 1,
                 axisLabel: { color: '#113F67' }
             }
@@ -148,15 +148,36 @@ const DoubleBarChart = ({ params }: Props) => {
                 axisLine: { lineStyle: { color: '#91cc75' } },
                 splitLine: { show: false }
             },
-            // Right chart Y-axis
+            // Right chart - primary Y-axis for Weight (left side)
             {
                 type: 'value',
                 gridIndex: 1,
-                name: 'Count / Weight',
-                nameTextStyle: { color: '#113F67' },
+                name: `Weight (${chartData.weightUnit})`,
+                nameTextStyle: { color: '#5470c6' },
+                position: 'left',
                 axisLabel: {
+                    color: '#5470c6',
+                    formatter: (value: number) => {
+                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                        if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+                        return value.toString();
+                    }
+                },
+                axisLine: { lineStyle: { color: '#5470c6' } }
+            },
+            // Right chart - secondary Y-axis for Volume (right side)
+            {
+                type: 'value',
+                gridIndex: 1,
+                name: `Volume (${chartData.volumeUnit})`,
+                nameTextStyle: { color: '#91cc75' },
+                position: 'right',
+                axisLabel: {
+                    color: '#91cc75',
                     formatter: (value: number) => value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toString()
-                }
+                },
+                axisLine: { lineStyle: { color: '#91cc75' } },
+                splitLine: { show: false }
             }
         ],
         series: [
@@ -168,6 +189,7 @@ const DoubleBarChart = ({ params }: Props) => {
                 yAxisIndex: 0,
                 data: useLogScale ? chartData.logByWeight.map(v => v || 0.1) : chartData.logByWeight,
                 itemStyle: { color: '#5470c6' },
+                barWidth: '35%',
                 emphasis: { focus: 'series' }
             },
             // Left chart - Intake/Consumption/Discard by Volume (uses secondary Y-axis)
@@ -178,35 +200,58 @@ const DoubleBarChart = ({ params }: Props) => {
                 yAxisIndex: 1,
                 data: chartData.logByVolume,
                 itemStyle: { color: '#91cc75' },
+                barWidth: '35%',
                 emphasis: { focus: 'series' }
             },
-            // Right chart - Fresh
+            // Right chart - Condition by Weight (colored by condition)
             {
-                name: 'Fresh',
+                name: `By Weight (${chartData.weightUnit})`,
                 type: 'bar',
                 xAxisIndex: 1,
                 yAxisIndex: 2,
-                data: [chartData.conditionCounts[0], chartData.conditionByWeight[0]],
-                itemStyle: { color: CONDITION_COLORS.fresh },
+                data: chartData.conditionByWeight,
+                itemStyle: {
+                    color: (params: { dataIndex: number }) => {
+                        const colors = [CONDITION_COLORS.fresh, CONDITION_COLORS.expiring, CONDITION_COLORS.expired];
+                        return colors[params.dataIndex];
+                    }
+                },
                 emphasis: { focus: 'series' }
+            },
+            // Right chart - Condition by Volume (colored by condition, slightly transparent)
+            {
+                name: `By Volume (${chartData.volumeUnit})`,
+                type: 'bar',
+                xAxisIndex: 1,
+                yAxisIndex: 3,
+                data: chartData.conditionByVolume,
+                itemStyle: {
+                    color: (params: { dataIndex: number }) => {
+                        const colors = [CONDITION_COLORS.fresh, CONDITION_COLORS.expiring, CONDITION_COLORS.expired];
+                        return colors[params.dataIndex];
+                    },
+                    opacity: 0.7
+                },
+                emphasis: { focus: 'series' }
+            },
+            // Hidden series for legend color reference
+            {
+                name: 'Fresh',
+                type: 'bar',
+                data: [],
+                itemStyle: { color: CONDITION_COLORS.fresh }
             },
             {
                 name: 'Expiring',
                 type: 'bar',
-                xAxisIndex: 1,
-                yAxisIndex: 2,
-                data: [chartData.conditionCounts[1], chartData.conditionByWeight[1]],
-                itemStyle: { color: CONDITION_COLORS.expiring },
-                emphasis: { focus: 'series' }
+                data: [],
+                itemStyle: { color: CONDITION_COLORS.expiring }
             },
             {
                 name: 'Expired',
                 type: 'bar',
-                xAxisIndex: 1,
-                yAxisIndex: 2,
-                data: [chartData.conditionCounts[2], chartData.conditionByWeight[2]],
-                itemStyle: { color: CONDITION_COLORS.expired },
-                emphasis: { focus: 'series' }
+                data: [],
+                itemStyle: { color: CONDITION_COLORS.expired }
             }
         ]
     };
