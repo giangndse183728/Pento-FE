@@ -141,6 +141,10 @@ export default function ReportsDashboard() {
         }
     };
 
+    const formatReason = (reason: string) => {
+        return reason.replace(/([A-Z])/g, ' $1').trim();
+    };
+
     if (loading) {
         return <ReportsDashboardSkeleton />;
     }
@@ -155,9 +159,6 @@ export default function ReportsDashboard() {
 
     return (
         <div className="w-full">
-            <h1 className="text-3xl font-bold mb-6" style={{ color: '#113F67' }}>
-                Trade Reports
-            </h1>
 
             {/* Summary Cards */}
             <ReportsSummaryCards summary={summary} />
@@ -288,7 +289,7 @@ export default function ReportsDashboard() {
                                         </td>
                                         <td className="px-4 py-4">
                                             <span className="text-sm text-gray-900">
-                                                {report.reason}
+                                                {formatReason(report.reason)}
                                             </span>
                                         </td>
                                         <td className="px-4 py-4">
@@ -303,11 +304,19 @@ export default function ReportsDashboard() {
                                         </td>
                                         <td className="px-4 py-4">
                                             <div className="flex items-center gap-2">
-                                                <img
-                                                    src={report.reporterAvatarUrl}
-                                                    alt={report.reporterName}
-                                                    className="w-8 h-8 rounded-full object-cover"
-                                                />
+                                                {report.reporterAvatarUrl ? (
+                                                    <img
+                                                        src={report.reporterAvatarUrl}
+                                                        alt={report.reporterName}
+                                                        className="w-8 h-8 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#113F67] to-[#1a5a8a] flex items-center justify-center">
+                                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                        </svg>
+                                                    </div>
+                                                )}
                                                 <span className="text-sm text-gray-900">
                                                     {report.reporterName}
                                                 </span>

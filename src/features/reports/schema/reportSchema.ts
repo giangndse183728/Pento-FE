@@ -22,15 +22,19 @@ export interface TradeReport {
     createdOnUtc: string;
     reporterUserId: string;
     reporterName: string;
-    reporterAvatarUrl: string;
+    reporterAvatarUrl: string | null;
     foodItemId: string;
     foodName: string;
     foodImageUri: string;
     quantity: number;
     unitAbbreviation: string;
-    mediaId: string;
-    mediaType: MediaType;
-    mediaUri: string;
+    mediaId: string | null;
+    mediaType: MediaType | null;
+    mediaUri: string | null;
+    tradeSessionStatus: string;
+    tradeSessionStartedOn: string;
+    offerHouseholdName: string;
+    requestHouseholdName: string;
 }
 
 export interface GetReportsParams {

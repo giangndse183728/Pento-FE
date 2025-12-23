@@ -15,7 +15,9 @@ import {
     ImageIcon,
     Video,
     ShieldAlert,
-    Clock
+    Clock,
+    Home,
+    ArrowRightLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -77,6 +79,10 @@ export default function ReportsSideDrawer({ report, isOpen, onClose, onActionCom
             hour: '2-digit',
             minute: '2-digit',
         }).format(date);
+    };
+
+    const formatReason = (reason: string) => {
+        return reason.replace(/([A-Z])/g, ' $1').trim();
     };
 
     const getSeverityConfig = (severity: string) => {
@@ -292,7 +298,7 @@ export default function ReportsSideDrawer({ report, isOpen, onClose, onActionCom
                                     <AlertTriangle className="w-4 h-4 text-red-500" />
                                     <p className="text-xs font-semibold text-red-600 uppercase tracking-wider">Reason for Report</p>
                                 </div>
-                                <p className="font-bold text-[#113F67] text-lg">{report.reason}</p>
+                                <p className="font-bold text-[#113F67] text-lg">{formatReason(report.reason)}</p>
                             </div>
 
                             {/* Description Card */}
@@ -350,11 +356,17 @@ export default function ReportsSideDrawer({ report, isOpen, onClose, onActionCom
                         <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 shadow-sm">
                             <div className="flex items-center gap-4">
                                 <div className="relative">
-                                    <img
-                                        src={report.reporterAvatarUrl}
-                                        alt={report.reporterName}
-                                        className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow-lg"
-                                    />
+                                    {report.reporterAvatarUrl ? (
+                                        <img
+                                            src={report.reporterAvatarUrl}
+                                            alt={report.reporterName}
+                                            className="w-16 h-16 rounded-full object-cover ring-4 ring-white shadow-lg"
+                                        />
+                                    ) : (
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#113F67] to-[#1a5a8a] ring-4 ring-white shadow-lg flex items-center justify-center">
+                                            <User className="w-8 h-8 text-white" />
+                                        </div>
+                                    )}
                                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
                                         <CheckCircle className="w-3.5 h-3.5 text-white" />
                                     </div>
@@ -362,6 +374,54 @@ export default function ReportsSideDrawer({ report, isOpen, onClose, onActionCom
                                 <div>
                                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted by</p>
                                     <p className="font-bold text-[#113F67] text-lg mt-0.5">{report.reporterName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Trade Session Information Section */}
+                    <section>
+                        <h3 className="text-lg font-bold flex items-center gap-2.5 mb-5 text-[#113F67]">
+                            <ArrowRightLeft className="w-5 h-5" />
+                            Trade Session Information
+                        </h3>
+
+                        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 shadow-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Offer Household */}
+                                <div className="p-4 rounded-xl bg-white/70 border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Home className="w-4 h-4 text-emerald-600" />
+                                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Offer Household</p>
+                                    </div>
+                                    <p className="font-bold text-[#113F67]">{report.offerHouseholdName}</p>
+                                </div>
+
+                                {/* Request Household */}
+                                <div className="p-4 rounded-xl bg-white/70 border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Home className="w-4 h-4 text-teal-600" />
+                                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Request Household</p>
+                                    </div>
+                                    <p className="font-bold text-[#113F67]">{report.requestHouseholdName}</p>
+                                </div>
+
+                                {/* Session Status */}
+                                <div className="p-4 rounded-xl bg-white/70 border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Clock className="w-4 h-4 text-blue-600" />
+                                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Session Status</p>
+                                    </div>
+                                    <p className="font-bold text-[#113F67]">{report.tradeSessionStatus}</p>
+                                </div>
+
+                                {/* Session Started */}
+                                <div className="p-4 rounded-xl bg-white/70 border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Calendar className="w-4 h-4 text-purple-600" />
+                                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Session Started</p>
+                                    </div>
+                                    <p className="font-bold text-[#113F67]">{formatDate(report.tradeSessionStartedOn)}</p>
                                 </div>
                             </div>
                         </div>

@@ -57,7 +57,6 @@ export default function RequestsDetailsModal({ requestId, onClose }: Props) {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold" style={{ color: '#113F67' }}>Request Details</h2>
-                            <p className="text-sm text-gray-500 font-mono">{requestId}</p>
                         </div>
                     </div>
                     <button

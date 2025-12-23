@@ -44,7 +44,7 @@ export default function FoodReferencesList({ onSelect, onEdit }: Props) {
     const [search, setSearch] = useState('');
     const [foodGroup, setFoodGroup] = useState<string | undefined>();
     const [hasImage, setHasImage] = useState<boolean | undefined>();
-    const [sortBy, setSortBy] = useState<'Name' | 'FoodGroup' | 'Brand' | 'CreatedAt' | undefined>();
+    const [sortBy, setSortBy] = useState<'Name' | 'FoodGroup' | 'Brand' | 'CreatedAt' | undefined>('Name');
     const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC' | undefined>();
     const [imageEditItem, setImageEditItem] = useState<FoodRef | null>(null);
     const [deleteItem, setDeleteItem] = useState<FoodRef | null>(null);
@@ -81,7 +81,7 @@ export default function FoodReferencesList({ onSelect, onEdit }: Props) {
         setSearch('');
         setFoodGroup(undefined);
         setHasImage(undefined);
-        setSortBy(undefined);
+        setSortBy('Name');
         setSortOrder(undefined);
         setPage(1);
     };
@@ -127,17 +127,17 @@ export default function FoodReferencesList({ onSelect, onEdit }: Props) {
     };
 
     const foodGroups = [
-        { id: 1, name: 'Meat' },
-        { id: 2, name: 'Seafood' },
-        { id: 3, name: 'Fruits & Vegetables' },
-        { id: 4, name: 'Dairy' },
-        { id: 5, name: 'Cereal, Grains & Pasta' },
-        { id: 6, name: 'Legumes, Nuts & Seeds' },
-        { id: 7, name: 'Fats & Oils' },
-        { id: 8, name: 'Confectionery' },
-        { id: 9, name: 'Beverages' },
-        { id: 10, name: 'Condiments' },
-        { id: 11, name: 'Mixed Dishes' },
+        { id: 1, value: 'Meat', name: 'Meat' },
+        { id: 2, value: 'Seafood', name: 'Seafood' },
+        { id: 3, value: 'FruitsVegetables', name: 'Fruits & Vegetables' },
+        { id: 4, value: 'Dairy', name: 'Dairy' },
+        { id: 5, value: 'CerealGrainsPasta', name: 'Cereal, Grains & Pasta' },
+        { id: 6, value: 'LegumesNutsSeeds', name: 'Legumes, Nuts & Seeds' },
+        { id: 7, value: 'FatsOils', name: 'Fats & Oils' },
+        { id: 8, value: 'Confectionery', name: 'Confectionery' },
+        { id: 9, value: 'Beverages', name: 'Beverages' },
+        { id: 10, value: 'Condiments', name: 'Condiments' },
+        { id: 11, value: 'MixedDishes', name: 'Mixed Dishes' },
     ];
 
     return (
@@ -180,7 +180,7 @@ export default function FoodReferencesList({ onSelect, onEdit }: Props) {
                     >
                         <option value="">All Food Groups</option>
                         {foodGroups.map((group) => (
-                            <option key={group.id} value={group.name}>{group.name}</option>
+                            <option key={group.id} value={group.value}>{group.name}</option>
                         ))}
                     </select>
 
