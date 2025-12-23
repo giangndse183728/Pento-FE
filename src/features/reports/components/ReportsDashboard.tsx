@@ -159,9 +159,6 @@ export default function ReportsDashboard() {
 
     return (
         <div className="w-full">
-            <h1 className="text-3xl font-bold mb-6" style={{ color: '#113F67' }}>
-                Trade Reports
-            </h1>
 
             {/* Summary Cards */}
             <ReportsSummaryCards summary={summary} />

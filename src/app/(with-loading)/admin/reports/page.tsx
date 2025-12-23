@@ -1,5 +1,5 @@
-import ReportsDashboard from '@/features/reports/components/ReportsDashboard';
+import TradeManager from '@/features/trade-posts/components/TradeManager';
 
 export default function ReportsPage() {
-    return <ReportsDashboard />;
+    return <TradeManager />;
 }
