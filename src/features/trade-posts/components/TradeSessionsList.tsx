@@ -174,8 +174,10 @@ export default function TradeSessionsList({
                                             {/* Participants */}
                                             <TableCell>
                                                 <div className="flex -space-x-2">
-                                                    {session.avatarUrls.slice(0, 2).map((url, idx) => (
-                                                        url ? (
+                                                    {/* Ensure at least 2 avatar slots are shown */}
+                                                    {Array.from({ length: Math.max(2, session.avatarUrls.slice(0, 2).length) }).map((_, idx) => {
+                                                        const url = session.avatarUrls[idx];
+                                                        return url ? (
                                                             // eslint-disable-next-line @next/next/no-img-element
                                                             <img
                                                                 key={idx}
@@ -186,12 +188,14 @@ export default function TradeSessionsList({
                                                         ) : (
                                                             <div
                                                                 key={idx}
-                                                                className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm border-2 border-white"
+                                                                className="w-10 h-10 rounded-full bg-gradient-to-br from-[#113F67] to-[#1a5a8a] flex items-center justify-center border-2 border-white"
                                                             >
-                                                                ?
+                                                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                                </svg>
                                                             </div>
-                                                        )
-                                                    ))}
+                                                        );
+                                                    })}
                                                     {session.avatarUrls.length > 2 && (
                                                         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-xs font-semibold border-2 border-white">
                                                             +{session.avatarUrls.length - 2}
