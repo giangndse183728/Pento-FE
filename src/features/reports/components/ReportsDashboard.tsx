@@ -1,34 +1,31 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useReports } from '@/features/reports/hooks/useReport';
 import { Loader2 } from 'lucide-react';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import FilterSection from '@/components/decoration/FilterSection';
 import ReportsSummaryCards from './ReportsSummaryCards';
 import ReportsSideDrawer from './ReportsSideDrawer';
-import type { TradeReport } from '@/features/reports/schema/reportSchema';
+import type { TradeReport, ReportStatus, ReportSeverity, ReportReason } from '@/features/reports/schema/reportSchema';
 
 export default function ReportsDashboard() {
-    const { reports, summary, loading, error, refetch } = useReports();
     const [selectedReport, setSelectedReport] = useState<TradeReport | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Filter states
-    const [statusFilter, setStatusFilter] = useState('');
-    const [severityFilter, setSeverityFilter] = useState('');
-    const [reasonFilter, setReasonFilter] = useState('');
-    const [sortFilter, setSortFilter] = useState('Newest');
+    const [statusFilter, setStatusFilter] = useState<ReportStatus | ''>('');
+    const [severityFilter, setSeverityFilter] = useState<ReportSeverity | ''>('');
+    const [reasonFilter, setReasonFilter] = useState<ReportReason | ''>('');
+    const [sortFilter, setSortFilter] = useState<'Newest' | 'Oldest'>('Newest');
 
-    // Filtered reports
-    const filteredReports = useMemo(() => {
-        return reports.filter(report => {
-            if (statusFilter && report.status !== statusFilter) return false;
-            if (severityFilter && report.severity !== severityFilter) return false;
-            if (reasonFilter && report.reason !== reasonFilter) return false;
-            return true;
-        });
-    }, [reports, statusFilter, severityFilter, reasonFilter]);
+    // Pass filters to the hook for server-side filtering
+    const { reports, summary, loading, error, refetch } = useReports({
+        status: statusFilter || undefined,
+        severity: severityFilter || undefined,
+        reason: reasonFilter || undefined,
+        sort: sortFilter,
+    });
 
     const handleRowClick = (report: TradeReport) => {
         setSelectedReport(report);
@@ -88,7 +85,7 @@ export default function ReportsDashboard() {
                         name: 'status',
                         label: 'Status',
                         value: statusFilter,
-                        onChange: (value) => setStatusFilter(value as string),
+                        onChange: (value) => setStatusFilter(value as ReportStatus | ''),
                         options: [
                             { value: '', label: 'All' },
                             { value: 'Pending', label: 'Pending' },
@@ -102,7 +99,7 @@ export default function ReportsDashboard() {
                         name: 'severity',
                         label: 'Severity',
                         value: severityFilter,
-                        onChange: (value) => setSeverityFilter(value as string),
+                        onChange: (value) => setSeverityFilter(value as ReportSeverity | ''),
                         options: [
                             { value: '', label: 'All' },
                             { value: 'Minor', label: 'Minor' },
@@ -115,7 +112,7 @@ export default function ReportsDashboard() {
                         name: 'reason',
                         label: 'Reason',
                         value: reasonFilter,
-                        onChange: (value) => setReasonFilter(value as string),
+                        onChange: (value) => setReasonFilter(value as ReportReason | ''),
                         options: [
                             { value: '', label: 'All' },
                             { value: 'FoodSafetyConcern', label: 'Food Safety Concern' },
@@ -131,7 +128,7 @@ export default function ReportsDashboard() {
                         name: 'sort',
                         label: 'Sort By',
                         value: sortFilter,
-                        onChange: (value) => setSortFilter(value as string),
+                        onChange: (value) => setSortFilter(value as 'Newest' | 'Oldest'),
                         options: [
                             { value: 'Newest', label: 'Newest' },
                             { value: 'Oldest', label: 'Oldest' },
@@ -150,7 +147,7 @@ export default function ReportsDashboard() {
             <WhiteCard className="rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg mt-6">
 
                 {/* Table */}
-                {filteredReports.length === 0 ? (
+                {reports.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                         No reports found
                     </div>
@@ -180,7 +177,7 @@ export default function ReportsDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {filteredReports.map((report) => (
+                                {reports.map((report) => (
                                     <tr
                                         key={report.reportId}
                                         onClick={() => handleRowClick(report)}
