@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getAdminReports, rejectReport, resolveReport } from '../services/reportService';
 import type { TradeReport, GetReportsParams, ReportsSummary } from '../schema/reportSchema';
 
@@ -16,11 +16,19 @@ export function useReports(params: GetReportsParams = {}): UseReportsResult {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
+    // Use a ref to always have access to latest params
+    const paramsRef = useRef(params);
+    paramsRef.current = params;
+
+    // Serialize params for dependency tracking
+    const paramsKey = JSON.stringify(params);
+
     const fetchReports = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await getAdminReports(params);
+            // Use paramsRef.current to always get latest params
+            const data = await getAdminReports(paramsRef.current);
             setReports(data.reports);
             setSummary(data.summary);
         } catch (err) {
@@ -29,7 +37,8 @@ export function useReports(params: GetReportsParams = {}): UseReportsResult {
         } finally {
             setLoading(false);
         }
-    }, [JSON.stringify(params)]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paramsKey]);
 
     useEffect(() => {
         fetchReports();

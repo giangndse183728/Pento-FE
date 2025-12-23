@@ -17,6 +17,7 @@ export async function getAdminReports(params: GetReportsParams = {}): Promise<{ 
     query.set('pageSize', String(params.pageSize ?? 10));
 
     const url = `/trades/reports?${query.toString()}`;
+    console.log('[getAdminReports] Requesting URL:', url, 'with params:', params);
     const response = await apiRequest<GetReportsResponse>('get', url);
     return {
         reports: response.reports.items || [],
