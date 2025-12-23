@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { WhiteCard } from '@/components/decoration/WhiteCard';
-import { CusButton } from '@/components/ui/cusButton';
+import UpdateDetailsModal from '@/components/decoration/UpdateDetailsModal';
 import { toast } from 'sonner';
 import { useFoodReferenceById, useUpdateFoodReference } from '../hooks/useFoodReferences';
 import type { UpdateFoodReferenceInput } from '../schema/foodReferenceSchema';
@@ -118,199 +117,166 @@ export default function FoodRefEditModal({ foodRefId, onClose, onSuccess }: Prop
 
     if (isLoadingData) {
         return (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <WhiteCard className="w-full max-w-2xl" width="100%" height="auto">
-                    <div className="text-center py-12 text-gray-500">
-                        Loading...
-                    </div>
-                </WhiteCard>
-            </div>
+            <UpdateDetailsModal
+                title="Edit Food Reference"
+                onClose={onClose}
+                isLoading={true}
+            >
+                <div className="text-center py-12 text-gray-500">
+                    Loading...
+                </div>
+            </UpdateDetailsModal>
         );
     }
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <WhiteCard className="w-full max-w-2xl max-h-[90vh] overflow-y-auto" width="100%" height="auto">
-                <div className="p-6 space-y-4">
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: '#D6E6F2' }}>
-                        <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>
-                            Edit Food Reference
-                        </h2>
-                        <button
-                            onClick={onClose}
+        <UpdateDetailsModal
+            title="Edit Food Reference"
+            onClose={onClose}
+            isLoading={isLoading}
+            onSave={handleSave}
+            saveLabel={updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+        >
+            {/* Name */}
+            <div>
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                    Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    value={formData.name || ''}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    className={inputClass}
+                    placeholder="Food name"
+                    disabled={isLoading}
+                />
+            </div>
+
+            {/* Food Group & Unit Type */}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                        Food Group
+                    </label>
+                    <select
+                        value={formData.foodGroup || ''}
+                        onChange={(e) => handleChange('foodGroup', e.target.value || null)}
+                        className={selectClass}
+                        disabled={isLoading}
+                    >
+                        <option value="">Select...</option>
+                        {foodGroups.map((group) => (
+                            <option key={group.value} value={group.value}>{group.label}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                        Unit Type
+                    </label>
+                    <select
+                        value={formData.unitType || ''}
+                        onChange={(e) => handleChange('unitType', e.target.value || null)}
+                        className={selectClass}
+                        disabled={isLoading}
+                    >
+                        <option value="">Select...</option>
+                        {unitTypes.map((type) => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                    Notes
+                </label>
+                <textarea
+                    value={formData.notes || ''}
+                    onChange={(e) => handleChange('notes', e.target.value || null)}
+                    className={textareaClass}
+                    placeholder="Additional notes..."
+                    disabled={isLoading}
+                />
+            </div>
+
+            {/* Brand & USDA ID */}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                        Brand
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.brand || ''}
+                        onChange={(e) => handleChange('brand', e.target.value || null)}
+                        className={inputClass}
+                        placeholder="Brand name"
+                        disabled={isLoading}
+                    />
+                </div>
+                <div>
+                    <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                        USDA ID
+                    </label>
+                    <input
+                        type="text"
+                        value={formData.usdaId || ''}
+                        onChange={(e) => handleChange('usdaId', e.target.value || null)}
+                        className={inputClass}
+                        placeholder="USDA ID"
+                        disabled={isLoading}
+                    />
+                </div>
+            </div>
+
+            {/* Shelf Life */}
+            <div>
+                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
+                    Typical Shelf Life (Days)
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                    <div>
+                        <label className="text-xs text-gray-500 mb-1 block">Pantry</label>
+                        <input
+                            type="number"
+                            value={formData.typicalShelfLifeDays_Pantry ?? ''}
+                            onChange={(e) => handleNumberChange('typicalShelfLifeDays_Pantry', e.target.value)}
+                            className={inputClass}
+                            placeholder="Days"
+                            min={0}
                             disabled={isLoading}
-                            className="text-gray-400 hover:text-gray-600 text-2xl"
-                        >
-                            ✕
-                        </button>
+                        />
                     </div>
-
-                    {/* Form */}
-                    <div className="space-y-4">
-                        {/* Name */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.name || ''}
-                                onChange={(e) => handleChange('name', e.target.value)}
-                                className={inputClass}
-                                placeholder="Food name"
-                                disabled={isLoading}
-                            />
-                        </div>
-
-                        {/* Food Group & Unit Type */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Food Group
-                                </label>
-                                <select
-                                    value={formData.foodGroup || ''}
-                                    onChange={(e) => handleChange('foodGroup', e.target.value || null)}
-                                    className={selectClass}
-                                    disabled={isLoading}
-                                >
-                                    <option value="">Select...</option>
-                                    {foodGroups.map((group) => (
-                                        <option key={group.value} value={group.value}>{group.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Unit Type
-                                </label>
-                                <select
-                                    value={formData.unitType || ''}
-                                    onChange={(e) => handleChange('unitType', e.target.value || null)}
-                                    className={selectClass}
-                                    disabled={isLoading}
-                                >
-                                    <option value="">Select...</option>
-                                    {unitTypes.map((type) => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Notes */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Notes
-                            </label>
-                            <textarea
-                                value={formData.notes || ''}
-                                onChange={(e) => handleChange('notes', e.target.value || null)}
-                                className={textareaClass}
-                                placeholder="Additional notes..."
-                                disabled={isLoading}
-                            />
-                        </div>
-
-                        {/* Brand & USDA ID */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    Brand
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.brand || ''}
-                                    onChange={(e) => handleChange('brand', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="Brand name"
-                                    disabled={isLoading}
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                    USDA ID
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.usdaId || ''}
-                                    onChange={(e) => handleChange('usdaId', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="USDA ID"
-                                    disabled={isLoading}
-                                />
-                            </div>
-                        </div>
-
-
-                        {/* Shelf Life */}
-                        <div>
-                            <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
-                                Typical Shelf Life (Days)
-                            </label>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Pantry</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Pantry ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Pantry', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Fridge</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Fridge ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Fridge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-gray-500 mb-1 block">Freezer</label>
-                                    <input
-                                        type="number"
-                                        value={formData.typicalShelfLifeDays_Freezer ?? ''}
-                                        onChange={(e) => handleNumberChange('typicalShelfLifeDays_Freezer', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Days"
-                                        min={0}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <label className="text-xs text-gray-500 mb-1 block">Fridge</label>
+                        <input
+                            type="number"
+                            value={formData.typicalShelfLifeDays_Fridge ?? ''}
+                            onChange={(e) => handleNumberChange('typicalShelfLifeDays_Fridge', e.target.value)}
+                            className={inputClass}
+                            placeholder="Days"
+                            min={0}
+                            disabled={isLoading}
+                        />
                     </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-3 justify-end pt-4 border-t" style={{ borderColor: '#D6E6F2' }}>
-                        <CusButton
-                            type="button"
-                            onClick={onClose}
+                    <div>
+                        <label className="text-xs text-gray-500 mb-1 block">Freezer</label>
+                        <input
+                            type="number"
+                            value={formData.typicalShelfLifeDays_Freezer ?? ''}
+                            onChange={(e) => handleNumberChange('typicalShelfLifeDays_Freezer', e.target.value)}
+                            className={inputClass}
+                            placeholder="Days"
+                            min={0}
                             disabled={isLoading}
-                            variant="pastelRed"
-                        >
-                            Cancel
-                        </CusButton>
-                        <CusButton
-                            type="button"
-                            onClick={handleSave}
-                            disabled={isLoading}
-                            variant="blueGray"
-                        >
-                            {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
-                        </CusButton>
+                        />
                     </div>
                 </div>
-            </WhiteCard>
-        </div>
+            </div>
+        </UpdateDetailsModal>
     );
 }
+

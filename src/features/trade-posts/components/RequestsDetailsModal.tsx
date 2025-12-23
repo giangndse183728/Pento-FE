@@ -43,7 +43,7 @@ export default function RequestsDetailsModal({ requestId, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4" style={{ zIndex: 9999 }} onClick={onClose}>
             <div
                 className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border flex flex-col max-h-[90vh]"
                 style={{ borderColor: '#D6E6F2' }}

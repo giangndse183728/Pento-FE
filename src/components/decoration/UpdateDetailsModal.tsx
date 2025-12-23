@@ -34,9 +34,9 @@ export type ModalButton = {
 
 type Props<T extends Record<string, unknown>> = {
     title: string;
-    fields: ModalField[];
-    formData: T;
-    onFormChange: (field: keyof T, value: unknown) => void;
+    fields?: ModalField[];
+    formData?: T;
+    onFormChange?: (field: keyof T, value: unknown) => void;
     onClose: () => void;
     isLoading?: boolean;
     buttons?: ModalButton[];
@@ -45,6 +45,8 @@ type Props<T extends Record<string, unknown>> = {
     saveLabel?: string;
     cancelLabel?: string;
     maxWidth?: string;
+    // Custom content as an alternative to fields
+    children?: React.ReactNode;
 };
 
 export default function UpdateDetailsModal<T extends Record<string, unknown>>({
@@ -59,12 +61,14 @@ export default function UpdateDetailsModal<T extends Record<string, unknown>>({
     saveLabel = 'Save Changes',
     cancelLabel = 'Cancel',
     maxWidth = 'max-w-2xl',
+    children,
 }: Props<T>) {
     const inputClass = 'neomorphic-input w-full';
     const textareaClass = 'neomorphic-textarea w-full min-h-[96px]';
     const selectClass = 'neomorphic-input w-full';
 
     const renderField = (field: ModalField) => {
+        if (!formData || !onFormChange) return null;
         const value = formData[field.name];
 
         switch (field.type) {
@@ -213,10 +217,12 @@ export default function UpdateDetailsModal<T extends Record<string, unknown>>({
                         </button>
                     </div>
 
-                    {/* Form Fields */}
-                    <div className="space-y-6">
-                        {fields.map(renderField)}
-                    </div>
+                    {/* Form Fields or Custom Children */}
+                    {children ? (
+                        <div className="space-y-4">{children}</div>
+                    ) : fields && fields.length > 0 ? (
+                        <div className="space-y-6">{fields.map(renderField)}</div>
+                    ) : null}
 
                     {/* Actions */}
                     <div className="flex gap-3 justify-end pt-4 border-t" style={{ borderColor: '#D6E6F2' }}>

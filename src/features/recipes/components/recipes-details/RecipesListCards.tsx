@@ -8,6 +8,7 @@ import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ColorTheme } from '@/constants/color';
 import { Users, ChefHat, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 type RecipesTableCardsProps = {
     items: RecipeSummary[];
@@ -19,6 +20,46 @@ const difficultyColors: Record<string, { bg: string; text: string }> = {
     Medium: { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b' },
     Hard: { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' }
 };
+
+interface RecipeImageProps {
+    src: string | null | undefined;
+    title: string;
+}
+
+function RecipeImage({ src, title }: RecipeImageProps) {
+    const [hasError, setHasError] = useState(false);
+
+    // Reset error state if src changes
+    React.useEffect(() => {
+        setHasError(false);
+    }, [src]);
+
+    if (src && typeof src === 'string' && src.trim() !== '' && !hasError) {
+        return (
+            <Image
+                src={src}
+                alt={title}
+                width={400}
+                height={400}
+                unoptimized
+                className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                onError={() => {
+                    console.error(`Failed to load image for: ${title}`, src);
+                    setHasError(true);
+                }}
+            />
+        );
+    }
+
+    return (
+        <div
+            className="w-full h-32 flex items-center justify-center text-white"
+            style={{ backgroundColor: ColorTheme.powderBlue }}
+        >
+            <ChefHat className="w-10 h-10 opacity-60" />
+        </div>
+    );
+}
 
 export default function RecipesTableCards({ items, deleteMode = false }: RecipesTableCardsProps) {
     const router = useRouter();
@@ -119,21 +160,8 @@ export default function RecipesTableCards({ items, deleteMode = false }: Recipes
                                 </div>
 
                                 <div className="relative rounded-2xl overflow-hidden bg-white shadow-inner">
-                                    {recipe.imageUrl ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
-                                            src={recipe.imageUrl}
-                                            alt={recipe.title}
-                                            className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                                        />
-                                    ) : (
-                                        <div
-                                            className="w-full h-32 flex items-center justify-center text-white"
-                                            style={{ backgroundColor: ColorTheme.powderBlue }}
-                                        >
-                                            <ChefHat className="w-10 h-10 opacity-60" />
-                                        </div>
-                                    )}
+                                    {/* Handle both potential image field names */}
+                                    <RecipeImage src={recipe.imageUrl || (recipe as any).image} title={recipe.title} />
                                 </div>
 
                             </div>
