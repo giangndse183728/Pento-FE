@@ -9,6 +9,8 @@ import ConfirmModal from "@/components/decoration/ConfirmModal";
 import { useUpdateRecipeIngredient, useDeleteRecipeIngredient, useCreateRecipeIngredient } from "../../hooks/useRecipes";
 import { UpdateRecipeIngredientInput } from "../../schema/recipeSchema";
 import useFoodReferences from "../../hooks/useFoodReferences";
+import useUnits from "../../hooks/useUnit";
+import { Combobox } from "@/components/ui/Combobox";
 import IngredientsEditor from "../ingredients/IngredientsEditor";
 import { IngredientInput } from "../../services/recipesService";
 
@@ -69,6 +71,9 @@ export default function IngredientsTab({ ingredients, recipeId }: Props) {
         notes: "",
         unitId: ""
     });
+
+    // Fetch units for dropdown
+    const { data: units, isLoading: unitsLoading } = useUnits();
 
     // Delete modal state
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -326,6 +331,25 @@ export default function IngredientsTab({ ingredients, recipeId }: Props) {
                                     value={editForm.quantity}
                                     onChange={(e) => setEditForm(prev => ({ ...prev, quantity: Number(e.target.value) || 0 }))}
                                     disabled={updateMutation.isPending}
+                                />
+                            </div>
+
+                            {/* Unit Dropdown */}
+                            <div>
+                                <label className="text-sm font-semibold mb-2 block" style={{ color: ColorTheme.darkBlue }}>
+                                    Unit *
+                                </label>
+                                <Combobox
+                                    options={(units ?? []).map((unit) => ({
+                                        value: unit.id,
+                                        label: `${unit.name}${unit.abbreviation ? ` (${unit.abbreviation})` : ''}`
+                                    }))}
+                                    value={editForm.unitId}
+                                    onChange={(val) => setEditForm(prev => ({ ...prev, unitId: val ?? '' }))}
+                                    placeholder="Select a unit"
+                                    searchPlaceholder="Search units..."
+                                    emptyText="No units found."
+                                    disabled={updateMutation.isPending || unitsLoading}
                                 />
                             </div>
 

@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { ColorTheme } from "@/constants/color";
-import { SquarePen, Trash2, Plus } from "lucide-react";
+import { SquarePen, Trash2, Plus, ImageIcon } from "lucide-react";
 import { CusButton } from "@/components/ui/cusButton";
 import ConfirmModal from "@/components/decoration/ConfirmModal";
-// TODO: Uncomment when backend image upload API is fixed
-// import ImageEditModal from "@/components/decoration/ImageEditModal";
-import { useUpdateRecipeDirection, useDeleteRecipeDirection, useCreateRecipeDirection } from "../../hooks/useRecipes";
+import { useUpdateRecipeDirection, useDeleteRecipeDirection, useCreateRecipeDirection, useUploadRecipeDirectionImage } from "../../hooks/useRecipes";
 import { UpdateRecipeDirectionInput } from "../../schema/recipeSchema";
 import "@/styles/img-preview.css";
 
@@ -29,8 +27,11 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
     const updateMutation = useUpdateRecipeDirection();
     const deleteMutation = useDeleteRecipeDirection();
     const createMutation = useCreateRecipeDirection();
-    // TODO: Uncomment when backend image upload API is fixed
-    // const uploadImageMutation = useUploadRecipeDirectionImage();
+    const uploadImageMutation = useUploadRecipeDirectionImage();
+
+    // Hidden file input ref for image upload
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadingDirectionId, setUploadingDirectionId] = useState<string | null>(null);
 
     // Edit modal state
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -50,10 +51,30 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
         imageUrl: ""
     });
 
-    // TODO: Uncomment when backend image upload API is fixed
-    // Image modal state
-    // const [imageModalOpen, setImageModalOpen] = useState(false);
-    // const [imageDirection, setImageDirection] = useState<Direction | null>(null);
+    // Handle image upload trigger
+    const handleImageUploadClick = (directionId: string) => {
+        setUploadingDirectionId(directionId);
+        fileInputRef.current?.click();
+    };
+
+    // Handle file selection
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && uploadingDirectionId) {
+            uploadImageMutation.mutate(
+                { directionId: uploadingDirectionId, file },
+                {
+                    onSettled: () => {
+                        setUploadingDirectionId(null);
+                        // Reset the file input
+                        if (fileInputRef.current) {
+                            fileInputRef.current.value = '';
+                        }
+                    }
+                }
+            );
+        }
+    };
 
     const handleEditClick = (d: Direction) => {
         setEditingDirection(d);
@@ -99,26 +120,6 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
         });
     };
 
-    // TODO: Uncomment when backend image upload API is fixed
-    // const handleImageClick = (d: Direction) => {
-    //     setImageDirection(d);
-    //     setImageModalOpen(true);
-    // };
-
-    // const handleImageUpload = (file: File) => {
-    //     if (!imageDirection?.directionId) return;
-    //
-    //     uploadImageMutation.mutate(
-    //         { directionId: imageDirection.directionId, file },
-    //         {
-    //             onSuccess: () => {
-    //                 setImageModalOpen(false);
-    //                 setImageDirection(null);
-    //             }
-    //         }
-    //     );
-    // };
-
     const handleAddDirection = () => {
         if (!newDirection.description.trim()) return;
 
@@ -144,6 +145,15 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
 
     return (
         <>
+            {/* Hidden file input for image upload */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                style={{ display: 'none' }}
+            />
+
             <div className="prose prose-slate max-w-none">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
@@ -364,17 +374,20 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
                                                     <div className="circle">
                                                         <span className="green box"></span>
                                                     </div>
-                                                    {/* TODO: Uncomment when backend image upload API is fixed */}
-                                                    {/* {d.directionId && (
+                                                    {d.directionId && (
                                                         <button
                                                             type="button"
-                                                            onClick={() => handleImageClick(d)}
-                                                            className="ml-auto flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                                                            onClick={() => handleImageUploadClick(d.directionId!)}
+                                                            disabled={uploadImageMutation.isPending && uploadingDirectionId === d.directionId}
+                                                            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
+                                                            style={{ backgroundColor: ColorTheme.blueGray }}
                                                         >
-                                                            <ImageIcon className="w-3 h-3" />
-                                                            {d.imageUrl ? 'Change' : 'Add Image'}
+                                                            <ImageIcon className="w-4 h-4" />
+                                                            {uploadImageMutation.isPending && uploadingDirectionId === d.directionId
+                                                                ? 'Uploading...'
+                                                                : d.imageUrl ? 'Change Image' : 'Add Image'}
                                                         </button>
-                                                    )} */}
+                                                    )}
                                                 </div>
                                                 <div
                                                     style={{
@@ -506,24 +519,6 @@ export default function DirectionsTab({ directions, recipeId, isEditMode }: Prop
                 }}
                 loading={deleteMutation.isPending}
             />
-
-            {/* TODO: Uncomment when backend image upload API is fixed */}
-            {/* Image Edit Modal */}
-            {/* {imageModalOpen && imageDirection && (
-                <ImageEditModal
-                    title={`Step ${imageDirection.stepNumber} Image`}
-                    label="Direction Image"
-                    currentImage={imageDirection.imageUrl ?? null}
-                    onImageSelect={handleImageUpload}
-                    onClose={() => {
-                        setImageModalOpen(false);
-                        setImageDirection(null);
-                    }}
-                    isLoading={uploadImageMutation.isPending}
-                    confirmLabel="Upload"
-                    imageSize={200}
-                />
-            )} */}
         </>
     );
 }
