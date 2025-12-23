@@ -87,7 +87,7 @@ export default function PaymentTable() {
         toDate: '',
         status: '',
         sortBy: '',
-        sortOrder: '',
+        sortOrder: 'DESC',
         isDeleted: '',
     });
     const [pageNumber, setPageNumber] = useState(1);
@@ -129,7 +129,7 @@ export default function PaymentTable() {
             toDate: '',
             status: '',
             sortBy: '',
-            sortOrder: '',
+            sortOrder: 'DESC',
             isDeleted: '',
         });
         setPageNumber(1);
