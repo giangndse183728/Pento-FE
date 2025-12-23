@@ -1,5 +1,6 @@
 import React, { useState, Children, useRef, useLayoutEffect, HTMLAttributes, ReactNode, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence, Variants } from 'motion/react';
+import { Loader2 } from 'lucide-react';
 
 import './Stepper.css';
 
@@ -12,6 +13,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   initialStep?: number;
   onStepChange?: (step: number) => void;
   onFinalStepCompleted?: () => void;
+  isLoading?: boolean;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
   contentClassName?: string;
@@ -36,6 +38,7 @@ const Stepper = forwardRef<StepperRef, StepperProps>(function Stepper({
   initialStep = 1,
   onStepChange = () => { },
   onFinalStepCompleted = () => { },
+  isLoading = false,
   stepCircleContainerClassName = '',
   stepContainerClassName = '',
   contentClassName = '',
@@ -130,6 +133,7 @@ const Stepper = forwardRef<StepperRef, StepperProps>(function Stepper({
 
         <StepContentWrapper
           isCompleted={isCompleted}
+          isLoading={isLoading}
           currentStep={currentStep}
           direction={direction}
           className={`step-content-default ${contentClassName}`}
@@ -143,14 +147,21 @@ const Stepper = forwardRef<StepperRef, StepperProps>(function Stepper({
               {currentStep !== 1 && (
                 <button
                   onClick={handleBack}
+                  disabled={isLoading}
                   className={`back-button ${currentStep === 1 ? 'inactive' : ''}`}
                   {...backButtonProps}
                 >
                   {backButtonText}
                 </button>
               )}
-              <button onClick={isLastStep ? handleComplete : handleNext} className="next-button" {...nextButtonProps}>
-                {isLastStep ? completeButtonText : nextButtonText}
+              <button
+                onClick={isLastStep ? handleComplete : handleNext}
+                className="next-button"
+                disabled={isLoading}
+                {...nextButtonProps}
+              >
+                {isLastStep && isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                {isLastStep ? (isLoading ? 'loading...' : completeButtonText) : nextButtonText}
               </button>
             </div>
           </div>
@@ -164,20 +175,21 @@ export default Stepper;
 
 interface StepContentWrapperProps {
   isCompleted: boolean;
+  isLoading: boolean;
   currentStep: number;
   direction: number;
   children: ReactNode;
   className?: string;
 }
 
-function StepContentWrapper({ isCompleted, currentStep, direction, children, className }: StepContentWrapperProps) {
+function StepContentWrapper({ isCompleted, isLoading, currentStep, direction, children, className }: StepContentWrapperProps) {
   const [parentHeight, setParentHeight] = useState<number>(0);
 
   return (
     <motion.div
       className={className}
       style={{ position: 'relative', overflow: 'hidden' }}
-      animate={{ height: isCompleted ? 0 : parentHeight }}
+      animate={{ height: (isCompleted && !isLoading) ? 0 : (isCompleted && isLoading) ? 200 : parentHeight }}
       transition={{ type: 'spring', duration: 0.4 }}
     >
       <AnimatePresence initial={false} mode="sync" custom={direction}>
@@ -185,6 +197,16 @@ function StepContentWrapper({ isCompleted, currentStep, direction, children, cla
           <SlideTransition key={currentStep} direction={direction} onHeightReady={h => setParentHeight(h)}>
             {children}
           </SlideTransition>
+        )}
+        {isCompleted && isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center p-8 gap-4 w-full h-[200px]"
+          >
+            <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#769FCD' }} />
+            <p className="text-gray-500 font-medium italic animate-pulse">loading...</p>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>

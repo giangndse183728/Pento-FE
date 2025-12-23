@@ -41,8 +41,6 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" href="/assets/font/MomoTrustDisplay-Regular.ttf" as="font" type="font/ttf" />
-        <link rel="preload" href="/vecteezy_fantasy-landscape-and-falling-snow_1625855.webm" as="video" type="video/webm" />
         <link rel="icon" type="image/png" href="/logo2.PNG" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${momoTrustDisplay.variable} antialiased`}>

@@ -19,12 +19,14 @@ export default function ProtectedRoute({
     allowedRoles = [],
     redirectTo = '/login'
 }: RouteGuardProps) {
+    const [hasMounted, setHasMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
+        setHasMounted(true);
         const checkAuth = async () => {
             try {
                 const user = await getUserProfile();
@@ -43,7 +45,7 @@ export default function ProtectedRoute({
 
     // Handle redirects in separate useEffect to avoid setState during render
     useEffect(() => {
-        if (isLoading) return;
+        if (!hasMounted || isLoading) return;
 
         // Check authentication requirement
         if (requireAuth && !isAuthenticated) {
@@ -62,11 +64,15 @@ export default function ProtectedRoute({
             router.push('/');
             return;
         }
-    }, [isLoading, requireAuth, requireAdmin, allowedRoles, isAuthenticated, userRole, router, redirectTo]);
+    }, [hasMounted, isLoading, requireAuth, requireAdmin, allowedRoles, isAuthenticated, userRole, router, redirectTo]);
+
+    // Don't render anything on server to avoid hydration mismatch
+    // or if we haven't mounted yet
+    if (!hasMounted) return null;
 
     // Show loading state
-    const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
-    const isAdminPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+    const isLoginPage = window.location.pathname === '/login';
+    const isAdminPage = window.location.pathname.startsWith('/admin');
 
     if (isLoading && !isAdminPage) {
         return (

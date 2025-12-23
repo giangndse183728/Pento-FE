@@ -99,7 +99,7 @@ export default function FoodRefCreateModal({ onClose, onSuccess }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
             <WhiteCard className="w-full max-w-4xl bg-white/95" width="100%" height="auto">
                 <div className="space-y-6 max-h-[85vh] overflow-y-auto">
                     {/* Header */}

@@ -28,8 +28,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
     return (
         <Portal>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-                <WhiteCard className="max-w-sm w-full bg-white/80" style={{ padding: 0 }}>
+            <div className="fixed inset-0 flex items-center justify-center bg-black/20" style={{ zIndex: 9999 }}>
+                <WhiteCard className="max-w-sm w-full bg-white/80 h-fit" height="fit-content" style={{ padding: 0, height: 'fit-content' }}>
                     <div className="p-6 flex flex-col gap-4">
                         <h2 className="text-lg font-semibold text-red-700">{title}</h2>
                         <p className="text-gray-700">{message}</p>
