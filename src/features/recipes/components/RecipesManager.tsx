@@ -34,7 +34,7 @@ export default function RecipesManager() {
 
             {/* Tabs */}
             <div className="mb-6">
-                <div className="segmented">
+                <div className="segmented" style={{ flexWrap: 'wrap', width: 'fit-content' }}>
 
                     <label className="segmented-button">
                         <input
