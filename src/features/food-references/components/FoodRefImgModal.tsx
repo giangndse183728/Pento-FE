@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { WhiteCard } from '@/components/decoration/WhiteCard';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CusButton } from '@/components/ui/cusButton';
 import { toast } from 'sonner';
 import { useUploadFoodReferenceImage, useFoodReferenceById } from '../hooks/useFoodReferences';
@@ -18,6 +18,12 @@ export default function FoodRefImgModal({ foodRefId, onClose, onSuccess }: Props
     const uploadImageMutation = useUploadFoodReferenceImage();
 
     const [imageUrl, setImageUrl] = useState('');
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
     const isLoading = isLoadingData || uploadImageMutation.isPending;
 
@@ -44,25 +50,42 @@ export default function FoodRefImgModal({ foodRefId, onClose, onSuccess }: Props
         }
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <WhiteCard className="w-full max-w-lg" width="100%" height="auto">
-                <div className="p-6 space-y-6">
+    if (!mounted) return null;
+
+    const modalContent = (
+        <div
+            className="fixed inset-0 bg-black/20 flex items-center justify-center p-4"
+            style={{ zIndex: 9999 }}
+        >
+            <div
+                className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 font-primary"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="space-y-6">
                     {/* Header */}
-                    <div className="flex items-center gap-3 border-b pb-4" style={{ borderColor: '#D6E6F2' }}>
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <ImagePlus className="w-6 h-6 text-blue-600" />
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <ImagePlus className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-semibold" style={{ color: '#113F67' }}>
+                                    Upload Image
+                                </h2>
+                                {data?.name && (
+                                    <p className="text-sm text-gray-500">
+                                        for {data.name}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-xl font-semibold" style={{ color: '#113F67' }}>
-                                Upload Image
-                            </h2>
-                            {data?.name && (
-                                <p className="text-sm text-gray-500">
-                                    for {data.name}
-                                </p>
-                            )}
-                        </div>
+                        <button
+                            onClick={onClose}
+                            disabled={isLoading}
+                            className="text-gray-400 hover:text-gray-600 text-2xl"
+                        >
+                            ✕
+                        </button>
                     </div>
 
                     {/* Current Image Preview */}
@@ -71,11 +94,11 @@ export default function FoodRefImgModal({ foodRefId, onClose, onSuccess }: Props
                             <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
                                 Current Image
                             </label>
-                            <div className="relative h-40 bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="border-2 border-dashed rounded-lg p-4 text-center" style={{ borderColor: '#D6E6F2' }}>
                                 <img
                                     src={data.imageUrl}
                                     alt={data.name || 'Current'}
-                                    className="w-full h-full object-contain"
+                                    className="max-h-32 mx-auto object-contain"
                                 />
                             </div>
                         </div>
@@ -105,11 +128,11 @@ export default function FoodRefImgModal({ foodRefId, onClose, onSuccess }: Props
                             <label className="text-sm font-semibold mb-2 block" style={{ color: '#113F67' }}>
                                 Preview
                             </label>
-                            <div className="relative h-40 bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-blue-300">
+                            <div className="border-2 border-dashed rounded-lg p-4 text-center" style={{ borderColor: '#93C5FD' }}>
                                 <img
                                     src={imageUrl}
                                     alt="Preview"
-                                    className="w-full h-full object-contain"
+                                    className="max-h-32 mx-auto object-contain"
                                     onError={(e) => {
                                         (e.target as HTMLImageElement).style.display = 'none';
                                     }}
@@ -136,14 +159,14 @@ export default function FoodRefImgModal({ foodRefId, onClose, onSuccess }: Props
                             onClick={handleUpload}
                             disabled={isLoading || !imageUrl.trim()}
                             variant="blueGray"
-                            className="flex items-center gap-2"
                         >
-                            <ImagePlus className="w-4 h-4" />
                             {uploadImageMutation.isPending ? 'Uploading...' : 'Upload Image'}
                         </CusButton>
                     </div>
                 </div>
-            </WhiteCard>
+            </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

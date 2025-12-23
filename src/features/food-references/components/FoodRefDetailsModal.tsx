@@ -19,7 +19,7 @@ export default function FoodRefDetailsModal({ foodRefId, onClose, onEdit }: Prop
 
     if (isLoading) {
         return (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
                 <WhiteCard className="w-full max-w-2xl" width="100%" height="auto">
                     <div className="text-center py-12 text-gray-500">
                         Loading food reference details...
@@ -40,7 +40,7 @@ export default function FoodRefDetailsModal({ foodRefId, onClose, onEdit }: Prop
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
             <WhiteCard className="w-full max-w-2xl bg-white/95" width="100%" height="auto">
                 <div className="space-y-6 max-h-[80vh] overflow-y-auto">
                     {/* Header */}

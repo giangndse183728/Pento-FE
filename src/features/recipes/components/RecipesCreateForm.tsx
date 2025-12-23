@@ -63,10 +63,10 @@ export default function RecipesCreateForm({ create, onSuccess }: Props) {
             notes,
             servings,
             difficultyLevel,
-            image: imageUrl || undefined,
+            image: imageUrl?.trim() || undefined,
             isPublic,
             ingredients: validIngredients.map((i) => ({ foodRefId: i.foodRefId, quantity: i.quantity, unitId: i.unitId, notes: i.notes })),
-            directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, image: d.image || undefined })),
+            directions: validDirections.map((d) => ({ stepNumber: d.stepNumber, description: d.description, image: d.image?.trim() || undefined })),
         };
 
         try {
@@ -182,6 +182,7 @@ export default function RecipesCreateForm({ create, onSuccess }: Props) {
                 <Stepper
                     ref={stepperRef}
                     initialStep={1}
+                    isLoading={create.isPending}
                     stepCircleContainerClassName="w-full"
                     contentClassName="w-full"
                     backButtonText="Previous"
