@@ -1,137 +1,96 @@
 'use client';
 
-import { useEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { useEffect, useRef } from 'react';
+import Lenis from 'lenis';
 
-gsap.registerPlugin(ScrollToPlugin);
+declare global {
+  interface Window {
+    lenis?: Lenis;
+  }
+}
 
 export default function SmoothSectionScroll() {
+  const lenisRef = useRef<Lenis | null>(null);
+  const lastWheelTimeRef = useRef<number>(0);
+  const wheelDeltaQueueRef = useRef<Array<{ delta: number; time: number }>>([]);
+
   useEffect(() => {
-    const sections = ['#hero-section', '#prosol-section', '#feature-section', '#feedback-section'];
-    let currentSection = 0;
-    let isScrolling = false;
-
-    const scrollToSection = (index: number, options?: { immediate?: boolean }) => {
-      if (index < 0 || index >= sections.length || isScrolling) return;
-      
-      isScrolling = true;
-      currentSection = index;
-      
-      if (options?.immediate) {
-        const selector = sections[index];
-        const element = document.querySelector(selector) as HTMLElement | null;
-        if (element) {
-          element.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }
-        isScrolling = false;
-        return;
-      }
-
-      const target = sections[index];
-
-      gsap.to(window, {
-        duration: 1.2,
-        scrollTo: {
-          y: target,
-          offsetY: 0
-        },
-        ease: "power2.inOut",
-        onComplete: () => {
-          setTimeout(() => {
-            isScrolling = false;
-          }, 500); 
-        }
-      });
-    };
-
-    const handleWheel = (e: WheelEvent) => {
-      if (isScrolling) {
-        e.preventDefault();
-        return;
-      }
-
-      const direction = e.deltaY > 0 ? 1 : -1;
-      
-      const featureSection = document.querySelector('#feature-section') as HTMLElement;
-      if (featureSection) {
-        const rect = featureSection.getBoundingClientRect();
-        const isFeatureInView = rect.top <= 100 && rect.bottom >= window.innerHeight - 100;
-        
-        if (isFeatureInView) {
-          const atStart = featureSection.getAttribute('data-at-start') === 'true';
-          const atEnd = featureSection.getAttribute('data-at-end') === 'true';
-          
-          if (!(atStart && direction < 0) && !(atEnd && direction > 0)) {
-            return; 
-          }
-        }
-      }
-      
-      const scrollTop = window.pageYOffset;
-      const windowHeight = window.innerHeight;
-      
-      sections.forEach((selector, index) => {
-        const element = document.querySelector(selector) as HTMLElement;
-        if (element) {
-          const elementTop = element.offsetTop;
-          const elementBottom = elementTop + element.offsetHeight;
-          
-          if (scrollTop >= elementTop - windowHeight/2 && scrollTop < elementBottom - windowHeight/2) {
-            currentSection = index;
-          }
-        }
-      });
-
-      const nextSection = currentSection + direction;
-      if (nextSection >= 0 && nextSection < sections.length) {
-        e.preventDefault();
-        scrollToSection(nextSection);
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isScrolling) return;
-
-      switch (e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-          e.preventDefault();
-          scrollToSection(currentSection + 1);
-          break;
-        case 'ArrowUp':
-        case 'PageUp':
-          e.preventDefault();
-          scrollToSection(currentSection - 1);
-          break;
-        case 'Home':
-          e.preventDefault();
-          scrollToSection(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          scrollToSection(sections.length - 1);
-          break;
-      }
-    };
-
-    // Always start at the first (hero) section on load
+    // Start at the top of the page on load
     if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    // Ensure we are at the top/hero when the component mounts
-    setTimeout(() => {
-      scrollToSection(0, { immediate: true });
-    }, 0);
+    window.scrollTo(0, 0);
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('keydown', handleKeyDown);
+    // Initialize Lenis smooth scroll with reduced wheel multiplier
+    const lenis = new Lenis({
+      duration: 1.5, // Increased duration for smoother, slower scrolling
+      easing: (t) => 1 - Math.pow(1 - t, 3),
+      smoothWheel: true,
+      wheelMultiplier: 0.4, // Reduced wheel sensitivity to prevent fast scrolling
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    lenisRef.current = lenis;
+    window.lenis = lenis;
+
+    // Custom wheel handler to throttle fast scrolling
+    const handleWheel = (e: WheelEvent) => {
+      const now = Date.now();
+      const timeDelta = now - lastWheelTimeRef.current;
+      const absDelta = Math.abs(e.deltaY);
+      
+      // Minimum time between wheel events to process (throttle rate)
+      const minTimeBetweenEvents = 8; // ~120fps max processing rate
+      
+      // If events are coming too fast, throttle them
+      if (timeDelta < minTimeBetweenEvents) {
+        // For very fast scrolling (large deltas in quick succession), skip some events
+        if (absDelta > 80 && timeDelta < 4) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+      }
+      
+      // Track wheel events for rate limiting
+      wheelDeltaQueueRef.current.push({ delta: absDelta, time: now });
+      
+      // Keep only recent events (last 100ms)
+      wheelDeltaQueueRef.current = wheelDeltaQueueRef.current.filter(
+        item => now - item.time < 100
+      );
+      
+      // If too many large deltas in short time, throttle more aggressively
+      const recentLargeDeltas = wheelDeltaQueueRef.current.filter(item => item.delta > 60).length;
+      if (recentLargeDeltas > 5) {
+        // Skip every other event when scrolling very fast
+        if (wheelDeltaQueueRef.current.length % 2 === 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+      }
+      
+      lastWheelTimeRef.current = now;
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+
+    // Animation frame loop
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
 
     return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel, true);
+      lenis.destroy();
+      delete window.lenis;
     };
   }, []);
 
-  return null; 
+  return null;
 }

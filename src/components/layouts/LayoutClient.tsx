@@ -25,7 +25,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
       <QueryProvider>
         {/* Fixed Video Background - only show on home page */}
         {isHomePage && (
-          <div className="fixed inset-0 z-0">
+          <div className="fixed inset-0 z-0 ">
             <video
               autoPlay
               loop

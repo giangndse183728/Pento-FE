@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import TextRevealParallax from '@/components/animation/TextRevealParallax';
 import PhoneModel from '@/features/landingpage/components/PhoneModel';; 
@@ -7,10 +8,16 @@ import { Snowflake} from 'lucide-react';
 import WeatherTime from '@/components/decoration/WeatherTime';
 import ShinyText from '@/components/decoration/ShinyText';
 import ProgressBar from '@/components/decoration/ProgressBar';
+import { useGLTF } from '@react-three/drei';
 
-
+// Preload the 3D model for PantrySection at module level
+useGLTF.preload('/assets/3d/scene.glb');
 
 export default function Home() {
+  // Also trigger preload on component mount as a fallback
+  useEffect(() => {
+    useGLTF.preload('/assets/3d/scene.glb');
+  }, []);
  
   return (
     <>
@@ -77,7 +84,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="flex justify-center">
                       <div className="backdrop-blur-sm bg-white/10 rounded-4xl p-4 border border-white/20">
-                        <h2 className="text-xs md:text-sm font-semibold text-white/80 select-none">
+                        <h2 className="text-xs md:text-xs font-semibold text-white/80 select-none">
                           The Smart Household Food Management System
                         </h2>
                       </div>
@@ -138,21 +145,21 @@ export default function Home() {
                             <ProgressBar 
                               label="Reduce Waste" 
                               percentage={80}
-                              progressColor="bg-emerald-500"
+                              progressColor="bg-emerald-400"
                               labelColor="text-gray-300"
                               percentageColor="text-white"
                             />
                             <ProgressBar 
                               label="Save Times" 
                               percentage={50}
-                              progressColor="bg-violet-500"
+                              progressColor="bg-violet-400"
                               labelColor="text-gray-300"
                               percentageColor="text-white"
                             />
                             <ProgressBar 
                               label="Boost Efficiency" 
                               percentage={60}
-                              progressColor="bg-blue-500"
+                              progressColor="bg-blue-400"
                               labelColor="text-gray-300"
                               percentageColor="text-white"
                             />

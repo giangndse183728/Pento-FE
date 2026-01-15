@@ -12,26 +12,26 @@ import LoadingScreen from '@/components/decoration/LoadingScreen';
 gsap.registerPlugin(ScrollTrigger);
 
 const WALLPAPER_IMAGES = [
-  '/assets/img/summary-screen.jpg', 
+  '/assets/img/summary-screen.jpg',
   '/assets/img/fooddetail-screen.jpg',
-  '/assets/img/scan-screen.jpg',
+  '/assets/img/kanban.jpg',
 ];
 
 const FEATURE_WALLPAPER_IMAGES = [
-  '/assets/img/map.jpg',
-  '/assets/img/map.jpg',
-  '/assets/img/recipe-screen.jpg',    
+  '/assets/img/recipe-screen.jpg',
+  '/assets/img/recipe-screen.jpg',
+  '/assets/img/trade-screen.jpg',
 ];
 
 function CameraController({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
   const cameraKeyframes = [
     { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },   
     { pos: new THREE.Vector3(0, 0, -12), zoom: 5 }, 
-    { pos: new THREE.Vector3(11, 1, -12), zoom: 5.5 },     
+    { pos: new THREE.Vector3(8, 1, -12), zoom: 5 },     
   ];
 
   const featureCameraKeyframes = [,  
-    { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },   
+    { pos: new THREE.Vector3(0, 12, -12), zoom: 4.5 },   
     { pos: new THREE.Vector3(0, -12, -12), zoom: 4 }, 
     { pos: new THREE.Vector3(0, 0, -14), zoom: 5 },  
   ];
@@ -80,7 +80,7 @@ function CameraController({ scrollProgress, featureProgress }: { scrollProgress:
 }
 
 
-function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; featureProgress: number }) {
+function Phone({ scrollProgress, featureProgress, isAtFooter }: { scrollProgress: number; featureProgress: number; isAtFooter: boolean }) {
   const { scene } = useGLTF('/assets/3d/pento_phone.glb');
   const modelRef = useRef<THREE.Group>(null);
   const fridgeRef = useRef<THREE.Group>(null);
@@ -93,6 +93,7 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
   const wallpaperMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
   const texturesRef = useRef<(THREE.Texture | null)[]>(new Array(WALLPAPER_IMAGES.length).fill(null));
   const featureTexturesRef = useRef<(THREE.Texture | null)[]>(new Array(FEATURE_WALLPAPER_IMAGES.length).fill(null));
+  const footerTextureRef = useRef<THREE.Texture | null>(null);
   const currentSectionRef = useRef<number>(-1);
   const currentFeatureSectionRef = useRef<number>(-1);
   const textureLoader = useRef(new THREE.TextureLoader());
@@ -101,6 +102,20 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
 
   useEffect(() => {
     const loader = textureLoader.current;
+
+    // Load footer wallpaper (home-screen.jpg) separately
+    loader.load(
+      '/assets/img/home-screen.jpg',
+      (texture) => {
+        texture.flipY = true;
+        texture.colorSpace = THREE.SRGBColorSpace;
+        footerTextureRef.current = texture;
+      },
+      undefined,
+      (error) => {
+        console.warn('Failed to load footer wallpaper texture: /assets/img/home-screen.jpg', error);
+      }
+    );
 
     WALLPAPER_IMAGES.forEach((imagePath, index) => {
       loader.load(
@@ -163,6 +178,9 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
       featureTexturesRef.current.forEach((texture) => {
         if (texture) texture.dispose();
       });
+      if (footerTextureRef.current) {
+        footerTextureRef.current.dispose();
+      }
       if (transitionTweenRef.current) {
         transitionTweenRef.current.kill();
       }
@@ -203,10 +221,26 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
             if (typeof standard.metalness === 'number') standard.metalness = 0;
             standard.transparent = false;
             standard.opacity = 1;
+            // Clear any original texture and set initial wallpaper to home-screen.jpg
+            standard.map = null; // Clear original texture
             const initialTexture = texturesRef.current[0];
             if (initialTexture) {
               standard.map = initialTexture;
               currentSectionRef.current = 0;
+            } else {
+              // If texture not loaded yet, load it immediately
+              const loader = textureLoader.current;
+              loader.load(
+                WALLPAPER_IMAGES[0], // home-screen.jpg
+                (texture) => {
+                  texture.flipY = true;
+                  texture.colorSpace = THREE.SRGBColorSpace;
+                  standard.map = texture;
+                  texturesRef.current[0] = texture;
+                  currentSectionRef.current = 0;
+                  standard.needsUpdate = true;
+                }
+              );
             }
             standard.needsUpdate = true;
           }
@@ -219,66 +253,75 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
     }
   }, [scene]);
 
-  const applyTextureWithAnimation = (texture: THREE.Texture, isFeatureMode: boolean) => {
+  const applyTextureWithAnimation = (texture: THREE.Texture) => {
     if (!wallpaperMaterialRef.current || !texture || !modelRef.current) return;
 
+    const material = wallpaperMaterialRef.current;
+
+    // Kill any existing animation and immediately apply its target texture
     if (transitionTweenRef.current) {
       transitionTweenRef.current.kill();
+      // Reset emissive state when killing animation
+      material.emissive.set('#000000');
+      material.emissiveIntensity = 0;
+      material.needsUpdate = true;
     }
-
-    const material = wallpaperMaterialRef.current;
-    const model = modelRef.current;
     
-    const initialScale = { x: 1, y: 1, z: 1 };
-    const initialRotation = { y: model.rotation.y };
-    const initialPosition = { y: model.position.y };
+    // Set emissive to white for fade-to-white effect
+    material.emissive.set('#ffffff');
     
     const animProps = { 
-      scale: 1,
-      rotationY: initialRotation.y,
-      positionY: initialPosition.y
+      emissiveIntensity: 0
     };
+
+    // Store the target texture for this animation
+    const targetTexture = texture;
     
-    const timeline = gsap.timeline();
+    const timeline = gsap.timeline({
+      onInterrupt: () => {
+        // When animation is interrupted, ensure texture is still applied
+        if (material && targetTexture) {
+          material.map = targetTexture;
+          targetTexture.flipY = true;
+          targetTexture.colorSpace = THREE.SRGBColorSpace;
+          material.emissive.set('#000000');
+          material.emissiveIntensity = 0;
+          material.needsUpdate = true;
+        }
+      }
+    });
     
+    // Fade to white (increase emissive intensity)
     timeline.to(animProps, {
-      scale: 0.95,
-      rotationY: initialRotation.y + 0.1,
-      positionY: initialPosition.y + 0.3,
-      duration: 0.4,
+      emissiveIntensity: 1.5,
+      duration: 0.25,
       ease: "power2.in",
       onUpdate: () => {
-        if (model) {
-          model.scale.set(animProps.scale, animProps.scale, animProps.scale);
-          model.rotation.y = animProps.rotationY;
-          model.position.y = animProps.positionY;
-        }
+        material.emissiveIntensity = animProps.emissiveIntensity;
+        material.needsUpdate = true;
       },
       onComplete: () => {
-        material.map = texture;
-        texture.flipY = true;
-        texture.colorSpace = THREE.SRGBColorSpace;
+        // Swap texture when fully white
+        material.map = targetTexture;
+        targetTexture.flipY = true;
+        targetTexture.colorSpace = THREE.SRGBColorSpace;
         material.needsUpdate = true;
       }
     })
+    // Fade back from white (decrease emissive intensity)
     .to(animProps, {
-      scale: 1,
-      rotationY: initialRotation.y,
-      positionY: initialPosition.y,
-      duration: 0.5,
+      emissiveIntensity: 0,
+      duration: 0.3,
       ease: "power2.out",
       onUpdate: () => {
-        if (model) {
-          model.scale.set(animProps.scale, animProps.scale, animProps.scale);
-          model.rotation.y = animProps.rotationY;
-          model.position.y = animProps.positionY;
-        }
+        material.emissiveIntensity = animProps.emissiveIntensity;
+        material.needsUpdate = true;
       },
       onComplete: () => {
-        if (model) {
-          model.scale.set(1, 1, 1);
-          model.position.y = initialPosition.y;
-        }
+        // Reset emissive to black and ensure final state
+        material.emissive.set('#000000');
+        material.emissiveIntensity = 0;
+        material.needsUpdate = true;
         transitionTweenRef.current = null;
       }
     });
@@ -289,18 +332,40 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
   useEffect(() => {
     if (!wallpaperMaterialRef.current) return;
 
+    // Check if at footer section - use home-screen.jpg
+    if (isAtFooter) {
+      const texture = footerTextureRef.current;
+      
+      if (texture) {
+        // Use a special marker value (-2) to indicate footer mode
+        if (currentSectionRef.current !== -2) {
+          applyTextureWithAnimation(texture);
+          currentSectionRef.current = -2; // Special marker for footer
+          currentFeatureSectionRef.current = -1; // Reset feature section
+          isInFeatureModeRef.current = false;
+        }
+      }
+      return;
+    }
+
     const isFeatureMode = featureProgress > 0;
+    const wasPreviouslyFeatureMode = isInFeatureModeRef.current;
     isInFeatureModeRef.current = isFeatureMode;
 
+    // Reset tracking refs when switching modes
+    if (isFeatureMode !== wasPreviouslyFeatureMode) {
+      if (isFeatureMode) {
+        currentSectionRef.current = -1; // Reset regular section tracking
+      } else {
+        currentFeatureSectionRef.current = -1; // Reset feature section tracking
+      }
+    }
+
     if (isFeatureMode) {
-      const featureCameraKeyframes = [
-        { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },   
-        { pos: new THREE.Vector3(0, -12, -12), zoom: 4 }, 
-        { pos: new THREE.Vector3(0, 0, -14), zoom: 5 },  
-      ];
-      const totalFeatureSections = featureCameraKeyframes.length - 1;
-      const featureProgressPerSection = 1 / totalFeatureSections;
-      const featureSectionIndex = Math.floor(featureProgress / featureProgressPerSection);
+      const totalFeatureSections = FEATURE_WALLPAPER_IMAGES.length;
+      // Clamp featureProgress to avoid boundary issues
+      const clampedProgress = Math.min(Math.max(featureProgress, 0), 0.9999);
+      const featureSectionIndex = Math.floor(clampedProgress * totalFeatureSections);
       const clampedFeatureSectionIndex = Math.min(featureSectionIndex, FEATURE_WALLPAPER_IMAGES.length - 1);
 
       if (currentFeatureSectionRef.current !== clampedFeatureSectionIndex) {
@@ -308,19 +373,18 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
         const texture = featureTexturesRef.current[newFeatureSectionIndex];
         
         if (texture) {
-          applyTextureWithAnimation(texture, true);
+          applyTextureWithAnimation(texture);
           currentFeatureSectionRef.current = newFeatureSectionIndex;
         }
       }
     } else {
-      const cameraKeyframes = [
-        { pos: new THREE.Vector3(6, 1, -12), zoom: 4 },
-        { pos: new THREE.Vector3(0, 0, -12), zoom: 5 },
-        { pos: new THREE.Vector3(0, 0, -13), zoom: 5 },
-      ];
-      const totalSections = cameraKeyframes.length - 1;
-      const progressPerSection = 1 / totalSections;
-      const sectionIndex = Math.floor(scrollProgress / progressPerSection);
+      const totalSections = WALLPAPER_IMAGES.length;
+      // Clamp scrollProgress to avoid boundary issues (0.9999 prevents index overflow)
+      const clampedProgress = Math.min(Math.max(scrollProgress, 0), 0.9999);
+      
+      // Calculate section based on progress thresholds
+      // Section 0: 0% - 33%, Section 1: 33% - 66%, Section 2: 66% - 100%
+      const sectionIndex = Math.floor(clampedProgress * totalSections);
       const clampedSectionIndex = Math.min(sectionIndex, WALLPAPER_IMAGES.length - 1);
 
       if (currentSectionRef.current !== clampedSectionIndex) {
@@ -328,32 +392,12 @@ function Phone({ scrollProgress, featureProgress }: { scrollProgress: number; fe
         const texture = texturesRef.current[newSectionIndex];
         
         if (texture) {
-          applyTextureWithAnimation(texture, false);
+          applyTextureWithAnimation(texture);
           currentSectionRef.current = newSectionIndex;
         }
       }
     }
-    
-    if (wallpaperMaterialRef.current) {
-      if (isFeatureMode && currentFeatureSectionRef.current >= 0) {
-        const texture = featureTexturesRef.current[currentFeatureSectionRef.current];
-        if (texture && !wallpaperMaterialRef.current.map) {
-          wallpaperMaterialRef.current.map = texture;
-          texture.flipY = true;
-          texture.colorSpace = THREE.SRGBColorSpace;
-          wallpaperMaterialRef.current.needsUpdate = true;
-        }
-      } else if (!isFeatureMode && currentSectionRef.current >= 0) {
-        const texture = texturesRef.current[currentSectionRef.current];
-        if (texture && !wallpaperMaterialRef.current.map) {
-          wallpaperMaterialRef.current.map = texture;
-          texture.flipY = true;
-          texture.colorSpace = THREE.SRGBColorSpace;
-          wallpaperMaterialRef.current.needsUpdate = true;
-        }
-      }
-    }
-  }, [scrollProgress, featureProgress]);
+  }, [scrollProgress, featureProgress, isAtFooter]);
 
   useFrame(() => {
     if (modelRef.current) {
@@ -470,6 +514,7 @@ export default function PhoneModel() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [featureProgress, setFeatureProgress] = useState(0);
   const [currentFeatureSlide, setCurrentFeatureSlide] = useState(0);
+  const [isAtFooter, setIsAtFooter] = useState(false);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef({ value: 0 });
 
@@ -513,6 +558,81 @@ export default function PhoneModel() {
     
     return () => {
       window.removeEventListener('featureSlideChange', handleFeatureSlideChange as EventListener);
+    };
+  }, []);
+
+  // Detect when reaching footer section (FeedbackSection)
+  useEffect(() => {
+    const checkFooter = () => {
+      const footerSection = document.getElementById('feedback-section');
+      if (footerSection) {
+        const rect = footerSection.getBoundingClientRect();
+        // Check if footer is visible in viewport
+        const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+        setIsAtFooter(isVisible);
+      } else {
+        // Retry finding the element after a delay
+        setTimeout(() => {
+          const retrySection = document.getElementById('feedback-section');
+          if (retrySection) {
+            const rect = retrySection.getBoundingClientRect();
+            const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+            setIsAtFooter(isVisible);
+          }
+        }, 500);
+      }
+    };
+
+    // Check immediately and set up interval
+    checkFooter();
+    const intervalId = setInterval(checkFooter, 200);
+
+    // Also use IntersectionObserver for more reliable detection
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsAtFooter(entry.isIntersecting);
+        });
+      },
+      {
+        threshold: [0, 0.1, 0.5],
+        rootMargin: '200px 0px' // Trigger earlier
+      }
+    );
+
+    // Look for FeedbackSection with retry
+    const findAndObserve = () => {
+      const footerSection = document.getElementById('feedback-section');
+      if (footerSection) {
+        observer.observe(footerSection);
+        return true;
+      }
+      return false;
+    };
+
+    if (!findAndObserve()) {
+      // Retry after a delay if element not found
+      const retryTimeout = setTimeout(() => {
+        findAndObserve();
+      }, 1000);
+      
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(retryTimeout);
+        observer.disconnect();
+      };
+    }
+
+    // Also listen to scroll events as fallback
+    const handleScroll = () => checkFooter();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', checkFooter);
+
+    return () => {
+      clearInterval(intervalId);
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', checkFooter);
     };
   }, []);
 
@@ -563,7 +683,7 @@ export default function PhoneModel() {
           <Environment files="/assets/3d/snow_field_puresky_4k.hdr"  />
           
           <Suspense fallback={<Loader />}>
-            <Phone scrollProgress={scrollProgress} featureProgress={featureProgress}/>
+            <Phone scrollProgress={scrollProgress} featureProgress={featureProgress} isAtFooter={isAtFooter}/>
           </Suspense>
           
           <CameraController scrollProgress={scrollProgress} featureProgress={featureProgress} />
