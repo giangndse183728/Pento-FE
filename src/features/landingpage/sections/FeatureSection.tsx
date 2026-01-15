@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState, lazy, Suspense, useCallback, useMemo } from "react";
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+gsap.registerPlugin(ScrollToPlugin);
 
 const ShinyText = lazy(() => import("@/components/decoration/ShinyText"));
 const PantrySection = lazy(() => import("./FeatureGuild/PantrySection"));
 const HouseholdSection = lazy(() => import("./FeatureGuild/HouseholdSection"));
-const RecipeSection = lazy(() => import("./FeatureGuild/RecipeSection"));
+const RecipeSection = lazy(() => import("./FeatureGuild/TradeSection"));
 
 
 
@@ -26,8 +29,36 @@ export default function FeatureSection() {
   const [isScrolling, setIsScrolling] = useState(false);
   const [loadedSlides, setLoadedSlides] = useState<Set<number>>(new Set());
   const [isVisible, setIsVisible] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const snapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const totalSlides = 3;
+
+  // Snap the section to fill the viewport
+  const snapToSection = useCallback(() => {
+    if (!containerRef.current || isLocked) return;
+    
+    setIsLocked(true);
+    
+    // Stop Lenis during snap
+    if (window.lenis) {
+      window.lenis.stop();
+    }
+    
+    gsap.to(window, {
+      duration: 1.5,
+      scrollTo: {
+        y: containerRef.current,
+        offsetY: 0
+      },
+      ease: "power2.out",
+      onComplete: () => {
+        if (window.lenis) {
+          window.lenis.stop();
+        }
+      }
+    });
+  }, [isLocked]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -39,11 +70,18 @@ export default function FeatureSection() {
             setIsVisible(true);
             setLoadedSlides(new Set([0]));
           }
+          
+          if (!entry.isIntersecting) {
+            setIsLocked(false);
+            if (window.lenis) {
+              window.lenis.start();
+            }
+          }
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: '200px' 
+        threshold: [0.1, 0.5, 0.9],
+        rootMargin: '0px' 
       }
     );
 
@@ -51,33 +89,42 @@ export default function FeatureSection() {
 
     return () => {
       observer.disconnect();
+      if (snapTimeoutRef.current) {
+        clearTimeout(snapTimeoutRef.current);
+      }
+      // Ensure Lenis is started when component unmounts
+      if (window.lenis) {
+        window.lenis.start();
+      }
     };
   }, [isVisible]);
 
+  const isScrollingRef = useRef(false);
+
   const scrollToSlide = useCallback((slideIndex: number) => {
-    if (!sectionsRef.current || isScrolling) return;
+    if (!sectionsRef.current || isScrollingRef.current) return;
     if (slideIndex < 0 || slideIndex >= totalSlides) return;
-
-    setIsScrolling(true);
+  
+    isScrollingRef.current = true;
     setCurrentSlide(slideIndex);
-
+  
     const slideWidth = window.innerWidth;
     const targetX = -slideWidth * slideIndex;
-
+  
     gsap.to(sectionsRef.current, {
       x: targetX,
-      duration: 1.2,
+      duration: 1.8,
       ease: "power2.inOut",
       onComplete: () => {
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
         }
         scrollTimeoutRef.current = setTimeout(() => {
-          setIsScrolling(false);
-        }, 500);
+          isScrollingRef.current = false;
+        }, 800);
       },
     });
-  }, [isScrolling, totalSlides]);
+  }, [totalSlides]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -114,27 +161,106 @@ export default function FeatureSection() {
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const isInViewport = rect.top <= 100 && rect.bottom >= window.innerHeight - 100;
-
-    if (!isInViewport) return;
-
-    if (isScrolling) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
+    const threshold = 150;
+    
+    // Check if section is partially visible and should snap
+    const isEntering = rect.top < window.innerHeight - threshold && rect.top > threshold;
+    const isExitingTop = rect.bottom < window.innerHeight && rect.bottom > threshold;
+    
+    // Check if section is fully in view (locked position)
+    const isFullyInView = Math.abs(rect.top) < 10 && rect.bottom >= window.innerHeight - 10;
+    
+    // Not in or near viewport - allow normal scroll
+    if (rect.bottom < 0 || rect.top > window.innerHeight) {
+      setIsLocked(false);
+      if (window.lenis) {
+        window.lenis.start();
+      }
       return;
     }
 
     const direction = e.deltaY > 0 ? 1 : -1;
-    const nextSlide = currentSlide + direction;
 
-    if (nextSlide >= 0 && nextSlide < totalSlides) {
+    // Entering the section from top (scrolling down)
+    if (isEntering && direction > 0 && !isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      snapToSection();
+      return;
+    }
+    
+    // Entering the section from bottom (scrolling up into it)
+    if (isExitingTop && direction < 0 && !isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Snap and go to last slide
+      setIsLocked(true);
+      setCurrentSlide(totalSlides - 1);
+      
+      if (window.lenis) {
+        window.lenis.stop();
+      }
+      
+      gsap.to(window, {
+        duration: 1.2,
+        scrollTo: {
+          y: containerRef.current,
+          offsetY: 0
+        },
+        ease: "power2.out",
+        onComplete: () => {
+          if (sectionsRef.current) {
+            gsap.set(sectionsRef.current, { x: -window.innerWidth * (totalSlides - 1) });
+          }
+        }
+      });
+      return;
+    }
+
+    // If not fully in view yet, prevent scroll
+    if (!isFullyInView && isLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Section is fully in view - handle slide navigation
+    if (isFullyInView || isLocked) {
+      // At first slide and scrolling up - allow page scroll
+      if (currentSlide === 0 && direction < 0) {
+        setIsLocked(false);
+        if (window.lenis) {
+          window.lenis.start();
+        }
+        return;
+      }
+
+      // At last slide and scrolling down - allow page scroll
+      if (currentSlide === totalSlides - 1 && direction > 0) {
+        setIsLocked(false);
+        if (window.lenis) {
+          window.lenis.start();
+        }
+        return;
+      }
+
+      // Stop Lenis and handle horizontal slide navigation
+      if (window.lenis) {
+        window.lenis.stop();
+      }
+
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      scrollToSlide(nextSlide);
+
+      if (isScrolling) return;
+
+      const nextSlide = currentSlide + direction;
+      if (nextSlide >= 0 && nextSlide < totalSlides) {
+        scrollToSlide(nextSlide);
+      }
     }
-  }, [currentSlide, isScrolling, scrollToSlide, totalSlides]);
+  }, [currentSlide, isScrolling, scrollToSlide, totalSlides, isLocked, snapToSection]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!containerRef.current || isScrolling) return;

@@ -79,9 +79,6 @@ function FeedbackSection() {
       id="feedback-section"
       className="min-h-screen w-screen flex-shrink-0 flex items-center justify-center bg-gradient-to-b from-blue-200/50 to-black/70 snap-start relative"
     >
-      <div className="w-64 h-64 rounded-full bg-blue-400 blur-3xl animate-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-80"></div>
-      <div className="w-48 h-48 rounded-full bg-blue-300 blur-2xl animate-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 delay-150 opacity-90"></div>
-      <div className="w-32 h-32 rounded-full bg-blue-200 blur-xl animate-pulse absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 delay-300 opacity-100"></div>
       
       <div className="w-full h-full grid grid-cols-[45%_20%_35%] items-center relative z-10">
         <div className="w-full h-full flex items-center justify-center pr-16">

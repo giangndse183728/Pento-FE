@@ -23,8 +23,9 @@ const Navbar: React.FC = () => {
   const [bouncingItem, setBouncingItem] = useState<string | null>(null);
 
   const navItems: NavItem[] = [
-    { id: 'home', name: 'Home', iconSrc: '/assets/img/igloo.png', href: ROUTES.HOME },
+    { id: 'game', name: 'Game', iconSrc: '/assets/icon/joystick.png', href: ROUTES.SUBSCRIPTIONS_VIEW },
     { id: 'news', name: 'News', iconSrc: '/assets/img/nutrition.png', href: ROUTES.ARTICLES },
+    { id: 'home', name: 'Home', iconSrc: '/assets/img/igloo.png', href: ROUTES.HOME },
     { id: 'recipe', name: 'Recipes', iconSrc: '/assets/img/recipe-book.png', href: ROUTES.RECIPESVIEW },
     { id: 'subscriptions', name: 'Subscriptions', iconSrc: '/assets/img/admin-subscription.png', href: ROUTES.SUBSCRIPTIONS_VIEW },
   ];
@@ -50,7 +51,7 @@ const Navbar: React.FC = () => {
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <Magnet magnetStrength={5}>
         <GlassSurface
-          width={500}
+          width={450}
           height={80}
           borderRadius={50}
           borderWidth={0.07}
