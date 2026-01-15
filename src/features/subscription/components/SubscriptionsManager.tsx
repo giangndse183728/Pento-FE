@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import { useSubscription } from '../hooks/useSubscription';
 import { useFeatures } from '../hooks/useFeatures';
 import { toast } from 'sonner';
@@ -10,7 +9,7 @@ import CreateSubscriptionStep from './CreateSubscriptionStep';
 import AddPlansStep from './plans/AddPlansStep';
 import AddFeaturesStep from './features/AddFeaturesStep';
 import SubscriptionList from './SubscriptionList';
-import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema } from '../schema/subscriptionSchema';
+import { createSubscriptionSchema, subscriptionPlanSchema, subscriptionFeatureSchema, CreateSubscriptionFeaturePayload } from '../schema/subscriptionSchema';
 
 
 const createInitialSubscriptionForm = (): typeof createSubscriptionSchema._type => ({
@@ -51,7 +50,7 @@ const selectClass = 'neomorphic-select w-full';
 export default function SubscriptionsManager() {
     const pathname = usePathname();
     const [mountKey, setMountKey] = useState(0);
-    const [currentStep, setCurrentStep] = useState<'create-subscription' | 'add-plans' | 'add-features' | 'list'>('create-subscription');
+    const [currentStep, setCurrentStep] = useState<'create-subscription' | 'add-plans' | 'add-features' | 'list'>('list');
 
     const { createSubscription, addSubscriptionPlan, addSubscriptionFeature, subscriptions } = useSubscription();
     const { data: features, isLoading: featuresLoading, isFetching: featuresFetching } = useFeatures({
@@ -196,38 +195,45 @@ export default function SubscriptionsManager() {
             return;
         }
 
-        // Validate: if reset period is chosen (not "No Reset"), quota must be >0 and <101 (not Unlimited)
+        // Validate: if reset period is chosen (not "No Reset"), quota cannot be Unlimited (101)
         const invalidRows = rowsToSubmit.filter(row =>
-            row.entitlementResetPer && (row.entitlementQuota === 0 || row.entitlementQuota === 101)
+            row.entitlementResetPer && row.entitlementQuota === 101
         );
         if (invalidRows.length > 0) {
-            toast.error('When a reset period is set, quota must be between 1-100 (not 0 or Unlimited)');
+            toast.error('Unlimited quota cannot have a reset period. Select "No Reset" for unlimited features.');
             return;
         }
 
         try {
             for (const row of rowsToSubmit) {
-                // If quota is 101 (Unlimited in UI), send 0 to backend (which means unlocked/unlimited)
-                // Don't send reset period for unlimited features
-                if (row.entitlementQuota === 101) {
-                    await addSubscriptionFeature.mutateAsync({
-                        subscriptionId: featureForm.subscriptionId.trim(),
-                        payload: {
-                            featureCode: row.featureCode.trim(),
-                            quota: 0,
-                        },
-                    });
+                // Build the payload based on quota and reset period settings
+                let payload: CreateSubscriptionFeaturePayload;
+
+                if (row.entitlementQuota === 101 && !row.entitlementResetPer) {
+                    // Unlimited quota with no reset: fully unlocked for lifetime
+                    // Send only featureCode, no quota field
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                    } as CreateSubscriptionFeaturePayload;
+                } else if (!row.entitlementResetPer) {
+                    // Limited quota with no reset period: lifetime entitlement with specified quota
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                        quota: row.entitlementQuota,
+                    };
                 } else {
-                    // For quota 1-100, send the actual quota and optional reset period
-                    await addSubscriptionFeature.mutateAsync({
-                        subscriptionId: featureForm.subscriptionId.trim(),
-                        payload: {
-                            featureCode: row.featureCode.trim(),
-                            quota: row.entitlementQuota,
-                            ...(row.entitlementResetPer && { resetPeriod: row.entitlementResetPer }),
-                        },
-                    });
+                    // Regular quota with reset period
+                    payload = {
+                        featureCode: row.featureCode.trim(),
+                        quota: row.entitlementQuota,
+                        resetPeriod: row.entitlementResetPer as 'Day' | 'Week' | 'Month' | 'Year',
+                    };
                 }
+
+                await addSubscriptionFeature.mutateAsync({
+                    subscriptionId: featureForm.subscriptionId.trim(),
+                    payload,
+                });
             }
             toast.success(rowsToSubmit.length > 1 ? 'Features added' : 'Feature added');
             setFeatureRows([createFeatureRow()]);
@@ -337,129 +343,127 @@ export default function SubscriptionsManager() {
     };
 
     return (
-        <AdminLayout>
-            <div className="w-full space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Subscription Manager</h1>
-                    </div>
+        <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h1 className="text-3xl font-semibold" style={{ color: '#113F67' }}>Subscription Manager</h1>
                 </div>
-
-                {/* Tabs */}
-                <div className="mb-6 flex justify-start">
-                    <div className="segmented">
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'create-subscription'}
-                                onChange={() => setCurrentStep('create-subscription')}
-                            />
-                            Create Subscription
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'add-plans'}
-                                onChange={() => setCurrentStep('add-plans')}
-                            />
-                            Add Plans
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'add-features'}
-                                onChange={() => setCurrentStep('add-features')}
-                            />
-                            Add Features
-                        </label>
-                        <label className="segmented-button">
-                            <input
-                                type="radio"
-                                name="subscription-tab"
-                                checked={currentStep === 'list'}
-                                onChange={() => setCurrentStep('list')}
-                            />
-                            Subscriptions List
-                        </label>
-                    </div>
-                </div>
-
-                {/* Create Subscription Tab */}
-                {currentStep === 'create-subscription' && (
-                    <CreateSubscriptionStep
-                        key={`create-${mountKey}`}
-                        form={subscriptionForm}
-                        inputClass={inputClass}
-                        textareaClass={textareaClass}
-                        onChange={updateSubscriptionForm}
-                        onSubmit={handleSubscriptionSubmit}
-                        isSubmitting={createSubscription.isPending}
-                    />
-                )}
-
-                {/* Add Plans Tab */}
-                {currentStep === 'add-plans' && (
-                    <AddPlansStep
-                        key={`plans-${mountKey}`}
-                        form={planForm}
-                        inputClass={inputClass}
-                        subscriptions={subscriptionsList}
-                        subscriptionsLoading={subscriptionsLoading}
-                        selectedSubscription={selectedPlanSubscription}
-                        resolveSubscriptionId={resolveSubscriptionId}
-                        onSelectSubscription={selectPlanSubscription}
-                        onAmountChange={handlePlanAmountChange}
-                        onAmountAdjust={adjustPlanAmount}
-                        onDurationChange={handlePlanDurationChange}
-                        onDurationAdjust={adjustPlanDuration}
-                        onSubmit={handlePlanSubmit}
-                        isSubmitting={addSubscriptionPlan.isPending}
-                    />
-                )}
-
-                {/* Add Features Tab */}
-                {currentStep === 'add-features' && (
-                    <AddFeaturesStep
-                        key={`features-${mountKey}`}
-                        form={featureForm}
-                        selectClass={selectClass}
-                        subscriptions={subscriptions.data || []}
-                        subscriptionsLoading={subscriptions.isLoading}
-                        selectedSubscription={selectedFeatureSubscription}
-                        resolveSubscriptionId={resolveSubscriptionId}
-                        onSelectSubscription={selectFeatureSubscription}
-                        featureRows={featureRows}
-                        activeFeatureRow={activeFeatureRow}
-                        onSetActiveRow={setActiveFeatureRow}
-                        onFeatureRowChange={updateFeatureRow}
-                        onRemoveFeatureRow={handleRemoveFeatureRow}
-                        onAddFeatureRow={handleAddFeatureRow}
-                        onSubmit={handleFeatureSubmit}
-                        isSubmitting={addSubscriptionFeature.isPending}
-                        featureSearchInput={featureSearchInput}
-                        onFeatureSearchInputChange={setFeatureSearchInput}
-                        onFeatureSearch={handleFeatureSearch}
-                        filteredFeatures={filteredFeatures}
-                        featuresAreLoading={featuresAreLoading}
-                        onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
-                    />
-                )}
-
-                {/* Subscriptions List Tab */}
-                {currentStep === 'list' && (
-                    <div className="space-y-6">
-                        <SubscriptionList
-                            subscriptions={subscriptionsList}
-                            loading={subscriptionsLoading}
-                            onDeleted={() => subscriptions.refetch()}
-                        />
-                    </div>
-                )}
             </div>
-        </AdminLayout>
+
+            {/* Tabs */}
+            <div className="mb-6 flex justify-start">
+                <div className="segmented">
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'list'}
+                            onChange={() => setCurrentStep('list')}
+                        />
+                        Subscriptions List
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'create-subscription'}
+                            onChange={() => setCurrentStep('create-subscription')}
+                        />
+                        Create Subscription
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'add-plans'}
+                            onChange={() => setCurrentStep('add-plans')}
+                        />
+                        Add Plans
+                    </label>
+                    <label className="segmented-button">
+                        <input
+                            type="radio"
+                            name="subscription-tab"
+                            checked={currentStep === 'add-features'}
+                            onChange={() => setCurrentStep('add-features')}
+                        />
+                        Add Features
+                    </label>
+                </div>
+            </div>
+
+            {/* Create Subscription Tab */}
+            {currentStep === 'create-subscription' && (
+                <CreateSubscriptionStep
+                    key={`create-${mountKey}`}
+                    form={subscriptionForm}
+                    inputClass={inputClass}
+                    textareaClass={textareaClass}
+                    onChange={updateSubscriptionForm}
+                    onSubmit={handleSubscriptionSubmit}
+                    isSubmitting={createSubscription.isPending}
+                />
+            )}
+
+            {/* Add Plans Tab */}
+            {currentStep === 'add-plans' && (
+                <AddPlansStep
+                    key={`plans-${mountKey}`}
+                    form={planForm}
+                    inputClass={inputClass}
+                    subscriptions={subscriptionsList}
+                    subscriptionsLoading={subscriptionsLoading}
+                    selectedSubscription={selectedPlanSubscription}
+                    resolveSubscriptionId={resolveSubscriptionId}
+                    onSelectSubscription={selectPlanSubscription}
+                    onAmountChange={handlePlanAmountChange}
+                    onAmountAdjust={adjustPlanAmount}
+                    onDurationChange={handlePlanDurationChange}
+                    onDurationAdjust={adjustPlanDuration}
+                    onSubmit={handlePlanSubmit}
+                    isSubmitting={addSubscriptionPlan.isPending}
+                />
+            )}
+
+            {/* Add Features Tab */}
+            {currentStep === 'add-features' && (
+                <AddFeaturesStep
+                    key={`features-${mountKey}`}
+                    form={featureForm}
+                    selectClass={selectClass}
+                    subscriptions={subscriptions.data || []}
+                    subscriptionsLoading={subscriptions.isLoading}
+                    selectedSubscription={selectedFeatureSubscription}
+                    resolveSubscriptionId={resolveSubscriptionId}
+                    onSelectSubscription={selectFeatureSubscription}
+                    featureRows={featureRows}
+                    activeFeatureRow={activeFeatureRow}
+                    onSetActiveRow={setActiveFeatureRow}
+                    onFeatureRowChange={updateFeatureRow}
+                    onRemoveFeatureRow={handleRemoveFeatureRow}
+                    onAddFeatureRow={handleAddFeatureRow}
+                    onSubmit={handleFeatureSubmit}
+                    isSubmitting={addSubscriptionFeature.isPending}
+                    featureSearchInput={featureSearchInput}
+                    onFeatureSearchInputChange={setFeatureSearchInput}
+                    onFeatureSearch={handleFeatureSearch}
+                    filteredFeatures={filteredFeatures}
+                    featuresAreLoading={featuresAreLoading}
+                    onUseFeatureFromCatalog={applyFeatureCodeFromCatalog}
+                />
+            )}
+
+            {/* Subscriptions List Tab */}
+            {currentStep === 'list' && (
+                <div className="space-y-6">
+                    <SubscriptionList
+                        subscriptions={subscriptionsList}
+                        loading={subscriptionsLoading}
+                        onDeleted={() => subscriptions.refetch()}
+                    />
+                </div>
+            )}
+        </div>
     );
 }
 

@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍱 Pento – Smart Household Food Management System (Web)
 
-## Getting Started
+Pento is a **smart household food management web project** designed to showcase a modern, user-centric experience for a mobile application through a **visually engaging landing page** and an **admin dashboard**.
 
-First, run the development server:
+The project focuses on UI/UX design and frontend engineering, clearly introducing core mobile features such as food management, OCR & barcode scanning, nearby store discovery, and food trading.
+
+---
+
+## 🚀 Key Features
+
+### 🌐 Landing Page
+
+* Modern, visually appealing design
+* Showcases mobile features using **interactive 3D visuals (Three.js)**
+* Smooth animations powered by **GSAP**
+* Fully responsive across devices
+
+### 📊 Admin Dashboard
+
+* Clean and structured **data visualization**
+* **Kanban-style board** for food management
+* Track food status: fresh, expiring soon, expired
+* Simulated admin workflows and analytics
+
+---
+
+## 🛠️ Tech Stack
+
+### Framework
+
+* **Next.js** – React framework for performance and scalability
+
+### Libraries & Tools
+
+* **React** – UI development
+* **Radix UI** – Accessible, headless UI components
+* **React Query (TanStack Query)** – Server-state management
+* **Axios** – API communication
+* **React Hook Form** – Efficient form handling
+* **Zod** – Schema validation
+* **Three.js / React Three Fiber** – Interactive 3D experience
+* **GSAP** – Advanced animations
+* **ECharts** – Data visualization
+
+---
+
+## 🎨 UI/UX Focus
+
+* Modern UI trends (minimal layout, glassmorphism-inspired)
+* Clear information hierarchy
+* Smooth and intuitive user experience
+* Designed for **product showcase, portfolio, and startup demos**
+
+---
+
+
+## ⚙️ Installation & Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit: `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎯 Project Goals
 
-## Learn More
+* Demonstrate **Frontend skills with Next.js & React**
+* Showcase **UI/UX design and dashboard experience**
+* Combine **3D, animation, and data visualization**
+* Suitable for **personal portfolio, academic projects, and startup concepts**
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+⭐ If you find this project useful, feel free to give the repository a star!

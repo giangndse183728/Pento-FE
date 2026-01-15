@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { useSummaryForCharts } from '../../hooks/useSummaryForChart';
+import { ChartSkeleton } from '@/components/decoration/ChartSkeleton';
 import type { GetPaymentSummaryParams } from '../../services/paymentService';
 
 // Color palette for different subscriptions
@@ -27,7 +28,10 @@ const ShareDataSetChart = ({ params }: Props) => {
                 dataset: { source: [] },
                 series: [],
                 dates: [],
-                pieData: []
+                pieData: [],
+                subscriptionTotals: new Map(),
+                rawPayments: [],
+                paymentDetails: new Map()
             };
         }
 
@@ -35,10 +39,13 @@ const ShareDataSetChart = ({ params }: Props) => {
         const allDates = new Set<string>();
         const subscriptionData: Map<string, Map<string, number>> = new Map();
         const subscriptionTotals: Map<string, number> = new Map();
+        // Store raw payment details for tooltip
+        const paymentDetails: Map<string, Map<string, { date: string; amount: number; currency: string }>> = new Map();
 
-        payments.forEach((subscription: { name?: string; subscriptionId?: string; payments?: { date: string; amount: number }[] }) => {
+        payments.forEach((subscription: { name?: string; subscriptionId?: string; payments?: { date: string; amount: number; currency?: string }[]; totalPaidAmount?: number }) => {
             const subName = subscription.name || subscription.subscriptionId || 'Unknown';
             const subPayments = new Map<string, number>();
+            const subPaymentDetails = new Map<string, { date: string; amount: number; currency: string }>();
             let total = 0;
 
             if (subscription.payments && Array.isArray(subscription.payments)) {
@@ -46,12 +53,19 @@ const ShareDataSetChart = ({ params }: Props) => {
                     allDates.add(payment.date);
                     const existing = subPayments.get(payment.date) || 0;
                     subPayments.set(payment.date, existing + payment.amount);
+                    // Store raw payment details
+                    subPaymentDetails.set(payment.date, {
+                        date: payment.date,
+                        amount: payment.amount,
+                        currency: payment.currency || 'VND'
+                    });
                     total += payment.amount;
                 });
             }
 
             subscriptionData.set(subName, subPayments);
-            subscriptionTotals.set(subName, total);
+            paymentDetails.set(subName, subPaymentDetails);
+            subscriptionTotals.set(subName, subscription.totalPaidAmount || total);
         });
 
         // Sort dates
@@ -113,7 +127,10 @@ const ShareDataSetChart = ({ params }: Props) => {
             series: [...lineSeries, pieSeries],
             dates: sortedDates,
             subscriptionNames,
-            pieData
+            pieData,
+            subscriptionTotals,
+            rawPayments: payments,
+            paymentDetails
         };
     }, [payments]);
 
@@ -126,9 +143,24 @@ const ShareDataSetChart = ({ params }: Props) => {
             trigger: 'item',
             formatter: (params: any) => {
                 if (params.seriesType === 'pie') {
-                    return `${params.name}: ${params.value.toLocaleString()} VND (${params.percent}%)`;
+                    const totalAmount = chartData.subscriptionTotals.get(params.name) || params.value;
+                    return `<strong>${params.name}</strong><br/>Total Paid: ${totalAmount.toLocaleString()} VND<br/>Percentage: ${params.percent}%`;
                 }
-                return `${params.seriesName}<br/>${params.name}: ${params.value?.toLocaleString() || 0} VND`;
+                // For line chart data points
+                const subscriptionName = params.seriesName;
+                const date = params.name;
+                const subDetails = chartData.paymentDetails?.get(subscriptionName);
+                const paymentInfo = subDetails?.get(date);
+
+                if (paymentInfo) {
+                    return `
+                        <strong>${subscriptionName}</strong><br/>
+                        Date: ${paymentInfo.date}<br/>
+                        Amount: ${paymentInfo.amount.toLocaleString()} ${paymentInfo.currency}
+                    `;
+                }
+
+                return `<strong>${subscriptionName}</strong><br/>Date: ${date}`;
             }
         },
         dataset: chartData.dataset,
@@ -153,11 +185,7 @@ const ShareDataSetChart = ({ params }: Props) => {
 
     if (loading) {
         return (
-            <WhiteCard className="w-full rounded-2xl p-2 bg-white/80 border border-white/30 backdrop-blur-lg">
-                <div className="flex items-center justify-center h-[550px]">
-                    <span className="text-gray-500">Loading chart data...</span>
-                </div>
-            </WhiteCard>
+            <ChartSkeleton height={550} />
         );
     }
 

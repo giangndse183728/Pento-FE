@@ -8,8 +8,10 @@ import { useDeleteRecipe } from '../../hooks/useRecipes';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import ConfirmModal from '@/components/decoration/ConfirmModal';
 import { ChefHat, SquarePen, Trash, Clock, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { CusButton } from '@/components/ui/cusButton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 import Link from 'next/link';
 
 type Props = {
@@ -17,9 +19,12 @@ type Props = {
     pageNumber: number;
     setPageNumber: (page: number) => void;
     pageSize?: number;
+    difficulty?: string;
+    search?: string;
+    sort?: string;
 };
 
-export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12 }: Props) {
+export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize = 12, difficulty, search, sort }: Props) {
     const router = useRouter();
     const deleteMutation = useDeleteRecipe();
     const [modalOpen, setModalOpen] = useState(false);
@@ -102,9 +107,7 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
                         </div>
 
                         {list.isLoading ? (
-                            <div className="text-center py-12 text-gray-500">
-                                Loading recipes...
-                            </div>
+                            <TableSkeleton rowCount={10} columnCount={7} />
                         ) : list.isError ? (
                             <div className="text-center py-12 text-red-500">
                                 Failed to load recipes. Please try again.
@@ -125,7 +128,7 @@ export default function RecipesTable({ list, pageNumber, setPageNumber, pageSize
                                             <TableHead className='text-lg font-semibold w-[100px]' style={{ color: '#113F67' }}>Difficulty</TableHead>
                                             <TableHead className='text-lg font-semibold w-[130px]' style={{ color: '#113F67' }}>
                                                 <div className="flex items-center gap-1">
-                                                    <Clock className="w-4 h-4" />
+
                                                     Prep / Cook
                                                 </div>
                                             </TableHead>

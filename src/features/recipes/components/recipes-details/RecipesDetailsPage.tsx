@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import AdminLayout from "@/features/admin/components/AdminLayout";
 import { WhiteCard } from "@/components/decoration/WhiteCard";
 import { CusButton } from "@/components/ui/cusButton";
 import { FieldSet, FieldContent, FieldLegend } from "@/components/ui/field";
@@ -142,7 +141,7 @@ export default function RecipesDetailsPage({ recipeId, initialData, onSave }: Pr
     }));
 
     return (
-        <AdminLayout>
+        <>
             <div className="w-full mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <CusButton
@@ -307,6 +306,6 @@ export default function RecipesDetailsPage({ recipeId, initialData, onSave }: Pr
                     </WhiteCard>
                 </div>
             </div>
-        </AdminLayout>
+        </>
     );
 }

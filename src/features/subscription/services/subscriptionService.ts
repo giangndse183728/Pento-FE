@@ -1,82 +1,37 @@
 import { apiRequest } from '@/lib/apiRequest';
+import {
+    Subscription,
+    SubscriptionPlan,
+    SubscriptionFeature,
+    CreateSubscriptionPayload,
+    CreateSubscriptionPlanPayload,
+    CreateSubscriptionFeaturePayload,
+    FeatureDefinition,
+    SubscriptionListResponse,
+    UpdateSubscriptionFeatureInput,
+    UpdateSubscriptionPlanInput,
+    UpdateSubscriptionInput,
+    EditSubForm,
+    EditPlanForm,
+    EditFeatureForm,
+} from '../schema/subscriptionSchema';
 
-export type Subscription = {
-    id?: string;
-    subscriptionId?: string;
-    name: string;
-    description?: string | null;
-    isActive: boolean;
-    createdOnUtc?: string;
-    updatedOnUtc?: string;
-    plans?: Array<{
-        subscriptionPlanId: string;
-        price: string;
-        duration: string;
-    }>;
-    features?: Array<{
-        subscriptionFeatureId: string;
-        featureName: string;
-        entitlement: string;
-    }>;
+export type {
+    Subscription,
+    SubscriptionPlan,
+    SubscriptionFeature,
+    CreateSubscriptionPayload,
+    CreateSubscriptionPlanPayload,
+    CreateSubscriptionFeaturePayload,
+    FeatureDefinition,
+    SubscriptionListResponse,
+    UpdateSubscriptionFeatureInput,
+    UpdateSubscriptionPlanInput,
+    UpdateSubscriptionInput,
+    EditSubForm,
+    EditPlanForm,
+    EditFeatureForm,
 };
-
-export type SubscriptionPlan = {
-    id: string;
-    subscriptionId: string;
-    amount: number;
-    currency: string;
-    durationInDays: number;
-    createdOnUtc?: string;
-    updatedOnUtc?: string;
-};
-
-export type SubscriptionFeature = {
-    id: string;
-    subscriptionId: string;
-    featureCode: string;
-    entitlementQuota: number;
-    entitlementResetPer?: 'Day' | 'Week' | 'Month' | 'Year';
-    createdOnUtc?: string;
-    updatedOnUtc?: string;
-};
-
-export type CreateSubscriptionPayload = {
-    name: string;
-    description?: string;
-    isActive: boolean;
-};
-
-export type CreateSubscriptionPlanPayload = {
-    amount: number;
-    currency: string;
-    durationInDays?: number;
-};
-
-export type CreateSubscriptionFeaturePayload = {
-    featureCode: string;
-    quota: number;
-    resetPeriod?: 'Day' | 'Week' | 'Month' | 'Year';
-};
-
-export type FeatureDefinition = {
-    featureCode: string;
-    name: string;
-    description: string;
-    defaultEntitlement: string;
-};
-
-export type SubscriptionListResponse =
-    | Subscription[]
-    | {
-        items: Subscription[];
-    };
-
-export type UpdateSubscriptionFeatureInput = {
-    featureCode?: string;
-    entitlementQuota?: number;
-    entitlementResetPer?: string;
-};
-
 
 const assertId = (subscriptionId: string) => {
     if (!subscriptionId || !subscriptionId.trim()) {
@@ -156,12 +111,24 @@ export const getSubscriptionById = async (subscriptionId: string): Promise<Subsc
     }
 };
 
+export const updateSubscriptionAdmin = async (
+    subscriptionId: string,
+    payload: UpdateSubscriptionInput,
+): Promise<void> => {
+    try {
+        await apiRequest<void>('patch', `/admin/subscriptions/${encodeURIComponent(subscriptionId)}`, payload);
+    } catch (error) {
+        console.error('updateSubscriptionAdmin failed:', error);
+        throw error;
+    }
+};
+
 export const updateSubscriptionFeatureAdmin = async (
     subscriptionFeatureId: string,
     payload: UpdateSubscriptionFeatureInput,
 ): Promise<void> => {
     try {
-        await apiRequest<void>('put', `/admin/subscriptions/features/${encodeURIComponent(subscriptionFeatureId)}`, payload);
+        await apiRequest<void>('patch', `/admin/subscriptions/features/${encodeURIComponent(subscriptionFeatureId)}`, payload);
     } catch (error) {
         console.error('updateSubscriptionFeatureAdmin failed:', error);
         throw error;
@@ -177,19 +144,12 @@ export const deleteSubscriptionFeatureAdmin = async (subscriptionFeatureId: stri
     }
 };
 
-
-export type UpdateSubscriptionPlanInput = {
-    amount?: number;
-    currency?: string;
-    durationInDays?: number;
-};
-
 export const updateSubscriptionPlanAdmin = async (
     subscriptionPlanId: string,
     payload: UpdateSubscriptionPlanInput,
 ): Promise<void> => {
     try {
-        await apiRequest<void>('put', `/admin/subscriptions/plans/${encodeURIComponent(subscriptionPlanId)}`, payload);
+        await apiRequest<void>('patch', `/admin/subscriptions/plans/${encodeURIComponent(subscriptionPlanId)}`, payload);
     } catch (error) {
         console.error('updateSubscriptionPlanAdmin failed:', error);
         throw error;

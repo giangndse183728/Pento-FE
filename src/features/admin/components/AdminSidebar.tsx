@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import { ROUTES } from '@/constants/routes';
 import { ColorTheme } from '@/constants/color';
@@ -15,29 +15,34 @@ import { useUserProfile, useUpdateUserProfile, useUpdateUserAvatar } from '@/fea
 import UpdateDetailsModal, { type ModalField } from '@/components/decoration/UpdateDetailsModal';
 import ImageEditModal from '@/components/decoration/ImageEditModal';
 import type { UpdateProfileInput } from '@/features/users/schema/userSchema';
+import { useLogout } from '@/features/auth/hooks/useAuth';
 
-// Dashboard sub-items for accordion
 const dashboardSubItems = [
-    { href: ROUTES.DASHBOARD_SUBSCRIPTIONS_PAYMENT, label: 'Payments', icon: '/assets/img/pie-chart.png' },
-    { href: ROUTES.DASHBOARD_FOOD_ITEM_LOG, label: 'Food Items Log', icon: '/assets/img/bar-chart.png' },
-    { href: ROUTES.DASHBOARD_ACTIVITIES, label: 'Activities', icon: '/assets/img/heat-map.png' },
+    { href: `${ROUTES.DASHBOARD}#payments`, id: 'payments', label: 'Payments', icon: '/assets/img/pie-chart.png' },
+    { href: `${ROUTES.DASHBOARD}#food-log`, id: 'food-log', label: 'Food Items Log', icon: '/assets/img/bar-chart.png' },
+    { href: `${ROUTES.DASHBOARD}#activities`, id: 'activities', label: 'Activities', icon: '/assets/img/heat-map.png' },
 ];
 
-// Regular navigation items (non-accordion)
 const navItems = [
     { href: ROUTES.RECIPES, label: 'Recipes', icon: '/assets/img/recipe-book.png' },
     { href: ROUTES.FOODREFERENCES, label: 'Food References', icon: '/assets/img/food-ref.png' },
     { href: ROUTES.SUBSCRIPTIONS, label: 'Subscriptions', icon: '/assets/img/admin-subscription.png' },
     { href: ROUTES.ACHIEVEMENTS, label: 'Achievements', icon: '/assets/img/admin-achievement.png' },
+    { href: ROUTES.USERS, label: 'Users', icon: '/assets/img/users.png' },
+    { href: ROUTES.REPORTS, label: 'Trade Reports', icon: '/assets/img/report.png' },
 ];
 
 const ACCORDION_STATE_KEY = 'admin-sidebar-accordion';
 
 const AdminSidebar = () => {
     const pathname = usePathname();
+    const router = useRouter();
     const [hovered, setHovered] = useState<string | null>(null);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const [isEditAvatarOpen, setIsEditAvatarOpen] = useState(false);
+
+    // Logout mutation
+    const logoutMutation = useLogout();
 
     // Fetch user profile
     const { data: userProfile } = useUserProfile();
@@ -75,6 +80,18 @@ const AdminSidebar = () => {
     const handleAccordionChange = (value: string | undefined) => {
         setAccordionValue(value);
         sessionStorage.setItem(ACCORDION_STATE_KEY, value ? 'open' : 'closed');
+    };
+
+    // Bookmark navigation handler
+    const handleBookmarkClick = (e: React.MouseEvent, id: string) => {
+        if (pathname === ROUTES.DASHBOARD) {
+            e.preventDefault();
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, '', `${ROUTES.DASHBOARD}#${id}`);
+            }
+        }
     };
 
     // Get user initials for avatar fallback
@@ -146,8 +163,9 @@ const AdminSidebar = () => {
                     height: '100%',
                 }}
                 className="h-full shadow-lg rounded-xl"
+                contentClassName="h-full p-0"
             >
-                <div className="p-5 h-full w-full flex flex-col items-start justify-start">
+                <div className="p-5 h-full w-full flex flex-col items-start justify-start overflow-hidden">
                     {/* Profile */}
                     <div className="flex items-center gap-4 mb-8 w-full group">
                         {userProfile?.avatarUrl ? (
@@ -188,7 +206,7 @@ const AdminSidebar = () => {
                     <div className="w-full border-t border-gray-300 mb-6" />
 
                     {/* Navigation */}
-                    <nav className="flex flex-col space-y-3 w-full relative">
+                    <nav className="flex flex-col space-y-3 w-full relative flex-1 overflow-y-auto pr-1 scrollbar-thin min-h-0">
                         {/* Dashboard Accordion */}
                         <Accordion
                             type="single"
@@ -200,7 +218,7 @@ const AdminSidebar = () => {
                             <AccordionItem value="dashboard" className="border-b-0">
                                 <div className="relative w-full">
                                     {/* Active indicator for dashboard parent */}
-                                    {pathname.startsWith(ROUTES.DASHBOARD) && (
+                                    {pathname === ROUTES.DASHBOARD && (
                                         <div
                                             className="absolute left-0 top-0 h-full w-1 rounded-tr-lg rounded-br-lg"
                                             style={{ backgroundColor: ColorTheme.powderBlue }}
@@ -209,7 +227,7 @@ const AdminSidebar = () => {
                                     <AccordionTrigger
                                         className="w-full flex items-center gap-3 p-3 rounded-lg transition-all transform cursor-pointer hover:no-underline"
                                         style={{
-                                            backgroundColor: pathname.startsWith(ROUTES.DASHBOARD)
+                                            backgroundColor: pathname === ROUTES.DASHBOARD
                                                 ? ColorTheme.babyBlue
                                                 : 'transparent',
                                         }}
@@ -225,9 +243,9 @@ const AdminSidebar = () => {
                                                 />
                                             </div>
                                             <span
-                                                className="truncate font-medium transition-colors"
+                                                className="whitespace-normal break-words font-medium text-sm transition-colors"
                                                 style={{
-                                                    color: pathname.startsWith(ROUTES.DASHBOARD)
+                                                    color: pathname === ROUTES.DASHBOARD
                                                         ? ColorTheme.blueGray
                                                         : ColorTheme.darkBlue,
                                                 }}
@@ -239,27 +257,25 @@ const AdminSidebar = () => {
                                 </div>
                                 <AccordionContent className="pl-6 pb-0">
                                     <div className="flex flex-col space-y-1 pt-1">
-                                        {dashboardSubItems.map(({ href, label, icon }) => {
-                                            const isSubActive = pathname === href;
+                                        {dashboardSubItems.map(({ href, label, icon, id }) => {
                                             const isSubHovered = hovered === href;
 
                                             return (
                                                 <Link
                                                     key={href}
                                                     href={href}
+                                                    onClick={(e) => handleBookmarkClick(e, id)}
                                                     onMouseEnter={() => setHovered(href)}
                                                     onMouseLeave={() => setHovered(null)}
-                                                    className="w-full flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer text-sm"
+                                                    className="w-full flex items-center gap-2 p-2 rounded-lg transition-all cursor-pointer text-[13px]"
                                                     style={{
-                                                        backgroundColor: isSubActive
-                                                            ? ColorTheme.powderBlue
-                                                            : isSubHovered
-                                                                ? ColorTheme.babyBlue
-                                                                : 'transparent',
-                                                        color: isSubActive || isSubHovered
+                                                        backgroundColor: isSubHovered
+                                                            ? ColorTheme.babyBlue
+                                                            : 'transparent',
+                                                        color: isSubHovered
                                                             ? ColorTheme.darkBlue
                                                             : ColorTheme.blueGray,
-                                                        fontWeight: isSubActive ? 600 : 400,
+                                                        fontWeight: 400,
                                                     }}
                                                 >
                                                     <Image
@@ -317,7 +333,7 @@ const AdminSidebar = () => {
                                             />
                                         </div>
                                         <span
-                                            className="truncate font-medium transition-colors"
+                                            className="whitespace-normal break-words font-medium text-sm transition-colors"
                                             style={{
                                                 color: isActive || isHovered ? ColorTheme.blueGray : ColorTheme.darkBlue,
                                             }}
@@ -328,6 +344,39 @@ const AdminSidebar = () => {
                                 </div>
                             );
                         })}
+
+                        <div className="w-full border-t border-gray-300 mb-6" />
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={() => logoutMutation.mutate()}
+                            disabled={logoutMutation.isPending}
+                            onMouseEnter={() => setHovered('logout')}
+                            onMouseLeave={() => setHovered(null)}
+                            className="w-full flex items-center gap-3 p-3 rounded-lg transition-all cursor-pointer mt-4"
+                            style={{
+                                backgroundColor: hovered === 'logout' ? '#FEE2E2' : 'transparent',
+                                opacity: logoutMutation.isPending ? 0.5 : 1,
+                            }}
+                        >
+                            <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+                                <Image
+                                    src="/assets/img/log-out.png"
+                                    alt="Logout"
+                                    width={28}
+                                    height={28}
+                                    className="w-7 h-7"
+                                />
+                            </div>
+                            <span
+                                className="whitespace-normal break-words font-medium text-sm transition-colors"
+                                style={{
+                                    color: hovered === 'logout' ? '#DC2626' : ColorTheme.darkBlue,
+                                }}
+                            >
+                                {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+                            </span>
+                        </button>
                     </nav>
                 </div>
             </WhiteCard>

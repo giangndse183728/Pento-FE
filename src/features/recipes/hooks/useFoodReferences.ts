@@ -8,7 +8,7 @@ export const useFoodReferences = (params?: FoodReferencesQuery) => {
     return useQuery<FoodReferencesResponse>({
         queryKey: ['foodReferences', params?.foodGroup, params?.search, params?.page, params?.pageSize],
         queryFn: () => getFoodReferences(params),
-        staleTime: 0, // Changed from 10 minutes to 0 to force refetch on param changes
+        staleTime: 0,
         initialData: { items: [], totalCount: 0, pageNumber: 1, pageSize: 24 },
         retry: (failureCount: number, error: unknown) => {
             const status = (error as AxiosLike)?.response?.status;

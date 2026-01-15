@@ -5,8 +5,10 @@ import Image from "next/image";
 import { WhiteCard } from "@/components/decoration/WhiteCard";
 import { CusButton } from "@/components/ui/cusButton";
 import { ColorTheme } from "@/constants/color";
-import { ArrowLeft, Clock, CookingPot, Users, ChefHat } from "lucide-react";
+import { ArrowLeft, Clock, CookingPot, Users, ChefHat, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { usePublicRecipeDetails } from "@/features/recipes/hooks/useRecipes";
+import { Skeleton } from "@/components/ui/skeleton";
 import IngredientsCards from "./IngredientsCards";
 import DirectionsCards from "./DirectionsCards";
 import RollToTopButton from "./RollToTopButton";
@@ -56,11 +58,72 @@ type RecipeDetail = {
 };
 
 type Props = {
-    data: RecipeDetail;
+    recipeId: string;
 };
 
-export default function RecipesViewDetails({ data }: Props) {
+export default function RecipesViewDetails({ recipeId }: Props) {
     const router = useRouter();
+    const { data, isLoading, isError } = usePublicRecipeDetails(recipeId);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen">
+                <div className="w-full flex justify-center px-6 py-10">
+                    <div className="w-full max-w-5xl">
+                        <div className="mb-6">
+                            <CusButton
+                                variant="blueGray"
+                                onClick={() => router.back()}
+                                className="flex items-center gap-2"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Back
+                            </CusButton>
+                        </div>
+                        <WhiteCard className="bg-white/80">
+                            <div className="p-8 space-y-12">
+                                <Skeleton className="h-12 w-2/3" />
+                                <Skeleton className="h-64 w-full rounded-2xl" />
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <Skeleton key={i} className="h-24 rounded-xl" />
+                                    ))}
+                                </div>
+                            </div>
+                        </WhiteCard>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError || !data) {
+        return (
+            <div className="min-h-screen">
+                <div className="w-full flex justify-center px-6 py-10">
+                    <div className="w-full max-w-5xl">
+                        <div className="mb-6">
+                            <CusButton
+                                variant="blueGray"
+                                onClick={() => router.back()}
+                                className="flex items-center gap-2"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Back
+                            </CusButton>
+                        </div>
+                        <WhiteCard className="bg-white/80">
+                            <div className="p-12 text-center">
+                                <ChefHat className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                                <p className="text-lg font-medium text-gray-500">Recipe not found</p>
+                                <p className="text-sm mt-2 text-gray-400">This recipe may not be available</p>
+                            </div>
+                        </WhiteCard>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen">

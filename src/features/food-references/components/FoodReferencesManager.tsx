@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import AdminLayout from '@/features/admin/components/AdminLayout';
 import FoodReferencesList from './FoodReferencesList';
 import FoodRefDetailsModal from './FoodRefDetailsModal';
 import FoodRefEditModal from './FoodRefEditModal';
@@ -44,7 +43,7 @@ export default function FoodReferencesManager() {
     };
 
     return (
-        <AdminLayout>
+        <>
             <div className="w-full space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
@@ -113,6 +112,6 @@ export default function FoodReferencesManager() {
                 onConfirm={confirmDelete}
                 onCancel={() => setDeleteItem(null)}
             />
-        </AdminLayout>
+        </>
     );
 }

@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import { SquarePen } from 'lucide-react';
 import type { UpdateActivity } from '../schema/activitiesSchema';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
 
 export default function ActivitiesList() {
     const [searchText, setSearchText] = useState('');
@@ -17,7 +18,7 @@ export default function ActivitiesList() {
         description: '',
     });
 
-    const { data: activities = [] } = useActivities({ searchText });
+    const { data: activities = [], isLoading } = useActivities({ searchText });
     const updateActivityMutation = useUpdateActivity();
 
     const handleEditClick = (activityCode: string, name: string, description: string) => {
@@ -77,7 +78,9 @@ export default function ActivitiesList() {
                         Activities
                     </h2>
 
-                    {activities.length === 0 ? (
+                    {isLoading ? (
+                        <TableSkeleton title="Activities" rowCount={5} columnCount={3} />
+                    ) : activities.length === 0 ? (
                         <div className="text-center py-12 text-gray-500">
                             No activities found
                         </div>
@@ -123,7 +126,6 @@ export default function ActivitiesList() {
                                                         >
                                                             {updateActivityMutation.isPending ? 'Saving...' : 'Save'}
                                                         </CusButton>
-
                                                         <CusButton
                                                             type="button"
                                                             onClick={handleCancelEdit}

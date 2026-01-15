@@ -2,6 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { usePaymentsForCards } from '../hooks/usePaymentsforCards';
+import { TableSkeleton } from '@/components/decoration/TableSkeleton';
+import TopDataCards from './TopDataCards';
 import { WhiteCard } from '@/components/decoration/WhiteCard';
 import {
     Table,
@@ -11,9 +13,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import FilterSection, { FilterField } from '@/components/decoration/FilterSection';
 import type { GetPaymentsParams, PaymentStatus } from '../services/paymentService';
+import { format, parseISO } from 'date-fns';
 
 const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -35,18 +38,16 @@ const getStatusColor = (status: string) => {
 };
 
 const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    try {
+        const date = parseISO(dateString);
+        return format(date, 'MMM d, yyyy HH:mm');
+    } catch {
+        return dateString;
+    }
 };
 
 const STATUS_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'Pending', label: 'Pending' },
     { value: 'Cancelled', label: 'Cancelled' },
     { value: 'Paid', label: 'Paid' },
@@ -56,7 +57,7 @@ const STATUS_OPTIONS = [
 ];
 
 const SORT_BY_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'OrderCode', label: 'Order Code' },
     { value: 'Description', label: 'Description' },
     { value: 'AmountDue', label: 'Amount Due' },
@@ -65,13 +66,13 @@ const SORT_BY_OPTIONS = [
 ];
 
 const SORT_ORDER_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'ASC', label: 'Ascending' },
     { value: 'DESC', label: 'Descending' },
 ];
 
 const IS_DELETED_OPTIONS = [
-    { value: '', label: '--' },
+    { value: '', label: 'All' },
     { value: 'true', label: 'Deleted' },
     { value: 'false', label: 'Active' },
 ];
@@ -86,7 +87,7 @@ export default function PaymentTable() {
         toDate: '',
         status: '',
         sortBy: '',
-        sortOrder: '',
+        sortOrder: 'DESC',
         isDeleted: '',
     });
     const [pageNumber, setPageNumber] = useState(1);
@@ -128,7 +129,7 @@ export default function PaymentTable() {
             toDate: '',
             status: '',
             sortBy: '',
-            sortOrder: '',
+            sortOrder: 'DESC',
             isDeleted: '',
         });
         setPageNumber(1);
@@ -221,96 +222,102 @@ export default function PaymentTable() {
                 defaultCollapsed={true}
             />
 
-            <WhiteCard className="w-full rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg">
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold" style={{ color: '#113F67' }}>
-                            Payment History
-                        </h3>
-                        <span className="text-sm text-gray-500">
-                            Total: {totalCount} payments
-                        </span>
-                    </div>
+            {/* Payment Summary Cards */}
+            <TopDataCards summary={summary?.summary ?? null} />
 
-                    {loading ? (
-                        <div className="flex items-center justify-center h-[200px]">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#113F67]" />
-                        </div>
-                    ) : error ? (
-                        <div className="text-center text-red-500 py-8">
-                            Failed to load payment data
-                        </div>
-                    ) : payments.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                            No payments found
-                        </div>
-                    ) : (
-                        <>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-[#113F67]/5">
-                                        <TableHead style={{ color: '#113F67' }}>Order Code</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Description</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Amount Due</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Amount Paid</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Status</TableHead>
-                                        <TableHead style={{ color: '#113F67' }}>Created At</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {payments.map((payment) => (
-                                        <TableRow key={payment.paymentId || payment.orderCode} className="hover:bg-gray-50">
-                                            <TableCell className="font-medium py-3">
-                                                #{payment.orderCode}
-                                            </TableCell>
-                                            <TableCell className="max-w-[300px] whitespace-normal py-3">
-                                                {payment.description}
-                                            </TableCell>
-                                            <TableCell className="font-medium">
-                                                {payment.amountDue}
-                                            </TableCell>
-                                            <TableCell className="font-medium text-green-600">
-                                                {payment.amountPaid}
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
-                                                    {payment.status}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="text-gray-500">
-                                                {formatDate(payment.createdAt)}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-
-                            {/* Pagination */}
-                            <div className="flex items-center justify-between pt-4 border-t">
-                                <span className="text-sm text-gray-500">
-                                    Page {pageNumber} of {totalPages}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setPageNumber(p => Math.max(1, p - 1))}
-                                        disabled={pageNumber === 1}
-                                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => setPageNumber(p => Math.min(totalPages, p + 1))}
-                                        disabled={pageNumber === totalPages}
-                                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
+            {loading ? (
+                <TableSkeleton
+                    title="Payment History"
+                    rowCount={10}
+                    columnCount={7}
+                />
+            ) : error ? (
+                <div className="text-center text-red-500 py-8">
+                    Failed to load payment data
                 </div>
-            </WhiteCard>
+            ) : payments.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                    No payments found
+                </div>
+            ) : (
+                <WhiteCard className="w-full rounded-2xl p-6 bg-white/90 border border-white/30 backdrop-blur-lg">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold" style={{ color: '#113F67' }}>
+                                Payment History
+                            </h3>
+                            <span className="text-sm text-gray-500">
+                                Total: {totalCount} payments
+                            </span>
+                        </div>
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-[#113F67]/5">
+                                    <TableHead style={{ color: '#113F67' }}>Order Code</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Description</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Email</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Amount Due</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Amount Paid</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Status</TableHead>
+                                    <TableHead style={{ color: '#113F67' }}>Created At</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {payments.map((payment) => (
+                                    <TableRow key={payment.paymentId || payment.orderCode} className="hover:bg-gray-50">
+                                        <TableCell className="font-medium py-3">
+                                            #{payment.orderCode}
+                                        </TableCell>
+                                        <TableCell className="max-w-[300px] whitespace-normal py-3">
+                                            {payment.description}
+                                        </TableCell>
+                                        <TableCell className="py-3">
+                                            {payment.email}
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            {payment.amountDue}
+                                        </TableCell>
+                                        <TableCell className="font-medium text-green-600">
+                                            {payment.amountPaid}
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
+                                                {payment.status}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-gray-500">
+                                            {formatDate(payment.createdAt)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+
+                        {/* Pagination */}
+                        <div className="flex items-center justify-between pt-4 border-t">
+                            <span className="text-sm text-gray-500">
+                                Page {pageNumber} of {totalPages}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setPageNumber(p => Math.max(1, p - 1))}
+                                    disabled={pageNumber === 1}
+                                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setPageNumber(p => Math.min(totalPages, p + 1))}
+                                    disabled={pageNumber === totalPages}
+                                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </WhiteCard>
+            )}
         </div>
     );
 }
