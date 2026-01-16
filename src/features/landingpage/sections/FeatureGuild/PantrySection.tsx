@@ -7,6 +7,7 @@ import { ArrowLeftRight, Image, Camera, Menu } from "lucide-react";
 import ShinyText from "@/components/decoration/ShinyText";
 import { ColorTheme } from "@/constants/color";
 import TextRevealParallax from "@/components/animation/TextRevealParallax";
+import AddFoodDialog from "@/features/landingpage/components/AddFoodDialog";
 import "./PantrySection.css";
 
 const AppleModel = lazy(() => import("@/features/landingpage/components/AppleModel"));
@@ -147,6 +148,7 @@ const INITIAL_FOOD_ITEMS: FoodItem[] = [
 
 const PantrySectionContent = memo(function PantrySectionContent() {
   const [foodItems, setFoodItems] = useState<FoodItem[]>(INITIAL_FOOD_ITEMS);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDrop = useCallback((itemId: string, targetCompartment: string) => {
     setFoodItems((items) =>
@@ -154,6 +156,22 @@ const PantrySectionContent = memo(function PantrySectionContent() {
         item.id === itemId ? { ...item, compartmentId: targetCompartment } : item
       )
     );
+  }, []);
+
+  const handleFoodScan = useCallback(() => {
+    console.log("Food Scan tapped");
+  }, []);
+
+  const handleReceiptScan = useCallback(() => {
+    console.log("Receipt Scan tapped");
+  }, []);
+
+  const handleSearch = useCallback(() => {
+    console.log("Search tapped");
+  }, []);
+
+  const handleBarcodeScan = useCallback(() => {
+    console.log("Barcode Scan tapped");
   }, []);
 
   const fridgeItems = foodItems.filter((item) => item.compartmentId === "fridge");
@@ -321,7 +339,8 @@ const PantrySectionContent = memo(function PantrySectionContent() {
                   </button>
 
                   <button
-                    className="camera-footer-button flex items-center justify-center"
+                    onClick={() => setIsDialogOpen(true)}
+                    className="camera-footer-button flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
                     style={{
                       width: '60px',
                       height: '60px',
@@ -408,6 +427,16 @@ const PantrySectionContent = memo(function PantrySectionContent() {
           </div>
         </div>
       </div>
+
+      <AddFoodDialog
+        title="Add Food Items"
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onFoodScanTap={handleFoodScan}
+        onReceiptScanTap={handleReceiptScan}
+        onSearchTap={handleSearch}
+        onBarcodeScanTap={handleBarcodeScan}
+      />
     </div>
   );
 });

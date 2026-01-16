@@ -212,7 +212,6 @@ function Phone({ scrollProgress, featureProgress, isAtFooter }: { scrollProgress
           if (standard && isWallpaperMaterial && !found) {
             found = true;
             wallpaperMaterialRef.current = standard;
-            console.log('Found wallpaper material:', { meshName, materialName: standard.name });
             if (!standard.emissive) standard.emissive = new THREE.Color(0x000000);
             standard.emissive.set('#000000');
             standard.emissiveIntensity = 0;
