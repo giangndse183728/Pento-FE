@@ -23,28 +23,28 @@ const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
 const FAKE_MEALS_BY_DAY: Record<number, FakeMeal[]> = {
   0: [
-    { id: 1, type: "breakfast", title: "Overnight oats with berries", time: "08:00", status: "fulfilled" },
-    { id: 2, type: "dinner", title: "Baked salmon & roasted veggies", time: "19:00", status: "pending" },
+    { id: 1, type: "breakfast", title: "Overnight Oats with Berries", time: "08:00", status: "fulfilled" },
+    { id: 2, type: "dinner", title: "Baked Salmon & Roasted Veggies", time: "19:00", status: "pending" },
   ],
   1: [
-    { id: 3, type: "lunch", title: "Chicken quinoa bowl", time: "12:30", status: "pending" },
-    { id: 4, type: "snack", title: "Fruit & yogurt parfait", time: "16:00", status: "fulfilled" },
+    { id: 3, type: "lunch", title: "Champurrado", time: "12:30", status: "pending" },
+    { id: 4, type: "snack", title: "Fruit & Yogurt Parfait", time: "16:00", status: "fulfilled" },
   ],
   2: [
-    { id: 5, type: "breakfast", title: "Greek yogurt & granola", time: "07:45", status: "fulfilled" },
-    { id: 6, type: "snack", title: "Apple & peanut butter", time: "16:00", status: "canceled" },
+    { id: 5, type: "breakfast", title: "Greek Yogurt & Granola", time: "07:45", status: "fulfilled" },
+    { id: 6, type: "snack", title: "Apple & Peanut Butter", time: "16:00", status: "canceled" },
   ],
   3: [
-    { id: 7, type: "breakfast", title: "Avocado toast", time: "08:15", status: "pending" },
-    { id: 8, type: "dinner", title: "Grilled chicken & veggies", time: "19:30", status: "pending" },
+    { id: 7, type: "breakfast", title: "Avocado Toast", time: "08:15", status: "pending" },
+    { id: 8, type: "dinner", title: "Grilled Chicken", time: "19:30", status: "pending" },
   ],
   4: [
-    { id: 9, type: "dinner", title: "Veggie stir fry with tofu", time: "18:45", status: "pending" },
-    { id: 10, type: "snack", title: "Hummus & carrots", time: "15:30", status: "fulfilled" },
+    { id: 9, type: "dinner", title: "Tempura - 天ぷら", time: "18:45", status: "pending" },
+    { id: 10, type: "snack", title: "Yakitori - 焼き鳥", time: "15:30", status: "fulfilled" },
   ],
   5: [
-    { id: 11, type: "breakfast", title: "Pancakes & berries", time: "09:00", status: "fulfilled" },
-    { id: 12, type: "lunch", title: "Turkey sandwich", time: "12:45", status: "pending" },
+    { id: 11, type: "breakfast", title: "Okonomiyaki - お好み焼き", time: "09:00", status: "fulfilled" },
+    { id: 12, type: "lunch", title: "Soba Noodles - そば", time: "12:45", status: "pending" },
   ],
   6: [
     { id: 13, type: "lunch", title: "Miso Ramen - ラーメン", time: "13:00", status: "fulfilled" },
@@ -66,7 +66,6 @@ function getMealTypeLabel(type: MealType) {
 }
 
 function getMealTypeIcon(type: MealType) {
-  // Map to PNG icons in public/assets/icon
   switch (type) {
     case "breakfast":
       return { src: "/assets/icon/sun.png", alt: "Breakfast" };
@@ -114,13 +113,8 @@ function getMealStatusChip(status: MealStatus) {
 
 function HouseholdSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  // Align initial selected day with the current weekday (Mon–Sun)
-  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(() => {
-    const today = new Date();
-    const jsDay = today.getDay(); // 0 (Sun) - 6 (Sat)
-    // Map JS day to Mon–Sun index (0 = Mon, 6 = Sun)
-    return (jsDay + 6) % 7;
-  });
+  // Always default to Pento (Sunday) - index 6
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(6);
   const [isSwitchingDay, setIsSwitchingDay] = useState(false);
 
   const todayLabel = new Date().toLocaleDateString(undefined, {
@@ -204,6 +198,7 @@ function HouseholdSection() {
                 {WEEK_DAYS.map((label, idx) => {
                   const isSelected = idx === selectedDayIndex;
 
+                  // Calculate date for each day based on current week
                   const today = new Date();
                   const jsDay = today.getDay(); // 0 (Sun) - 6 (Sat)
                   const mondayIndex = (jsDay + 6) % 7; // index of today in Mon–Sun

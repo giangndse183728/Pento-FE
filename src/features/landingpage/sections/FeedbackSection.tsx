@@ -1,8 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import ProfileCard from "@/components/decoration/ProfileCard";
 import InfiniteScroll from "../components/InfiniteScroll";
+import { AppDialog } from "@/components/decoration/AppDialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ColorTheme } from "@/constants/color";
 
 interface Feedback {
   name: string;
@@ -52,6 +56,16 @@ const feedbackData: Feedback[] = [
 ];
 
 function FeedbackSection() {
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    subject: "",
+    message: "",
+  });
+
   const feedbackItems = feedbackData.map((feedback, index) => ({
     content: (
       <div key={index} className="feedback-card">
@@ -73,6 +87,65 @@ function FeedbackSection() {
       </div>
     )
   }));
+
+  const handleContactClick = () => {
+    setIsContactDialogOpen(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { name, subject, message } = formData;
+    
+    if (!name || !subject || !message) {
+      setSubmitError("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      // Simulate API call with delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Simulate success response
+      console.log("Fake email sent:", { name, subject, message });
+
+      // Success
+      setSubmitSuccess(true);
+      setFormData({
+        name: "",
+        subject: "",
+        message: "",
+      });
+
+      // Close dialog after 2 seconds
+      setTimeout(() => {
+        setIsContactDialogOpen(false);
+        setSubmitSuccess(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Failed to send email. Please try again later."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div 
@@ -109,6 +182,7 @@ function FeedbackSection() {
             enableTilt={true}
             miniAvatarUrl="/logo2.png"
             contactText="Contact Us"
+            onContactClick={handleContactClick}
           />
                 
           <div className="flex flex-row gap-4 w-full max-w-md mb-12">
@@ -133,6 +207,149 @@ function FeedbackSection() {
           </div>
         </div>
       </div>
+
+      <AppDialog
+        open={isContactDialogOpen}
+        onOpenChange={setIsContactDialogOpen}
+        title="Contact Us"
+        maxWidth={500}
+        padding={24}
+        borderRadius={20}
+        borderColor={ColorTheme.powderBlue}
+        borderWidth={4}
+      >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
+          {submitSuccess && (
+            <div
+              className="p-3 rounded-md text-sm"
+              style={{
+                backgroundColor: ColorTheme.babyBlue,
+                color: ColorTheme.darkBlue,
+                border: `1px solid ${ColorTheme.blueGray}`,
+              }}
+            >
+              ✓ Email sent successfully! We'll get back to you soon.
+            </div>
+          )}
+          {submitError && (
+            <div
+              className="p-3 rounded-md text-sm"
+              style={{
+                backgroundColor: "#fee2e2",
+                color: "#991b1b",
+                border: "1px solid #fca5a5",
+              }}
+            >
+              ✗ {submitError}
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="name" className="text-sm font-medium" style={{ color: ColorTheme.darkBlue }}>
+              Name *
+            </label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Your name"
+              required
+              disabled={isSubmitting || submitSuccess}
+              style={{
+                backgroundColor: ColorTheme.iceberg,
+                color: ColorTheme.darkBlue,
+                borderColor: ColorTheme.powderBlue,
+              }}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="subject" className="text-sm font-medium" style={{ color: ColorTheme.darkBlue }}>
+              Subject *
+            </label>
+            <Input
+              id="subject"
+              name="subject"
+              type="text"
+              value={formData.subject}
+              onChange={handleInputChange}
+              placeholder="What is this regarding?"
+              required
+              disabled={isSubmitting || submitSuccess}
+              style={{
+                backgroundColor: ColorTheme.iceberg,
+                color: ColorTheme.darkBlue,
+                borderColor: ColorTheme.powderBlue,
+              }}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="message" className="text-sm font-medium" style={{ color: ColorTheme.darkBlue }}>
+              Message *
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              value={formData.message}
+              onChange={handleInputChange}
+              placeholder="Your message..."
+              required
+              rows={5}
+              disabled={isSubmitting || submitSuccess}
+              className="w-full rounded-md border px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus:ring-[2px] resize-none disabled:opacity-70 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: ColorTheme.iceberg,
+                color: ColorTheme.darkBlue,
+                borderColor: ColorTheme.powderBlue,
+              }}
+              onFocus={(e) => {
+                if (!e.target.disabled) {
+                  e.target.style.borderColor = ColorTheme.blueGray;
+                  e.target.style.boxShadow = `0 0 0 2px ${ColorTheme.powderBlue}40`;
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = ColorTheme.powderBlue;
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          <div className="flex gap-3 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsContactDialogOpen(false);
+                setSubmitError(null);
+                setSubmitSuccess(false);
+              }}
+              className="flex-1"
+              disabled={isSubmitting}
+              style={{
+                borderColor: ColorTheme.powderBlue,
+                color: ColorTheme.darkBlue,
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={isSubmitting || submitSuccess}
+              style={{
+                backgroundColor: ColorTheme.blueGray,
+                color: ColorTheme.iceberg,
+                opacity: isSubmitting || submitSuccess ? 0.7 : 1,
+              }}
+            >
+              {isSubmitting ? "Sending..." : submitSuccess ? "Sent!" : "Send Email"}
+            </Button>
+          </div>
+        </form>
+      </AppDialog>
       
     </div>
     

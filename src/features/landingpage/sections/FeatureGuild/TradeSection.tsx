@@ -1,11 +1,13 @@
 "use client";
 
-import { memo } from "react";
-import { ArrowLeftRight, RotateCcw } from "lucide-react";
+import { memo, useState } from "react";
+import Image from "next/image";
+import { ArrowLeftRight, RotateCcw, MessageSquare, Package } from "lucide-react";
 import { ColorTheme } from "@/constants/color";
 import PlaneTicketCard from "@/features/landingpage/components/PlaneTicketCard";
 
 function TradeSection() {
+  const [activeTab, setActiveTab] = useState<"chat" | "items">("chat");
   return (
     <div className="min-h-screen w-screen flex-shrink-0 flex px-12 py-12">
       <div className="w-full h-full grid grid-cols-[40%_15%_45%] gap-6 items-center z-10">
@@ -23,7 +25,7 @@ function TradeSection() {
                 Trade System
               </div>
               <h3 
-                className="text-4xl font-bold"
+                className="text-4xl font-semibold font-primary"
                 style={{
                   background: `linear-gradient(135deg, ${ColorTheme.powderBlue}, ${ColorTheme.babyBlue}, ${ColorTheme.blueGray})`,
                   WebkitBackgroundClip: 'text',
@@ -31,11 +33,11 @@ function TradeSection() {
                   backgroundClip: 'text',
                 }}
               >
-                Real-Time Trade Sessions
+                Why Trade Food?
               </h3>
               <p className="text-lg text-gray-300 leading-relaxed">
-                Join live trade sessions to chat and manage items in real time, 
-                and quickly swap what you have for what you need.
+                Reduce food waste and build community connections. 
+                Trade your surplus items for what you need, ensuring nothing goes to waste.
               </p>
             </div>
             
@@ -67,7 +69,7 @@ function TradeSection() {
             {/* Title & Description */}
             <div className="flex flex-col gap-3">
               <h3 
-                className="text-3xl font-bold"
+                className="text-3xl font-semibold font-primary"
                 style={{
                   background: `linear-gradient(135deg, ${ColorTheme.powderBlue}, ${ColorTheme.babyBlue})`,
                   WebkitBackgroundClip: 'text',
@@ -75,11 +77,11 @@ function TradeSection() {
                   backgroundClip: 'text',
                 }}
               >
-                Real-Time Communication
+                Powerful Trading Features
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Chat instantly with other users to negotiate trades, 
-                discuss item details, and arrange meetups seamlessly.
+                Real-time messaging, live item tracking, and status updates. 
+                Seamless navigation between chat and trade items.
               </p>
             </div>
 
@@ -127,7 +129,7 @@ function TradeSection() {
 
               {/* Chat Header */}
               <div 
-                className="px-4 py-3 flex items-center gap-3 relative z-10"
+                className="relative z-10"
                 style={{
                   background: `linear-gradient(135deg, 
                     rgba(17, 63, 103, 0.5) 0%, 
@@ -138,24 +140,70 @@ function TradeSection() {
                   boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1)'
                 }}
               >
-                <div className="flex -space-x-2">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-2 ring-white/50 shadow-lg"
-                    style={{ backgroundColor: ColorTheme.powderBlue, color: '#0a0a0f' }}
-                  >
-                    A
+                <div className="px-4 py-3 flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full ring-2 ring-white/50 shadow-lg overflow-hidden">
+                      <Image 
+                        src="/logo2.PNG" 
+                        alt="User A" 
+                        width={32} 
+                        height={32} 
+                        className="w-full h-full object-cover bg-white/80"
+                      />
+                    </div>
+                    <div className="w-8 h-8 rounded-full ring-2 ring-white/50 shadow-lg overflow-hidden">
+                      <Image 
+                        src="/assets/img/profile.png" 
+                        alt="User M" 
+                        width={32} 
+                        height={32} 
+                        className="w-full h-full object-cover bg-white/80"
+                      />
+                    </div>
                   </div>
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ring-2 ring-white/50 shadow-lg"
-                    style={{ backgroundColor: ColorTheme.babyBlue, color: '#0a0a0f' }}
-                  >
-                    M
+                  <div className="flex-1">
+                    <p className="font-medium text-sm" style={{ color: ColorTheme.iceberg }}>Trade Session</p>
                   </div>
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm" style={{ color: ColorTheme.iceberg }}>Trade Session</p>
+                
+                {/* Tab Switcher */}
+                <div className="px-4 flex items-center justify-center gap-2 border-t"
+                  style={{
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                  }}
+                >
+                  <button
+                    onClick={() => setActiveTab("chat")}
+                    className={`flex items-center gap-2 px-4 py-2 text-xs font-medium transition-all relative ${
+                      activeTab === "chat" ? "" : "opacity-60 hover:opacity-80"
+                    }`}
+                    style={{
+                      color: activeTab === "chat" ? ColorTheme.iceberg : ColorTheme.iceberg,
+                      borderBottom: activeTab === "chat" 
+                        ? `2px solid ${ColorTheme.powderBlue}`
+                        : '2px solid transparent',
+                    }}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Messages</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("items")}
+                    className={`flex items-center gap-2 px-4 py-2 text-xs font-medium transition-all relative ${
+                      activeTab === "items" ? "" : "opacity-60 hover:opacity-80"
+                    }`}
+                    style={{
+                      color: activeTab === "items" ? ColorTheme.iceberg : ColorTheme.iceberg,
+                      borderBottom: activeTab === "items" 
+                        ? `2px solid ${ColorTheme.powderBlue}`
+                        : '2px solid transparent',
+                    }}
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    <span>Trade Items</span>
+                  </button>
                 </div>
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
               </div>
 
               {/* Status Indicators */}
@@ -189,7 +237,7 @@ function TradeSection() {
                 
                
                 {/* Pending Status */}
-                <div className="flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg"
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
                   style={{
                     background: 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(10px)',
@@ -197,88 +245,168 @@ function TradeSection() {
                     border: '1px solid rgba(255, 255, 255, 0.5)',
                   }}
                 >
-                  <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0"></div>
+                  <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                   <span className="text-xs font-medium" style={{ color: ColorTheme.darkBlue }}>Pending</span>
                 </div>
               </div>
 
-              {/* Chat Messages - Only 3 */}
-              <div className="px-4 py-4 space-y-3 relative z-10">
-                {/* Maria's message 1 */}
-                <div className="flex gap-2 items-end">
-                  <div 
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-md"
-                    style={{ backgroundColor: ColorTheme.babyBlue, color: '#0a0a0f' }}
-                  >
-                    M
+              {/* Chat Messages */}
+              {activeTab === "chat" && (
+                <div className="px-4 py-4 space-y-3 relative z-10">        
+                  <div className="flex gap-2 items-end">
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 shadow-md overflow-hidden">
+                      <Image 
+                        src="/assets/img/profile.png" 
+                        alt="User M" 
+                        width={24} 
+                        height={24} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div 
+                      className="max-w-[80%] px-3 py-2 rounded-xl rounded-bl-sm"
+                      style={{ 
+                        background: `linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.4) 0%, 
+                          rgba(255, 255, 255, 0.25) 100%)`,
+                        backdropFilter: 'blur(30px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                        boxShadow: `0 4px 16px rgba(0, 0, 0, 0.1),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                          inset 0 -1px 0 rgba(255, 255, 255, 0.2)`,
+                      }}
+                    >
+                      <p className="text-sm" style={{ color: ColorTheme.darkBlue }}>Hey! Are your tomatoes still available? 🍅</p>
+                    </div>
                   </div>
-                  <div 
-                    className="max-w-[80%] px-3 py-2 rounded-xl rounded-bl-sm"
-                    style={{ 
-                      background: `linear-gradient(135deg, 
-                        rgba(255, 255, 255, 0.4) 0%, 
-                        rgba(255, 255, 255, 0.25) 100%)`,
-                      backdropFilter: 'blur(30px) saturate(180%)',
-                      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-                      boxShadow: `0 4px 16px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6),
-                        inset 0 -1px 0 rgba(255, 255, 255, 0.2)`,
-                    }}
-                  >
-                    <p className="text-sm" style={{ color: ColorTheme.darkBlue }}>Hey! Are your tomatoes still available? 🍅</p>
-                  </div>
-                </div>
 
-                {/* Alex's message */}
-                <div className="flex gap-2 items-end justify-end">
-                  <div 
-                    className="max-w-[80%] px-3 py-2 rounded-xl rounded-br-sm"
-                    style={{ 
-                      background: `linear-gradient(135deg, 
-                        rgba(118, 159, 205, 0.85) 0%, 
-                        rgba(17, 63, 103, 0.9) 100%)`,
-                      backdropFilter: 'blur(20px) saturate(150%)',
-                      WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-                      boxShadow: `0 4px 16px rgba(17, 63, 103, 0.2),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                        inset 0 -1px 0 rgba(0, 0, 0, 0.1)`,
-                    }}
-                  >
-                    <p className="text-sm" style={{ color: ColorTheme.iceberg }}>Yes! Want to trade for your bread? 🍞</p>
+                  <div className="flex gap-2 items-end justify-end">
+                    <div 
+                      className="max-w-[80%] px-3 py-2 rounded-xl rounded-br-sm"
+                      style={{ 
+                        background: `linear-gradient(135deg, 
+                          rgba(118, 159, 205, 0.85) 0%, 
+                          rgba(17, 63, 103, 0.9) 100%)`,
+                        backdropFilter: 'blur(20px) saturate(150%)',
+                        WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                        boxShadow: `0 4px 16px rgba(17, 63, 103, 0.2),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                          inset 0 -1px 0 rgba(0, 0, 0, 0.1)`,
+                      }}
+                    >
+                      <p className="text-sm" style={{ color: ColorTheme.iceberg }}>Yes! Want to trade for your bread? 🍞</p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 shadow-md overflow-hidden">
+                      <Image 
+                        src="/logo2.PNG" 
+                        alt="User A" 
+                        width={24} 
+                        height={24} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
-                  <div 
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-md"
-                    style={{ backgroundColor: ColorTheme.powderBlue, color: '#0a0a0f' }}
-                  >
-                    A
-                  </div>
-                </div>
 
-                {/* Maria's message 2 */}
-                <div className="flex gap-2 items-end">
-                  <div 
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-md"
-                    style={{ backgroundColor: ColorTheme.babyBlue, color: '#0a0a0f' }}
-                  >
-                    M
-                  </div>
-                  <div 
-                    className="max-w-[80%] px-3 py-2 rounded-xl rounded-bl-sm"
-                    style={{ 
-                      background: `linear-gradient(135deg, 
-                        rgba(255, 255, 255, 0.4) 0%, 
-                        rgba(255, 255, 255, 0.25) 100%)`,
-                      backdropFilter: 'blur(30px) saturate(180%)',
-                      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-                      boxShadow: `0 4px 16px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6),
-                        inset 0 -1px 0 rgba(255, 255, 255, 0.2)`,
-                    }}
-                  >
-                    <p className="text-sm" style={{ color: ColorTheme.darkBlue }}>Deal! Let's meet at 3pm 📍</p>
+                  <div className="flex gap-2 items-end">
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 shadow-md overflow-hidden">
+                      <Image 
+                        src="/assets/img/profile.png" 
+                        alt="User M" 
+                        width={24} 
+                        height={24} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div 
+                      className="max-w-[80%] px-3 py-2 rounded-xl rounded-bl-sm"
+                      style={{ 
+                        background: `linear-gradient(135deg, 
+                          rgba(255, 255, 255, 0.4) 0%, 
+                          rgba(255, 255, 255, 0.25) 100%)`,
+                        backdropFilter: 'blur(30px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+                        boxShadow: `0 4px 16px rgba(0, 0, 0, 0.1),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                          inset 0 -1px 0 rgba(255, 255, 255, 0.2)`,
+                      }}
+                    >
+                      <p className="text-sm" style={{ color: ColorTheme.darkBlue }}>Deal! Let's meet at 3pm 📍</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Trade Items */}
+              {activeTab === "items" && (
+                <div className="px-4 py-4 relative z-10">
+                  <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
+                    {/* Column A - Your Items */}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 rounded-full flex-shrink-0 shadow-md overflow-hidden">
+                          <Image 
+                            src="/logo2.PNG" 
+                            alt="User A" 
+                            width={24} 
+                            height={24} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="text-xs font-semibold" style={{ color: ColorTheme.darkBlue }}>Your Items</span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div 
+                          className="px-3 py-2 rounded-lg bg-white"
+                          style={{ 
+                            border: '1px solid rgba(118, 159, 205, 0.2)',
+                          }}
+                        >
+                          <span className="text-sm" style={{ color: ColorTheme.darkBlue }}>Fresh Tomatoes 🍅</span>
+                        </div>
+                        <div 
+                          className="px-3 py-2 rounded-lg bg-white"
+                          style={{ 
+                            border: '1px solid rgba(118, 159, 205, 0.2)',
+                          }}
+                        >
+                          <span className="text-sm" style={{ color: ColorTheme.darkBlue }}>Organic Eggs 🥚</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Trade Arrow - Center */}
+                    <div className="flex items-center justify-center pt-8">
+                      <ArrowLeftRight className="w-5 h-5" style={{ color: ColorTheme.powderBlue }} />
+                    </div>
+
+                    {/* Column B - Their Items */}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 rounded-full flex-shrink-0 shadow-md overflow-hidden">
+                          <Image 
+                            src="/assets/img/profile.png" 
+                            alt="User M" 
+                            width={24} 
+                            height={24} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <span className="text-xs font-semibold" style={{ color: ColorTheme.darkBlue }}>Their Items</span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div 
+                          className="px-3 py-2 rounded-lg bg-white"
+                          style={{ 
+                            border: '1px solid rgba(118, 159, 205, 0.2)',
+                          }}
+                        >
+                          <span className="text-sm" style={{ color: ColorTheme.darkBlue }}>Fresh Bread 🍞</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
